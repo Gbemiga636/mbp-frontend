@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f6f2ee" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Admin Login — MBP Lingerie</title>
+    <link rel="icon" href="../assets/Logo.PNG" />
+    <link rel="stylesheet" href="../styles.css?v=20260106_5" />
+    <link rel="stylesheet" href="admin.css?v=20260106_8" />
+  </head>
+
+  <body>
+    <header class="header" id="top">
+      <a class="header__logo" href="../index.html" aria-label="MBP Home">
+        <img src="../assets/Logo.PNG" alt="MBP Lingerie" />
+      </a>
+    </header>
+
+    <main class="admin-login" aria-label="Admin login">
+      <div class="admin-card admin-login__card">
+        <h1 class="admin-card__title">Admin Login</h1>
+        <p class="admin-card__sub">This page is for MBP administrators only.</p>
+
+        <div class="notice" id="adminNotice" hidden></div>
+
+        <form id="adminLoginForm" class="admin" style="padding: 12px 0 0;">
+          <div class="admin-grid">
+            <div class="admin-field" style="grid-column: 1 / -1;">
+              <label for="adminEmail">Email</label>
+              <input id="adminEmail" type="email" autocomplete="email" required />
+            </div>
+
+            <div class="admin-field" style="grid-column: 1 / -1;">
+              <label for="adminPassword">Password</label>
+              <input id="adminPassword" type="password" autocomplete="current-password" required />
+            </div>
+
+            <div class="admin-row" style="justify-content: flex-end; grid-column: 1 / -1;">
+              <button class="btn" type="submit">Sign in</button>
+            </div>
+          </div>
+        </form>
+
+        <div class="admin-mini" style="margin-top: 10px;">
+          Tip: make sure the backend is running (default: <b>http://localhost:4000</b>).
+        </div>
+      </div>
+    </main>
+
+    <script src="../config.js?v=20260107_1"></script>
+    <script src="admin.js?v=20260107_1"></script>
+  </body>
+</html>

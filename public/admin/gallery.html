@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f6f2ee" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Admin — Gallery</title>
+    <link rel="icon" href="../assets/Logo.PNG" />
+    <link rel="stylesheet" href="../styles.css?v=20260106_5" />
+    <link rel="stylesheet" href="admin.css?v=20260106_8" />
+  </head>
+
+  <body data-admin-auth="true" data-admin-page="gallery">
+    <header class="header" id="top">
+      <a class="header__logo" href="../index.html" aria-label="MBP Home">
+        <img src="../assets/Logo.PNG" alt="MBP Lingerie" />
+      </a>
+
+      <a class="icon-btn header__right" href="#" id="adminLogout" aria-label="Logout">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+          <path d="M10 17l5-5-5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M15 12H3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          <path d="M21 3v18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </a>
+    </header>
+
+    <main class="admin" aria-label="Admin gallery">
+      <div class="admin__inner">
+        <div class="page__head" style="margin-bottom: 14px;">
+          <p class="page__kicker">Admin</p>
+          <h1 class="page__title">Gallery Editor</h1>
+          <p class="page__sub">Edit, add, and delete gallery videos/pictures and captions.</p>
+        </div>
+
+        <div class="notice notice--empty" id="adminNotice"></div>
+
+        <div class="admin-shell">
+          <aside class="admin-nav" aria-label="Admin navigation">
+            <div class="admin-nav__title">Dashboard</div>
+            <div class="admin-nav__links">
+              <a href="home.html">Home</a>
+              <a href="store.html">Store</a>
+              <a href="gallery.html" aria-current="page">Gallery</a>
+              <a href="orders.html">Orders</a>
+              <a href="delivery.html">Delivery Fee</a>
+            </div>
+          </aside>
+
+          <section aria-label="Gallery editors">
+            <div class="admin-card">
+              <h2 class="admin-card__title">Add new gallery item</h2>
+              <p class="admin-card__sub">Upload a picture/video and add a caption. No manual URL needed.</p>
+
+              <form id="galleryAddForm">
+                <div class="admin-grid">
+                  <div class="admin-field">
+                    <label>Type</label>
+                    <select name="type">
+                      <option value="image">Image</option>
+                      <option value="video">Video</option>
+                    </select>
+                  </div>
+
+                  <div class="admin-field">
+                    <label>Preview</label>
+                    <div data-role="addThumb" style="width:84px; height:84px; border-radius:14px; overflow:hidden; border:1px solid rgba(18,18,22,0.10); background:rgba(255,255,255,0.75);">
+                      <div class="admin-mini" style="padding:10px;">No media</div>
+                    </div>
+                  </div>
+
+                  <div class="admin-field" style="grid-column: 1 / -1;">
+                    <label>Media (auto-filled after upload)</label>
+                    <input name="src" type="text" placeholder="Upload a file to fill this" required />
+                    <div class="admin-mini admin-uploadRow" style="margin-top:6px;">Upload: <input type="file" data-action="gallery-add-upload" accept="image/*,video/*" />
+                      <span class="admin-uploadStatus" data-role="addUploadStatus" hidden><span class="spinner" aria-hidden="true"></span><span data-role="busyText">Uploading…</span></span>
+                    </div>
+                  </div>
+
+                  <div class="admin-field" style="grid-column: 1 / -1;">
+                    <label>Caption</label>
+                    <textarea name="caption"></textarea>
+                  </div>
+
+                  <div class="admin-row" style="grid-column: 1 / -1; justify-content: flex-end;">
+                    <button class="btn" type="submit">Add gallery item</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <div class="admin-card">
+              <h2 class="admin-card__title">All gallery items</h2>
+              <p class="admin-card__sub">Save changes per item. Delete removes it from the site.</p>
+              <div class="admin-list" id="galleryList"></div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <script src="../config.js?v=20260107_1"></script>
+    <script src="admin.js?v=20260107_1"></script>
+  </body>
+</html>

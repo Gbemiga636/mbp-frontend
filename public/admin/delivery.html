@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f6f2ee" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Admin — Delivery Fee</title>
+    <link rel="icon" href="../assets/Logo.PNG" />
+    <link rel="stylesheet" href="../styles.css?v=20260106_5" />
+    <link rel="stylesheet" href="admin.css?v=20260106_8" />
+  </head>
+
+  <body data-admin-auth="true" data-admin-page="delivery">
+    <header class="header" id="top">
+      <a class="header__logo" href="../index.html" aria-label="MBP Home">
+        <img src="../assets/Logo.PNG" alt="MBP Lingerie" />
+      </a>
+
+      <a class="icon-btn header__right" href="#" id="adminLogout" aria-label="Logout">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+          <path d="M10 17l5-5-5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M15 12H3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          <path d="M21 3v18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </a>
+    </header>
+
+    <main class="admin" aria-label="Admin delivery">
+      <div class="admin__inner">
+        <div class="page__head" style="margin-bottom: 14px;">
+          <p class="page__kicker">Admin</p>
+          <h1 class="page__title">Delivery Fee</h1>
+          <p class="page__sub">Update the delivery fee used in cart totals.</p>
+        </div>
+
+        <div class="notice" id="adminNotice" hidden></div>
+
+        <div class="admin-shell">
+          <aside class="admin-nav" aria-label="Admin navigation">
+            <div class="admin-nav__title">Dashboard</div>
+            <div class="admin-nav__links">
+              <a href="home.html">Home</a>
+              <a href="store.html">Store</a>
+              <a href="gallery.html">Gallery</a>
+              <a href="orders.html">Orders</a>
+              <a href="delivery.html" aria-current="page">Delivery Fee</a>
+            </div>
+          </aside>
+
+          <section aria-label="Delivery fee editor">
+            <div class="admin-card">
+              <h2 class="admin-card__title">Set delivery fee (NGN)</h2>
+              <p class="admin-card__sub">This updates immediately on the backend.</p>
+
+              <div class="admin-grid">
+                <div class="admin-field" style="grid-column: 1 / -1;">
+                  <label for="deliveryFee">Delivery fee</label>
+                  <input id="deliveryFee" type="number" min="0" step="1" />
+                </div>
+
+                <div class="admin-row" style="grid-column: 1 / -1; justify-content: flex-end;">
+                  <button class="btn" type="button" id="deliverySave">Save delivery fee</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <script src="../config.js?v=20260107_1"></script>
+    <script src="admin.js?v=20260107_1"></script>
+  </body>
+</html>

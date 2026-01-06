@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f6f2ee" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Admin — Store</title>
+    <link rel="icon" href="../assets/Logo.PNG" />
+    <link rel="stylesheet" href="../styles.css?v=20260106_5" />
+    <link rel="stylesheet" href="admin.css?v=20260106_8" />
+  </head>
+
+  <body data-admin-auth="true" data-admin-page="store">
+    <header class="header" id="top">
+      <a class="header__logo" href="../index.html" aria-label="MBP Home">
+        <img src="../assets/Logo.PNG" alt="MBP Lingerie" />
+      </a>
+
+      <a class="icon-btn header__right" href="#" id="adminLogout" aria-label="Logout">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+          <path d="M10 17l5-5-5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M15 12H3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          <path d="M21 3v18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </a>
+    </header>
+
+    <main class="admin" aria-label="Admin store">
+      <div class="admin__inner">
+        <div class="page__head" style="margin-bottom: 14px;">
+          <p class="page__kicker">Admin</p>
+          <h1 class="page__title">Store Editor</h1>
+          <p class="page__sub">Edit, add, and delete products in the store.</p>
+        </div>
+
+        <div class="notice notice--empty" id="adminNotice"></div>
+
+        <div class="admin-shell">
+          <aside class="admin-nav" aria-label="Admin navigation">
+            <div class="admin-nav__title">Dashboard</div>
+            <div class="admin-nav__links">
+              <a href="home.html">Home</a>
+              <a href="store.html" aria-current="page">Store</a>
+              <a href="gallery.html">Gallery</a>
+              <a href="orders.html">Orders</a>
+              <a href="delivery.html">Delivery Fee</a>
+            </div>
+          </aside>
+
+          <section class="admin-main">
+            <div class="admin-card">
+              <h2 class="admin-card__title">Add New Product</h2>
+              <p class="admin-card__sub">Add a product, then it will appear on the public Store page.</p>
+              <form class="admin-form" id="storeAddForm">
+                <div class="admin-grid">
+                  <div class="admin-field">
+                    <label>Category</label>
+                    <select name="category" required>
+                      <option value="lingerie">Lingerie</option>
+                      <option value="underwear">Underwear</option>
+                      <option value="pyjamas">Pyjamas</option>
+                      <option value="nightwear">Nightwear</option>
+                    </select>
+                  </div>
+
+                  <div class="admin-field">
+                    <label>Price (NGN)</label>
+                    <input type="number" name="price" min="0" step="1" required />
+                  </div>
+
+                  <div class="admin-field" style="grid-column:1/-1;">
+                    <label>Name</label>
+                    <input type="text" name="name" required />
+                  </div>
+
+                  <div class="admin-field">
+                    <label>Preview</label>
+                    <div data-role="addThumb" style="width:84px; height:84px; border-radius:14px; overflow:hidden; border:1px solid rgba(18,18,22,0.10); background:rgba(255,255,255,0.75);">
+                      <div class="admin-mini" style="padding:10px;">No image</div>
+                    </div>
+                  </div>
+
+                  <div class="admin-field" style="grid-column:1/-1;">
+                    <label>Image URL</label>
+                    <input type="text" name="image" placeholder="assets/lingerie1.jpeg or https://... (Cloudinary)" />
+                    <div class="admin-mini admin-uploadRow" style="margin-top:6px;">Or upload: <input type="file" data-action="store-add-upload" accept="image/*" />
+                      <span class="admin-uploadStatus" data-role="addUploadStatus" hidden><span class="spinner" aria-hidden="true"></span><span data-role="busyText">Uploading…</span></span>
+                    </div>
+                  </div>
+
+                  <div class="admin-field" style="grid-column:1/-1;">
+                    <label>Description</label>
+                    <textarea name="desc" required></textarea>
+                  </div>
+
+                  <div class="admin-field" style="grid-column:1/-1;">
+                    <label>Available sizes (comma separated)</label>
+                    <input type="text" name="sizes" placeholder="S, M, L, XL" required />
+                  </div>
+                </div>
+
+                <div class="admin-row" style="margin-top: 10px;">
+                  <button class="btn" type="submit">Add product</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="admin-card">
+              <h2 class="admin-card__title">All Products</h2>
+              <p class="admin-card__sub">Upload to preview, then click “Save changes” to publish.</p>
+              <div class="admin-list" id="storeList">
+                <div class="loading">Loading products...</div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <script src="../config.js?v=20260107_1"></script>
+    <script src="admin.js?v=20260107_1"></script>
+  </body>
+</html>

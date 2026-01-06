@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f6f2ee" />
+    <title>MBP Lingerie</title>
+    <link rel="icon" href="assets/Logo.PNG" />
+    <link rel="preload" as="video" href="assets/mbpvid2.mp4" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <!-- Loader -->
+    <div class="loader" id="loader" aria-label="Loading" role="status">
+      <div class="loader__bg" aria-hidden="true"></div>
+      <div class="loader__mark" aria-hidden="true">
+        <div class="loader__light"></div>
+      </div>
+      <div class="loader__text" aria-hidden="true">
+        <span class="loader__letter" style="--d: 0ms">M</span>
+        <span class="loader__letter" style="--d: 320ms">B</span>
+        <span class="loader__letter" style="--d: 640ms" id="loaderLast">P</span>
+      </div>
+      <div class="loader__hint" aria-hidden="true">Elegance is loading…</div>
+    </div>
+
+    <!-- Slide-in menu -->
+    <div class="scrim" id="scrim" hidden></div>
+    <aside class="menu" id="menu" aria-hidden="true">
+      <div class="menu__top">
+        <div class="menu__brand">
+          <img src="assets/Logo.PNG" alt="MBP" class="menu__logo" />
+          <div class="menu__name">MBP LINGERIE</div>
+        </div>
+        <button class="icon-btn" type="button" id="closeMenu" aria-label="Close menu">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+
+      <nav class="menu__links" aria-label="Primary">
+        <a class="menu__link" href="index.html">Home</a>
+        <a class="menu__link" href="store.html">Store</a>
+        <a class="menu__link" href="gallery.html">Gallery</a>
+        <a class="menu__link" href="terms.html">Terms &amp; Conditions</a>
+        <a class="menu__link" href="privacy.html">Privacy Policy</a>
+        <a class="menu__link" href="contact.html">Contact Us</a>
+      </nav>
+
+      <div class="menu__footer">
+        <div class="menu__fine">Luxury. Confidence. You.</div>
+      </div>
+    </aside>
+
+    <header class="header" id="top">
+      <button class="icon-btn header__left" type="button" id="openMenu" aria-label="Open menu" aria-controls="menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </button>
+
+      <a class="header__logo" href="#top" aria-label="MBP Home">
+        <img src="assets/Logo.PNG" alt="MBP Lingerie" />
+      </a>
+
+      <a class="icon-btn header__right" href="cart.html" aria-label="Open cart">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+          <path
+            d="M6.5 7.5h14l-1.4 7.5H8.2L6.5 7.5ZM6.5 7.5 5.8 4.5H3.5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path d="M9 19.2a1.3 1.3 0 1 0 0 .01M18 19.2a1.3 1.3 0 1 0 0 .01" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </a>
+    </header>
+
+    <main>
+      <!-- Hero -->
+      <section class="hero" aria-label="Hero">
+        <video class="hero__video" id="heroVideo" autoplay muted loop playsinline preload="auto">
+          <source id="heroVideoSource" src="assets/mbpvid2.mp4" type="video/mp4" />
+        </video>
+        <div class="hero__overlay" aria-hidden="true"></div>
+
+        <div class="hero__content">
+          <p class="hero__kicker">MBP LINGERIE</p>
+          <h1 class="hero__title">
+            Wear your power.<br />
+            Let elegance glow.
+          </h1>
+          <p class="hero__sub">
+            A quiet luxury made for bold women—glass-smooth, light-kissed, unforgettable.
+          </p>
+          <div class="hero__cta">
+            <a class="btn" href="store.html">Shop the Store</a>
+            <a class="btn btn--ghost" href="#products">Explore Highlights</a>
+          </div>
+        </div>
+
+        <div class="hero__lights" aria-hidden="true">
+          <div class="orb orb--a"></div>
+          <div class="orb orb--b"></div>
+        </div>
+      </section>
+
+      <!-- Quote 1 -->
+      <section class="quote" aria-label="Poetic quote">
+        <div class="quote__card">
+          <p class="quote__text">
+            Lingerie is not just lace—<span class="grad">it’s a love letter to your body</span>:
+            a quiet vow to move softly, to glow boldly, and to be held by your own gaze.
+          </p>
+        </div>
+      </section>
+
+      <!-- Products -->
+      <section class="products" id="products" aria-label="Featured products">
+        <div class="section-head">
+          <h2 class="section-title">Featured Pieces</h2>
+          <p class="section-sub">Five favorites, designed to feel like light on skin.</p>
+        </div>
+
+        <div class="carousel" id="carousel" aria-label="Product carousel">
+          <article class="product-card" tabindex="0" data-id="crimson-halo-set" data-name="Crimson Halo Set" data-price="45000" data-image="assets/lingerie1.jpeg">
+            <div class="product-card__img">
+              <button class="product-card__imgBtn" type="button" aria-label="View Crimson Halo Set image">
+                <img src="assets/lingerie1.jpeg" alt="Crimson Halo Set" loading="lazy" />
+              </button>
+            </div>
+            <div class="product-card__body">
+              <div class="product-card__top">
+                <h3 class="product-card__name">Crimson Halo Set</h3>
+                <div class="product-card__price">₦45,000</div>
+              </div>
+              <p class="product-card__desc">A sculpted silhouette with a soft-glow finish—made for slow nights and bold entrances.</p>
+              <div class="product-card__sizes">Available sizes: S, M, L, XL</div>
+              <div class="product-card__swatches" aria-label="Color options">
+                <span class="swatch" style="--c: #a43a44" aria-hidden="true"></span>
+                <span class="swatch" style="--c: #23202a" aria-hidden="true"></span>
+                <span class="swatch" style="--c: #caa36b" aria-hidden="true"></span>
+              </div>
+              <div class="product-card__actions">
+                <button class="btn btn--card add-to-cart" type="button">Add to Cart</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="product-card" tabindex="0" data-id="moonlit-satin-nightdress" data-name="Moonlit Satin Nightdress" data-price="38500" data-image="assets/nightwear1.jpeg">
+            <div class="product-card__img">
+              <button class="product-card__imgBtn" type="button" aria-label="View Moonlit Satin Nightdress image">
+                <img src="assets/nightwear1.jpeg" alt="Moonlit Satin Nightdress" loading="lazy" />
+              </button>
+            </div>
+            <div class="product-card__body">
+              <div class="product-card__top">
+                <h3 class="product-card__name">Moonlit Satin Nightdress</h3>
+                <div class="product-card__price">₦38,500</div>
+              </div>
+              <p class="product-card__desc">Liquid-smooth satin drape, with a whisper of shine—comfort that looks like luxury.</p>
+              <div class="product-card__sizes">Available sizes: M, L, XL</div>
+              <div class="product-card__swatches" aria-label="Color options">
+                <span class="swatch" style="--c: #e2c9c7" aria-hidden="true"></span>
+                <span class="swatch" style="--c: #1a1a1f" aria-hidden="true"></span>
+                <span class="swatch" style="--c: #b8c7d7" aria-hidden="true"></span>
+              </div>
+              <div class="product-card__actions">
+                <button class="btn btn--card add-to-cart" type="button">Add to Cart</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="product-card" tabindex="0" data-id="velvet-temptation-set" data-name="Velvet Temptation Set" data-price="52000" data-image="assets/lingerie2.jpeg">
+            <div class="product-card__img">
+              <button class="product-card__imgBtn" type="button" aria-label="View Velvet Temptation Set image">
+                <img src="assets/lingerie2.jpeg" alt="Velvet Temptation Set" loading="lazy" />
+              </button>
+            </div>
+            <div class="product-card__body">
+              <div class="product-card__top">
+                <h3 class="product-card__name">Velvet Temptation Set</h3>
+                <div class="product-card__price">₦52,000</div>
+              </div>
+              <p class="product-card__desc">A clean, confident line—finished with glassy highlights that catch every room’s light.</p>
+              <div class="product-card__sizes">Available sizes: 34C, 36C, 38C</div>
+              <div class="product-card__swatches" aria-label="Color options">
+                <span class="swatch" style="--c: #2b2a33" aria-hidden="true"></span>
+                <span class="swatch" style="--c: #7f2a55" aria-hidden="true"></span>
+                <span class="swatch" style="--c: #d1b28a" aria-hidden="true"></span>
+              </div>
+              <div class="product-card__actions">
+                <button class="btn btn--card add-to-cart" type="button">Add to Cart</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="product-card" tabindex="0" data-id="starlight-lounge-slip" data-name="Starlight Lounge Slip" data-price="34000" data-image="assets/nightwear4.jpeg">
+            <div class="product-card__img">
+              <button class="product-card__imgBtn" type="button" aria-label="View Starlight Lounge Slip image">
+                <img src="assets/nightwear4.jpeg" alt="Starlight Lounge Slip" loading="lazy" />
+              </button>
+            </div>
+            <div class="product-card__body">
+              <div class="product-card__top">
+                <h3 class="product-card__name">Starlight Lounge Slip</h3>
+                <div class="product-card__price">₦34,000</div>
+              </div>
+              <p class="product-card__desc">Light as air, rich in detail—made for mornings that feel like a private runway.</p>
+              <div class="product-card__sizes">Available sizes: S, M, L</div>
+              <div class="product-card__swatches" aria-label="Color options">
+                <span class="swatch" style="--c: #efe6df" aria-hidden="true"></span>
+                <span class="swatch" style="--c: #2a2a2e" aria-hidden="true"></span>
+                <span class="swatch" style="--c: #b46a6d" aria-hidden="true"></span>
+              </div>
+              <div class="product-card__actions">
+                <button class="btn btn--card add-to-cart" type="button">Add to Cart</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="product-card" tabindex="0" data-id="golden-hour-lace-set" data-name="Golden Hour Lace Set" data-price="49500" data-image="assets/lingerie4.jpeg">
+            <div class="product-card__img">
+              <button class="product-card__imgBtn" type="button" aria-label="View Golden Hour Lace Set image">
+                <img src="assets/lingerie4.jpeg" alt="Golden Hour Lace Set" loading="lazy" />
+              </button>
+            </div>
+            <div class="product-card__body">
+              <div class="product-card__top">
+                <h3 class="product-card__name">Golden Hour Lace Set</h3>
+                <div class="product-card__price">₦49,500</div>
+              </div>
+              <p class="product-card__desc">Lace that glows softly—romance, refined. Designed to feel delicate, never fragile.</p>
+              <div class="product-card__sizes">Available sizes: 34C, 36C, 38C</div>
+              <div class="product-card__swatches" aria-label="Color options">
+                <span class="swatch" style="--c: #d6b07c" aria-hidden="true"></span>
+                <span class="swatch" style="--c: #a84b57" aria-hidden="true"></span>
+                <span class="swatch" style="--c: #1f1e26" aria-hidden="true"></span>
+              </div>
+              <div class="product-card__actions">
+                <button class="btn btn--card add-to-cart" type="button">Add to Cart</button>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="products__cta">
+          <a class="btn" href="store.html">View More in Store</a>
+        </div>
+      </section>
+
+      <!-- Collage background section -->
+      <section class="collage" aria-label="Collage" role="img"></section>
+
+      <!-- Quote 2 -->
+      <section class="quote" aria-label="Poetic quote">
+        <div class="quote__card quote__card--alt">
+          <p class="quote__text">
+            In every stitch, a secret.<br />
+            In every strap, a spell.<br />
+            In every curve, a soft rebellion—<br />
+            <span class="grad">a universe that learns to adore itself.</span>
+          </p>
+        </div>
+      </section>
+
+      <!-- Reviews -->
+      <section class="reviews" aria-label="Customer reviews">
+        <div class="section-head">
+          <h2 class="section-title">Loved Across Nigeria</h2>
+          <p class="section-sub">Words from those who chose MBP.</p>
+        </div>
+
+        <div class="reviews__carousel" id="reviewsCarousel" aria-label="Reviews carousel">
+          <article class="review">
+            <div class="review__stars" aria-hidden="true">★★★★★</div>
+            <p class="review__text">The fit is unreal. It feels expensive, looks luxurious, and the finishing is so neat. I’m obsessed.</p>
+            <div class="review__meta">Ada — Lagos</div>
+          </article>
+
+          <article class="review">
+            <div class="review__stars" aria-hidden="true">★★★★★</div>
+            <p class="review__text">I didn’t expect the fabric to feel this soft. The packaging alone screamed class. Worth every naira.</p>
+            <div class="review__meta">Zainab — Abuja (FCT)</div>
+          </article>
+
+          <article class="review">
+            <div class="review__stars" aria-hidden="true">★★★★★</div>
+            <p class="review__text">I wore it once and my confidence level went up instantly. The design is bold but still elegant.</p>
+            <div class="review__meta">Amarachi — Rivers</div>
+          </article>
+
+          <article class="review">
+            <div class="review__stars" aria-hidden="true">★★★★★</div>
+            <p class="review__text">Everything about it is premium—stitching, straps, fit. It sits perfectly and photographs beautifully.</p>
+            <div class="review__meta">Damilola — Oyo</div>
+          </article>
+
+          <article class="review">
+            <div class="review__stars" aria-hidden="true">★★★★★</div>
+            <p class="review__text">Fast delivery, excellent quality, and it looks exactly like the pictures. I’m coming back for more.</p>
+            <div class="review__meta">Ngozi — Enugu</div>
+          </article>
+        </div>
+      </section>
+
+      <!-- Video background band section -->
+      <section class="video-band" aria-label="Ambient video">
+        <video class="video-band__video" autoplay muted loop playsinline preload="auto" poster="assets/Pic.png">
+          <source src="assets/mbpvid1.mp4" type="video/mp4" />
+        </video>
+        <div class="video-band__overlay" aria-hidden="true"></div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="footer" aria-label="Footer">
+        <div class="footer__inner">
+          <div class="footer__col">
+            <div class="footer__brand">
+              <img src="assets/Logo.PNG" alt="MBP Lingerie" class="footer__logo" />
+              <div class="footer__brandText">
+                <div class="footer__brandName">MBP LINGERIE</div>
+                <div class="footer__tag">Soft luxury, made to glow.</div>
+              </div>
+            </div>
+
+            <div class="footer__connect">
+              <div class="footer__connectTitle">Connect with us</div>
+              <form class="footer__form" action="#" method="post">
+                <label class="sr-only" for="email">Email</label>
+                <input id="email" name="email" type="email" placeholder="Enter your email" autocomplete="email" />
+                <button class="btn" type="submit">Join</button>
+              </form>
+              <div class="footer__thanks" id="footerThanks" hidden>Thank you for choosing us.</div>
+              <div class="footer__fine">No spam. Just new drops and private offers.</div>
+            </div>
+          </div>
+
+          <div class="footer__col footer__col--links">
+            <div class="footer__title">Quicklinks</div>
+            <a href="store.html">Store</a>
+            <a href="gallery.html">Gallery</a>
+            <a href="terms.html">Terms &amp; Conditions</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="contact.html">Contact Us</a>
+          </div>
+
+          <div class="footer__col footer__col--contact">
+            <div class="footer__title">Contact Us</div>
+            <div class="footer__chips" aria-label="Contact options">
+              <a class="contact-chip" href="https://wa.me/2348087504905" target="_blank" rel="noreferrer" aria-label="Chat on WhatsApp">
+                <i class="fa-solid fa-comment-dots" aria-hidden="true"></i>
+                <span>WhatsApp</span>
+              </a>
+              <a class="contact-chip" href="tel:+2348087504905" aria-label="Call MBP">
+                <i class="fa-solid fa-phone" aria-hidden="true"></i>
+                <span>Call</span>
+              </a>
+              <a class="contact-chip" href="mailto:mbplingerie@gmail.com" aria-label="Email MBP">
+                <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                <span>Email</span>
+              </a>
+            </div>
+            <div class="footer__line">WhatsApp: 08087504905</div>
+            <div class="footer__line">Email: mbplingerie@gmail.com</div>
+            <div class="footer__line">Nigeria</div>
+          </div>
+        </div>
+
+        <div class="footer__bottom">
+          <div>© <span id="year"></span> MBP Lingerie. All rights reserved.</div>
+        </div>
+      </footer>
+    </main>
+
+    <!-- Floating WhatsApp -->
+    <a class="whatsapp" href="https://wa.me/2348087504905" target="_blank" rel="noreferrer" aria-label="Chat on WhatsApp">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <path
+          fill="currentColor"
+          d="M20.5 12.05c0 4.64-3.78 8.4-8.45 8.4-1.44 0-2.8-.36-4-.98l-4.55 1.2 1.28-4.38A8.25 8.25 0 0 1 3.6 12.05c0-4.64 3.78-8.4 8.45-8.4s8.45 3.76 8.45 8.4Zm-4.78 4.16c-.22-.12-1.3-.64-1.5-.72-.2-.08-.35-.12-.5.12-.15.24-.58.72-.71.87-.13.15-.27.17-.49.05-.22-.12-.93-.34-1.78-1.09-.66-.59-1.1-1.33-1.23-1.55-.13-.22-.01-.34.11-.45.1-.1.22-.26.33-.39.11-.13.15-.22.22-.36.07-.14.03-.27-.02-.39-.05-.12-.5-1.2-.69-1.65-.18-.44-.36-.38-.5-.38l-.43-.01c-.15 0-.39.06-.6.27-.2.21-.78.76-.78 1.86s.8 2.15.91 2.3c.11.15 1.57 2.39 3.8 3.35.53.23.95.36 1.27.46.53.17 1.01.15 1.39.09.42-.06 1.3-.53 1.48-1.05.18-.52.18-.97.13-1.05-.05-.08-.2-.14-.42-.26Z"
+        />
+      </svg>
+    </a>
+
+    <!-- Image Lightbox -->
+    <div class="lightbox" id="lightbox" hidden>
+      <div class="lightbox__scrim" id="lightboxScrim" aria-hidden="true"></div>
+      <div class="lightbox__dialog" role="dialog" aria-modal="true" aria-label="Full image">
+        <button class="icon-btn lightbox__close" type="button" id="lightboxClose" aria-label="Close image">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+        <img class="lightbox__img" id="lightboxImg" alt="" />
+      </div>
+    </div>
+
+    <!-- Size picker (Featured Pieces) -->
+    <div class="size-modal" id="sizeModal" hidden>
+      <div class="size-modal__scrim" id="sizeScrim" aria-hidden="true"></div>
+      <div class="size-modal__dialog" role="dialog" aria-modal="true" aria-label="Choose size">
+        <div class="size-modal__head">
+          <div class="size-modal__title">Choose your size</div>
+          <button class="icon-btn" type="button" id="sizeClose" aria-label="Close">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+          </button>
+        </div>
+        <div class="size-modal__body">
+          <div class="size-modal__product" id="sizeProduct">Item</div>
+          <div class="size-modal__hint" id="sizeHint">Available sizes: —</div>
+          <label class="size-modal__label" for="sizeInput">Enter size</label>
+          <input class="size-modal__input" id="sizeInput" type="text" inputmode="text" autocomplete="off" placeholder="e.g. M / L / XL or 34C" />
+          <div class="size-modal__actions">
+            <button class="btn btn--cookieGhost" type="button" id="sizeCancel">Cancel</button>
+            <button class="btn" type="button" id="sizeConfirm">Add to Cart</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cookie consent -->
+    <div class="cookie" id="cookieBanner" hidden>
+      <div class="cookie__inner" role="dialog" aria-label="Cookie preferences" aria-live="polite">
+        <div class="cookie__text">
+          <div class="cookie__title">Cookies</div>
+          <div class="cookie__desc">
+            We use essential cookies to keep your cart working. You can accept all cookies or reject non-essential cookies.
+          </div>
+        </div>
+        <div class="cookie__actions">
+          <button class="btn btn--cookie" type="button" id="cookieAccept">Accept</button>
+          <button class="btn btn--cookieGhost" type="button" id="cookieReject">Reject</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="config.js?v=20260106"></script>
+    <script src="main.js?v=20260106"></script>
+  </body>
+</html>

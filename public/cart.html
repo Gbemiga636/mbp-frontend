@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f6f2ee" />
+    <title>Cart — MBP Lingerie</title>
+    <link rel="icon" href="assets/Logo.PNG" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <!-- Slide-in menu -->
+    <div class="scrim" id="scrim" hidden></div>
+    <aside class="menu" id="menu" aria-hidden="true">
+      <div class="menu__top">
+        <div class="menu__brand">
+          <img src="assets/Logo.PNG" alt="MBP" class="menu__logo" />
+          <div class="menu__name">MBP LINGERIE</div>
+        </div>
+        <button class="icon-btn" type="button" id="closeMenu" aria-label="Close menu">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+
+      <nav class="menu__links" aria-label="Primary">
+        <a class="menu__link" href="index.html">Home</a>
+        <a class="menu__link" href="store.html">Store</a>
+        <a class="menu__link" href="gallery.html">Gallery</a>
+        <a class="menu__link" href="terms.html">Terms &amp; Conditions</a>
+        <a class="menu__link" href="privacy.html">Privacy Policy</a>
+        <a class="menu__link" href="contact.html">Contact Us</a>
+      </nav>
+
+      <div class="menu__footer">
+        <div class="menu__fine">Luxury. Confidence. You.</div>
+      </div>
+    </aside>
+
+    <header class="header" id="top">
+      <button class="icon-btn header__left" type="button" id="openMenu" aria-label="Open menu" aria-controls="menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </button>
+
+      <a class="header__logo" href="index.html" aria-label="MBP Home">
+        <img src="assets/Logo.PNG" alt="MBP Lingerie" />
+      </a>
+
+      <a class="icon-btn header__right" href="cart.html" aria-label="Open cart">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+          <path
+            d="M6.5 7.5h14l-1.4 7.5H8.2L6.5 7.5ZM6.5 7.5 5.8 4.5H3.5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path d="M9 19.2a1.3 1.3 0 1 0 0 .01M18 19.2a1.3 1.3 0 1 0 0 .01" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </a>
+    </header>
+
+    <main>
+      <section class="page" aria-label="Cart">
+        <div class="page__inner">
+          <div class="page__head">
+            <p class="page__kicker"><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i> Cart</p>
+            <h1 class="page__title">Your Cart</h1>
+            <p class="page__sub">Review your selection, update quantities, then checkout securely.</p>
+          </div>
+
+          <div class="cart" aria-label="Cart content">
+            <div class="cart__notice" id="paymentStatus" hidden></div>
+
+            <div class="cart__grid">
+              <div class="cart__col">
+                <div class="cart__list" id="cartItems" aria-label="Cart items"></div>
+
+                <div class="cart__empty" id="cartEmpty" hidden>
+                  <div class="cart__emptyIcon"><i class="fa-regular fa-heart" aria-hidden="true"></i></div>
+                  <div class="cart__emptyTitle">Your cart is empty</div>
+                  <div class="cart__emptySub">Browse the store to add something you love.</div>
+                  <a class="btn" href="store.html">Go to Store</a>
+                </div>
+              </div>
+
+              <aside class="cart__col cart__side" aria-label="Checkout summary">
+                <div class="cart-card">
+                  <div class="cart-card__title">Summary</div>
+                  <div class="cart-card__rows">
+                    <div class="cart-row"><span>Subtotal</span><strong id="subtotalText">₦0</strong></div>
+                    <div class="cart-row"><span>Delivery</span><strong id="deliveryText">₦0</strong></div>
+                    <div class="cart-row cart-row--total"><span>Total</span><strong id="totalText">₦0</strong></div>
+                  </div>
+                  <div class="cart-card__fine">Delivery fee is currently set to ₦<span id="deliveryFeeValue">0</span>.</div>
+                </div>
+
+                <div class="cart-card">
+                  <div class="cart-card__title">Checkout details</div>
+                  <form class="cart-form" id="checkoutForm">
+                    <label class="cart-form__label" for="checkoutPhone">Phone number</label>
+                    <input class="cart-form__input" id="checkoutPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="e.g. 0808 750 4905" required />
+
+                    <label class="cart-form__label" for="checkoutEmail">Email address</label>
+                    <input class="cart-form__input" id="checkoutEmail" name="email" type="email" autocomplete="email" placeholder="you@example.com" required />
+
+                    <label class="cart-form__label" for="checkoutAddress">Delivery address</label>
+                    <textarea
+                      class="cart-form__input cart-form__textarea"
+                      id="checkoutAddress"
+                      name="address"
+                      rows="3"
+                      placeholder="Full delivery address (street, area, city, state)"
+                      required
+                    ></textarea>
+
+                    <label class="cart-form__label" for="checkoutNotes">Notes (optional)</label>
+                    <textarea class="cart-form__input cart-form__textarea" id="checkoutNotes" name="notes" rows="3" placeholder="Any delivery notes or preferences..."></textarea>
+
+                    <button class="btn cart-form__btn" id="checkoutBtn" type="submit">Proceed to Payment</button>
+                    <div class="cart-form__fine">Payments are processed securely via Paystack.</div>
+                  </form>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer (same as other pages) -->
+      <footer class="footer" aria-label="Footer">
+        <div class="footer__inner">
+          <div class="footer__col">
+            <div class="footer__brand">
+              <img src="assets/Logo.PNG" alt="MBP Lingerie" class="footer__logo" />
+              <div class="footer__brandText">
+                <div class="footer__brandName">MBP LINGERIE</div>
+                <div class="footer__tag">Soft luxury, made to glow.</div>
+              </div>
+            </div>
+
+            <div class="footer__connect">
+              <div class="footer__connectTitle">Connect with us</div>
+              <form class="footer__form" action="#" method="post">
+                <label class="sr-only" for="email">Email</label>
+                <input id="email" name="email" type="email" placeholder="Enter your email" autocomplete="email" />
+                <button class="btn" type="submit">Join</button>
+              </form>
+              <div class="footer__thanks" id="footerThanks" hidden>Thank you for choosing us.</div>
+              <div class="footer__fine">No spam. Just new drops and private offers.</div>
+            </div>
+          </div>
+
+          <div class="footer__col footer__col--links">
+            <div class="footer__title">Quicklinks</div>
+            <a href="store.html">Store</a>
+            <a href="gallery.html">Gallery</a>
+            <a href="terms.html">Terms &amp; Conditions</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="contact.html">Contact Us</a>
+          </div>
+
+          <div class="footer__col footer__col--contact">
+            <div class="footer__title">Contact Us</div>
+            <div class="footer__chips" aria-label="Contact options">
+              <a class="contact-chip" href="https://wa.me/2348087504905" target="_blank" rel="noreferrer" aria-label="Chat on WhatsApp">
+                <i class="fa-solid fa-comment-dots" aria-hidden="true"></i>
+                <span>WhatsApp</span>
+              </a>
+              <a class="contact-chip" href="tel:+2348087504905" aria-label="Call MBP">
+                <i class="fa-solid fa-phone" aria-hidden="true"></i>
+                <span>Call</span>
+              </a>
+              <a class="contact-chip" href="mailto:mbplingerie@gmail.com" aria-label="Email MBP">
+                <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                <span>Email</span>
+              </a>
+            </div>
+            <div class="footer__line">WhatsApp: 08087504905</div>
+            <div class="footer__line">Email: mbplingerie@gmail.com</div>
+            <div class="footer__line">Nigeria</div>
+          </div>
+        </div>
+
+        <div class="footer__bottom">
+          <div>© <span id="year"></span> MBP Lingerie. All rights reserved.</div>
+        </div>
+      </footer>
+    </main>
+
+    <!-- Floating WhatsApp -->
+    <a class="whatsapp" href="https://wa.me/2348087504905" target="_blank" rel="noreferrer" aria-label="Chat on WhatsApp">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <path
+          fill="currentColor"
+          d="M20.5 12.05c0 4.64-3.78 8.4-8.45 8.4-1.44 0-2.8-.36-4-.98l-4.55 1.2 1.28-4.38A8.25 8.25 0 0 1 3.6 12.05c0-4.64 3.78-8.4 8.45-8.4s8.45 3.76 8.45 8.4Zm-4.78 4.16c-.22-.12-1.3-.64-1.5-.72-.2-.08-.35-.12-.5.12-.15.24-.58.72-.71.87-.13.15-.27.17-.49.05-.22-.12-.93-.34-1.78-1.09-.66-.59-1.1-1.33-1.23-1.55-.13-.22-.01-.34.11-.45.1-.1.22-.26.33-.39.11-.13.15-.22.22-.36.07-.14.03-.27-.02-.39-.05-.12-.5-1.2-.69-1.65-.18-.44-.36-.38-.5-.38l-.43-.01c-.15 0-.39.06-.6.27-.2.21-.78.76-.78 1.86s.8 2.15.91 2.3c.11.15 1.57 2.39 3.8 3.35.53.23.95.36 1.27.46.53.17 1.01.15 1.39.09.42-.06 1.3-.53 1.48-1.05.18-.52.18-.97.13-1.05-.05-.08-.20-.14-.42-.26Z"
+        />
+      </svg>
+    </a>
+
+    <!-- Cookie consent -->
+    <div class="cookie" id="cookieBanner" hidden>
+      <div class="cookie__inner" role="dialog" aria-label="Cookie preferences" aria-live="polite">
+        <div class="cookie__text">
+          <div class="cookie__title">Cookies</div>
+          <div class="cookie__desc">We use essential cookies to keep your cart working. You can accept all cookies or reject non-essential cookies.</div>
+        </div>
+        <div class="cookie__actions">
+          <button class="btn btn--cookie" type="button" id="cookieAccept">Accept</button>
+          <button class="btn btn--cookieGhost" type="button" id="cookieReject">Reject</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="config.js?v=20260106"></script>
+    <script src="main.js?v=20260106"></script>
+  </body>
+</html>

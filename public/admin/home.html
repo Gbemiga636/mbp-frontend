@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f6f2ee" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Admin — Home Content</title>
+    <link rel="icon" href="../assets/Logo.PNG" />
+    <link rel="stylesheet" href="../styles.css?v=20260106_5" />
+    <link rel="stylesheet" href="admin.css?v=20260106_8" />
+  </head>
+
+  <body data-admin-auth="true" data-admin-page="home">
+    <header class="header" id="top">
+      <a class="header__logo" href="../index.html" aria-label="MBP Home">
+        <img src="../assets/Logo.PNG" alt="MBP Lingerie" />
+      </a>
+
+      <a class="icon-btn header__right" href="#" id="adminLogout" aria-label="Logout">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+          <path d="M10 17l5-5-5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M15 12H3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          <path d="M21 3v18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </a>
+    </header>
+
+    <main class="admin" aria-label="Admin home">
+      <div class="admin__inner">
+        <div class="page__head" style="margin-bottom: 14px;">
+          <p class="page__kicker">Admin</p>
+          <h1 class="page__title">Home Page Editor</h1>
+          <p class="page__sub">Update hero video, featured pieces, and reviews.</p>
+        </div>
+
+        <div class="notice" id="adminNotice" hidden></div>
+
+        <div class="admin-shell">
+          <aside class="admin-nav" aria-label="Admin navigation">
+            <div class="admin-nav__title">Dashboard</div>
+            <div class="admin-nav__links">
+              <a href="home.html" aria-current="page">Home</a>
+              <a href="store.html">Store</a>
+              <a href="gallery.html">Gallery</a>
+              <a href="orders.html">Orders</a>
+              <a href="delivery.html">Delivery Fee</a>
+            </div>
+            <div class="admin-mini" style="margin-top: 10px;">Not linked on the public site.</div>
+          </aside>
+
+          <section aria-label="Home editors">
+            <div class="admin-card">
+              <h2 class="admin-card__title">Hero background video</h2>
+              <p class="admin-card__sub">Paste a video URL or upload a new MP4.</p>
+
+              <div class="admin-grid">
+                <div class="admin-field" style="grid-column: 1 / -1;">
+                  <label for="heroVideo">Hero video URL</label>
+                  <input id="heroVideo" type="text" placeholder="e.g. https://... (Cloudinary) or /uploads/your-video.mp4" />
+                </div>
+
+                <div class="admin-row" style="grid-column: 1 / -1; justify-content: space-between;">
+                  <div class="admin-mini">Upload (optional): <input id="heroUpload" type="file" accept="video/*" /></div>
+                  <button class="btn" type="button" id="heroSave">Save hero video</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="admin-card">
+              <h2 class="admin-card__title">Featured pieces</h2>
+              <p class="admin-card__sub">Edit the 5 products shown on the homepage carousel.</p>
+
+              <div class="admin-list" id="featuredList"></div>
+            </div>
+
+            <div class="admin-card">
+              <h2 class="admin-card__title">Reviews</h2>
+              <p class="admin-card__sub">Edit the 5 customer reviews shown on the homepage.</p>
+
+              <div class="admin-list" id="reviewsList"></div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <script src="../config.js?v=20260107_1"></script>
+    <script src="admin.js?v=20260107_1"></script>
+  </body>
+</html>
