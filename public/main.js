@@ -332,7 +332,7 @@
       setPaymentNotice('info', 'Verifying payment...');
       const data = await fetchJson(`${API_BASE}/api/paystack/verify?reference=${encodeURIComponent(reference)}`, { method: 'GET' });
       if (data?.status === 'success') {
-        setPaymentNotice('success', 'Payment successful. Your order has been received. A confirmation email has been sent.');
+        setPaymentNotice('success', 'Payment successful. Your order has been received. A confirmation email will be sent shortly.');
         upsertCart([]);
         renderCart();
       } else {
