@@ -825,6 +825,16 @@
           heroSource.setAttribute('src', heroUrl);
           if (heroVideo) {
             try {
+              // Force background-video behavior: no controls, autoplay+loop, muted.
+              heroVideo.controls = false;
+              heroVideo.removeAttribute('controls');
+              heroVideo.autoplay = true;
+              heroVideo.loop = true;
+              heroVideo.muted = true;
+              heroVideo.setAttribute('muted', '');
+              heroVideo.setAttribute('autoplay', '');
+              heroVideo.setAttribute('loop', '');
+
               heroVideo.style.display = '';
               heroVideo.load();
               heroVideo.play?.().catch(() => null);
@@ -835,7 +845,17 @@
         } else {
           // Ensure visible if it already matches.
           try {
-            if (heroVideo && heroUrl) heroVideo.style.display = '';
+            if (heroVideo && heroUrl) {
+              heroVideo.controls = false;
+              heroVideo.removeAttribute('controls');
+              heroVideo.autoplay = true;
+              heroVideo.loop = true;
+              heroVideo.muted = true;
+              heroVideo.setAttribute('muted', '');
+              heroVideo.setAttribute('autoplay', '');
+              heroVideo.setAttribute('loop', '');
+              heroVideo.style.display = '';
+            }
           } catch {
             // ignore
           }
