@@ -528,6 +528,11 @@
 
   const closeSizeModal = () => {
     pendingAdd = null;
+    try {
+      sizeInput?.blur?.();
+    } catch {
+      // ignore
+    }
     setSizeModalOpen(false);
   };
 
@@ -791,6 +796,7 @@
   };
 
   const loadHomeContent = async () => {
+    const heroSection = document.querySelector('section.hero');
     const heroSource = document.getElementById('heroVideoSource');
     const heroVideo = document.getElementById('heroVideo');
     const carousel = document.getElementById('carousel');
@@ -798,6 +804,115 @@
     if (!heroSource && !carousel && !reviewsCarousel) return;
 
     if (!API_BASE) return;
+
+    const ensureHeroBackgroundVideo = () => {
+      if (!heroVideo) return;
+      try {
+        heroVideo.controls = false;
+        heroVideo.removeAttribute('controls');
+        heroVideo.autoplay = true;
+        heroVideo.loop = true;
+        heroVideo.muted = true;
+        heroVideo.defaultMuted = true;
+        heroVideo.setAttribute('muted', '');
+        heroVideo.setAttribute('autoplay', '');
+        heroVideo.setAttribute('loop', '');
+        heroVideo.setAttribute('playsinline', '');
+        heroVideo.setAttribute('webkit-playsinline', '');
+        heroVideo.setAttribute('disablepictureinpicture', '');
+        heroVideo.setAttribute('disableremoteplayback', '');
+      } catch {
+        // ignore
+      }
+    };
+
+    const kickstartHeroPlayback = (() => {
+      let started = false;
+      let attempts = 0;
+      let lastAttemptAt = 0;
+
+      const attempt = () => {
+        if (!heroVideo) return;
+        if (heroVideo.readyState < 2) {
+          // Not enough data; we'll try again on canplay.
+          return;
+        }
+
+        const now = Date.now();
+        if (now - lastAttemptAt < 450) return;
+        lastAttemptAt = now;
+
+        ensureHeroBackgroundVideo();
+        heroVideo
+          .play?.()
+          .then(() => {
+            started = true;
+            attempts = 0;
+          })
+          .catch(() => {
+            attempts += 1;
+          });
+      };
+
+      const attachOnce = () => {
+        if (started) return;
+        const onUser = () => {
+          attempt();
+        };
+        window.addEventListener('pointerdown', onUser, { once: true, passive: true });
+        window.addEventListener('touchstart', onUser, { once: true, passive: true });
+        window.addEventListener('scroll', onUser, { once: true, passive: true });
+      };
+
+      return () => {
+        if (!heroVideo) return;
+        attachOnce();
+        attempt();
+        // A couple of delayed retries to reduce chance of a visible play-overlay.
+        if (attempts < 3) {
+          window.setTimeout(() => attempt(), 350);
+          window.setTimeout(() => attempt(), 900);
+        }
+      };
+    })();
+
+    if (heroVideo && heroSection && !heroVideo.dataset.heroInit) {
+      heroVideo.dataset.heroInit = '1';
+      ensureHeroBackgroundVideo();
+
+      try {
+        if (!heroVideo.paused) heroSection.classList.add('is-video-playing');
+      } catch {
+        // ignore
+      }
+
+      heroVideo.addEventListener('playing', () => {
+        try {
+          heroSection.classList.add('is-video-playing');
+        } catch {
+          // ignore
+        }
+      });
+
+      heroVideo.addEventListener('pause', () => {
+        // Hide the element when paused so iOS doesn't show the big play overlay.
+        try {
+          heroSection.classList.remove('is-video-playing');
+        } catch {
+          // ignore
+        }
+        // Best-effort restart.
+        kickstartHeroPlayback();
+      });
+
+      heroVideo.addEventListener('canplay', () => {
+        kickstartHeroPlayback();
+      });
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') kickstartHeroPlayback();
+      });
+    }
 
     try {
       const home = await fetchJson(`${API_BASE}/api/content/home`, { method: 'GET' });
@@ -835,9 +950,12 @@
               heroVideo.setAttribute('autoplay', '');
               heroVideo.setAttribute('loop', '');
 
+              // Hide until we are actually playing (prevents a visible play overlay on iOS).
+              if (heroSection) heroSection.classList.remove('is-video-playing');
+
               heroVideo.style.display = '';
               heroVideo.load();
-              heroVideo.play?.().catch(() => null);
+              kickstartHeroPlayback();
             } catch {
               // ignore
             }
@@ -855,6 +973,7 @@
               heroVideo.setAttribute('autoplay', '');
               heroVideo.setAttribute('loop', '');
               heroVideo.style.display = '';
+              kickstartHeroPlayback();
             }
           } catch {
             // ignore
@@ -930,7 +1049,7 @@
       return `
 <article class="ig-post" id="${id}" data-caption="${caption.replace(/"/g, '&quot;')}" data-type="video">
   <div class="ig-post__frame">
-    <video class="ig-post__media" playsinline muted loop preload="metadata">
+    <video class="ig-post__media" playsinline muted loop preload="metadata" poster="assets/Pic.png">
       <source src="${src}" type="video/mp4" />
     </video>
     <button class="ig-post__play" type="button" aria-label="Play video">
