@@ -707,6 +707,7 @@ a{ color:inherit; text-decoration:none; }
 /* Store page: reuse product-card, but as a responsive grid (avoid carousel min-width) */
 .store-section{
   margin-top: 28px;
+  scroll-margin-top: 92px;
 }
 .store-section__head{
   display: flex;
@@ -731,6 +732,34 @@ a{ color:inherit; text-decoration:none; }
   gap: 16px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
+
+/* Store quick-jump chips */
+.store-jumps{
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 4px 2px;
+}
+.store-jumps::-webkit-scrollbar{ display:none; }
+
+.store-jumps__link{
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(18,18,22,0.10);
+  background: rgba(255,255,255,0.62);
+  backdrop-filter: blur(10px);
+  color: rgba(18,18,22,0.84);
+  white-space: nowrap;
+}
+.store-jumps__link:focus-visible{ outline: 2px solid rgba(18,18,22,0.22); outline-offset: 3px; }
 .store-section + .store-section{
   padding-top: 26px;
   margin-top: 26px;
@@ -749,6 +778,36 @@ a{ color:inherit; text-decoration:none; }
 
 @media (min-width: 1080px){
   .store-grid{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (max-width: 420px){
+  .store-grid{ grid-template-columns: 1fr; }
+}
+
+/* Scroll-to-top button (shared) */
+.scroll-top{
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 1200;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(18,18,22,0.14);
+  background: rgba(255,255,255,0.70);
+  color: rgba(18,18,22,0.86);
+  box-shadow: var(--shadow2);
+  backdrop-filter: blur(10px);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.scroll-top:active{ transform: var(--lift); }
+.scroll-top:focus-visible{ outline: 2px solid rgba(18,18,22,0.22); outline-offset: 3px; }
+
+/* Prevent iOS auto-zoom on focus (inputs < 16px) */
+@media (max-width: 520px){
+  input, select, textarea{ font-size: 16px; }
 }
 
 /* Store cards: slightly tighter text so 2-up mobile still feels clean */

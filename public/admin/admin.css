@@ -45,6 +45,21 @@ body,
     top: auto;
   }
 
+  /* Make the nav usable on very small screens */
+  .admin-nav__links{
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  .admin-nav__links::-webkit-scrollbar{ display:none; }
+  .admin-nav__links a{
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
   .admin-item__top {
     flex-direction: column;
     align-items: flex-start;
@@ -57,6 +72,14 @@ body,
 
   .admin-row .btn {
     width: 100%;
+  }
+
+  /* Prevent iOS focus-zoom */
+  .admin-field input,
+  .admin-field select,
+  .admin-field textarea,
+  input[type="file"]{
+    font-size: 16px;
   }
 }
 

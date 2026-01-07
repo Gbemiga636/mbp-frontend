@@ -10,6 +10,47 @@
 
   const API_BASE = String(window.MBP_API_BASE || inferredLocalApiBase).replace(/\/$/, '');
 
+  const initScrollTopButton = () => {
+    try {
+      if (!document.body) return;
+      if (document.getElementById('scrollTopBtn')) return;
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.id = 'scrollTopBtn';
+      btn.className = 'scroll-top';
+      btn.setAttribute('aria-label', 'Scroll to top');
+      btn.hidden = true;
+      btn.innerHTML = `
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path d="M12 5l-6 6m6-6 6 6M12 5v14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      `;
+
+      const update = () => {
+        const y = window.scrollY || 0;
+        btn.hidden = y < 420;
+      };
+
+      window.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', update, { passive: true });
+      btn.addEventListener('click', () => {
+        try {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch {
+          window.scrollTo(0, 0);
+        }
+      });
+
+      document.body.appendChild(btn);
+      update();
+    } catch {
+      // ignore
+    }
+  };
+
+  initScrollTopButton();
+
   // Never let the browser "help" by restoring to an unexpected place after reload.
   try {
     if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
