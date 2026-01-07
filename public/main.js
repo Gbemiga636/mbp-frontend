@@ -122,6 +122,113 @@
 
   const TRANSPARENT_PIXEL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
 
+  const waitForEventOnce = (target, eventName, { timeoutMs = 7000 } = {}) => {
+    return new Promise((resolve, reject) => {
+      let timeoutId;
+      const onEvent = () => {
+        cleanup();
+        resolve();
+      };
+      const onTimeout = () => {
+        cleanup();
+        reject(new Error(`${eventName} timed out`));
+      };
+      const cleanup = () => {
+        try {
+          target.removeEventListener(eventName, onEvent);
+        } catch {
+          // ignore
+        }
+        clearTimeout(timeoutId);
+      };
+
+      try {
+        target.addEventListener(eventName, onEvent, { once: true });
+      } catch {
+        // ignore
+      }
+      timeoutId = window.setTimeout(onTimeout, timeoutMs);
+    });
+  };
+
+  const setPosterFromVideoFrame = async (video, { atSeconds = 0.2, quality = 0.72 } = {}) => {
+    if (!(video instanceof HTMLVideoElement)) return false;
+    if (video.dataset.posterFromFrame === '1') return true;
+    if (video.getAttribute('poster')) {
+      // Respect any explicit poster that might be set elsewhere.
+      video.dataset.posterFromFrame = '1';
+      return true;
+    }
+
+    // Best-effort: for cross-origin videos, this only works if the server allows CORS.
+    try {
+      if (!video.getAttribute('crossorigin')) video.setAttribute('crossorigin', 'anonymous');
+    } catch {
+      // ignore
+    }
+
+    const wasPaused = video.paused;
+    const startTime = Number.isFinite(video.currentTime) ? video.currentTime : 0;
+
+    try {
+      // Need metadata to know dimensions/duration.
+      if (video.readyState < 1) {
+        try {
+          video.load?.();
+        } catch {
+          // ignore
+        }
+        await waitForEventOnce(video, 'loadedmetadata', { timeoutMs: 9000 });
+      }
+
+      const w = video.videoWidth;
+      const h = video.videoHeight;
+      if (!w || !h) return false;
+
+      // Seek to a visible frame (avoid 0.0 which can be black on some encodes).
+      const dur = Number(video.duration);
+      const safeT = Number.isFinite(dur) && dur > 0.5 ? Math.min(Math.max(atSeconds, 0.1), dur - 0.1) : 0.1;
+      try {
+        video.currentTime = safeT;
+      } catch {
+        // ignore
+      }
+      if (video.readyState < 2) {
+        await waitForEventOnce(video, 'loadeddata', { timeoutMs: 9000 });
+      }
+      await waitForEventOnce(video, 'seeked', { timeoutMs: 9000 }).catch(() => null);
+
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return false;
+      ctx.drawImage(video, 0, 0, w, h);
+
+      const dataUrl = canvas.toDataURL('image/jpeg', quality);
+      if (!dataUrl || dataUrl === TRANSPARENT_PIXEL) return false;
+
+      video.setAttribute('poster', dataUrl);
+      video.dataset.posterFromFrame = '1';
+      return true;
+    } catch {
+      // If canvas is tainted (CORS) or browser blocks the capture, just skip.
+      return false;
+    } finally {
+      // Restore playback state so this doesn't affect UX.
+      try {
+        video.currentTime = startTime;
+      } catch {
+        // ignore
+      }
+      try {
+        if (wasPaused) video.pause();
+      } catch {
+        // ignore
+      }
+    }
+  };
+
   const resolveMediaUrl = (src) => {
     const s = String(src || '').trim();
     if (!s) return '';
@@ -1049,7 +1156,7 @@
       return `
 <article class="ig-post" id="${id}" data-caption="${caption.replace(/"/g, '&quot;')}" data-type="video">
   <div class="ig-post__frame">
-    <video class="ig-post__media" playsinline muted loop preload="metadata" poster="assets/Pic.png">
+    <video class="ig-post__media" playsinline muted loop preload="metadata" crossorigin="anonymous">
       <source src="${src}" type="video/mp4" />
     </video>
     <button class="ig-post__play" type="button" aria-label="Play video">
@@ -1105,6 +1212,15 @@
     loadHomeContent();
     loadStoreContent();
     loadGalleryContent();
+
+    // Best-effort posters from video frames (no static Pic.png).
+    try {
+      document.querySelectorAll('video.ig-post__media, video.video-band__video').forEach((v) => {
+        setPosterFromVideoFrame(v).catch(() => null);
+      });
+    } catch {
+      // ignore
+    }
   };
 
   refreshDynamicContent();
