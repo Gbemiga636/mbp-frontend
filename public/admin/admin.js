@@ -591,11 +591,34 @@
       return {};
     }
   };
+  const normalizePendingStoreEntry = (value) => {
+    if (!value) return { image: '', imageBack: '' };
+    if (typeof value === 'string') return { image: value, imageBack: '' };
+    if (typeof value === 'object') {
+      return {
+        image: String(value.image || ''),
+        imageBack: String(value.imageBack || ''),
+      };
+    }
+    return { image: '', imageBack: '' };
+  };
   const setPendingStoreImage = (id, url) => {
     if (!id) return;
     try {
       const map = getPendingStoreImages();
-      map[id] = String(url || '');
+      const prev = normalizePendingStoreEntry(map[id]);
+      map[id] = { ...prev, image: String(url || '') };
+      window.sessionStorage.setItem(STORE_PENDING_IMAGES_KEY, JSON.stringify(map));
+    } catch {
+      // ignore
+    }
+  };
+  const setPendingStoreImageBack = (id, url) => {
+    if (!id) return;
+    try {
+      const map = getPendingStoreImages();
+      const prev = normalizePendingStoreEntry(map[id]);
+      map[id] = { ...prev, imageBack: String(url || '') };
       window.sessionStorage.setItem(STORE_PENDING_IMAGES_KEY, JSON.stringify(map));
     } catch {
       // ignore
@@ -618,13 +641,17 @@
     if (!ids.length) return;
 
     for (const id of ids) {
-      const url = map[id];
-      if (!url) continue;
+      const entry = normalizePendingStoreEntry(map[id]);
+      const url = entry.image;
+      const urlBack = entry.imageBack;
+      if (!url && !urlBack) continue;
       const item = listEl.querySelector(`.admin-item[data-id="${cssEscape(id)}"]`);
       if (!item) continue;
       const imgField = item.querySelector('[data-field="image"]');
-      if (imgField) imgField.value = url;
-      setInlinePreview(item, url);
+      if (imgField && url) imgField.value = url;
+      const backField = item.querySelector('[data-field="imageBack"]');
+      if (backField && urlBack) backField.value = urlBack;
+      if (url) setInlinePreview(item, url);
     }
   };
 
@@ -1571,7 +1598,8 @@
           if (!isBack) setInlinePreview(parent, up.url);
 
           // Mark as "pending" until the user clicks Save changes.
-          if (!isBack) setPendingStoreImage(id, up.url);
+          if (isBack) setPendingStoreImageBack(id, up.url);
+          else setPendingStoreImage(id, up.url);
           setNotice(notice, { message: `Uploaded (${up.provider || 'unknown'}). Click “Save changes” for this product.` });
         });
       } catch (err) {
