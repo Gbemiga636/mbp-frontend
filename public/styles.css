@@ -691,19 +691,28 @@ a{ color:inherit; text-decoration:none; }
   opacity: 0;
 }
 
-.product-card__swap-arrows{
-  position: absolute;
-  inset: 0;
-  display: flex;
+
+.product-card__swap-bar{
+  display: none;
   align-items: center;
   justify-content: space-between;
-  padding: 0 10px;
-  pointer-events: none;
-  z-index: 3;
+  gap: 10px;
+  padding: 10px 12px;
+  border-top: 1px solid rgba(18,18,22,0.08);
+  background: linear-gradient(180deg, rgba(255,255,255,0.65), rgba(255,255,255,0.38));
+}
+
+.product-card.has-back .product-card__swap-bar{ display: flex; }
+
+.product-card__swap-hint{
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(18,18,22,0.56);
+  user-select: none;
 }
 
 .product-card__swap-arrow{
-  pointer-events: auto;
   width: 40px;
   height: 40px;
   border-radius: 14px;

@@ -875,7 +875,20 @@
   };
 
   const handleLightboxClick = (btn) => {
-    const img = btn.querySelector('img');
+    const card = btn.closest('.product-card');
+    const front = card?.querySelector('img[data-role="frontImg"]') || btn.querySelector('img');
+    const back = card?.querySelector('img[data-role="backImg"]');
+
+    let img = front;
+    try {
+      if (back instanceof HTMLImageElement) {
+        const op = window.getComputedStyle(back).opacity;
+        if (Number(op) >= 0.5) img = back;
+      }
+    } catch {
+      // ignore
+    }
+
     const src = img?.getAttribute('src') || '';
     const alt = img?.getAttribute('alt') || 'Product image';
     if (!src) return;
@@ -1019,13 +1032,14 @@
     const sizeLine = sizes ? `Available sizes: ${sizes}` : 'Available sizes: —';
 
     const cardClass = hasBack ? 'product-card has-back' : 'product-card';
-    const swapArrows = hasBack
-      ? `<div class="product-card__swap-arrows" aria-hidden="false">
+    const swapBar = hasBack
+      ? `<div class="product-card__swap-bar" aria-label="More images">
       <button class="product-card__swap-arrow" type="button" data-role="swapPrev" aria-label="Show previous image">
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
           <path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
       </button>
+      <div class="product-card__swap-hint" aria-hidden="true">Front / Back</div>
       <button class="product-card__swap-arrow" type="button" data-role="swapNext" aria-label="Show next image">
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
           <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -1041,8 +1055,8 @@
       <img src="${image}" alt="${name.replace(/"/g, '&quot;')}" loading="lazy" data-role="frontImg" />
       ${hasBack ? `<img src="${imageBack}" alt="${name.replace(/"/g, '&quot;')} back" loading="lazy" data-role="backImg" style="opacity:0;position:absolute;top:0;left:0;" />` : ''}
     </button>
-    ${swapArrows}
   </div>
+  ${swapBar}
   <div class="product-card__body">
     <div class="product-card__top">
       <h3 class="product-card__name">${name.replace(/</g, '&lt;')}</h3>
