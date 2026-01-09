@@ -82,10 +82,18 @@
                   </div>
 
                   <div class="admin-field" style="grid-column:1/-1;">
-                    <label>Image URL</label>
+                    <label>Front Image URL</label>
                     <input type="text" name="image" placeholder="assets/lingerie1.jpeg or https://... (Cloudinary)" />
                     <div class="admin-mini admin-uploadRow" style="margin-top:6px;">Or upload: <input type="file" data-action="store-add-upload" accept="image/*" />
                       <span class="admin-uploadStatus" data-role="addUploadStatus" hidden><span class="spinner" aria-hidden="true"></span><span data-role="busyText">Uploading…</span></span>
+                    </div>
+                  </div>
+
+                  <div class="admin-field" style="grid-column:1/-1;">
+                    <label>Back Image URL <span style="font-size:0.85em;color:#888;">(optional)</span></label>
+                    <input type="text" name="imageBack" placeholder="assets/lingerie1-back.jpeg or https://... (Cloudinary)" />
+                    <div class="admin-mini admin-uploadRow" style="margin-top:6px;">Or upload: <input type="file" data-action="store-add-upload-back" accept="image/*" />
+                      <span class="admin-uploadStatus" data-role="addUploadStatusBack" hidden><span class="spinner" aria-hidden="true"></span><span data-role="busyText">Uploading…</span></span>
                     </div>
                   </div>
 

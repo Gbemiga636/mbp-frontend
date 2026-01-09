@@ -660,6 +660,7 @@
       price: addForm.querySelector('[name="price"]')?.value || '',
       name: addForm.querySelector('[name="name"]')?.value || '',
       image: addForm.querySelector('[name="image"]')?.value || '',
+      imageBack: addForm.querySelector('[name="imageBack"]')?.value || '',
       desc: addForm.querySelector('[name="desc"]')?.value || '',
       sizes: addForm.querySelector('[name="sizes"]')?.value || '',
     };
@@ -680,6 +681,7 @@
     if (typeof d.price === 'string') setVal('[name="price"]', d.price);
     if (typeof d.name === 'string') setVal('[name="name"]', d.name);
     if (typeof d.image === 'string') setVal('[name="image"]', d.image);
+    if (typeof d.imageBack === 'string') setVal('[name="imageBack"]', d.imageBack);
     if (typeof d.desc === 'string') setVal('[name="desc"]', d.desc);
     if (typeof d.sizes === 'string') setVal('[name="sizes"]', d.sizes);
 
@@ -1453,6 +1455,7 @@
       const sizes = Array.isArray(p?.sizes) ? p.sizes.join(', ') : '';
       const cat = String(p.category || '').toLowerCase();
       const img = String(p.image || '');
+      const imgBack = String(p.imageBack || '');
       const imgPreview = previewUrl(img);
       return `
 <div class="admin-item" data-id="${p.id}">
@@ -1491,10 +1494,17 @@
       <input type="text" data-field="name" value="${(p.name || '').replace(/"/g, '&quot;')}" />
     </div>
     <div class="admin-field" style="grid-column:1/-1;">
-      <label>Image URL</label>
+      <label>Front Image URL</label>
       <input type="text" data-field="image" value="${(p.image || '').replace(/"/g, '&quot;')}" />
       <div class="admin-mini admin-uploadRow" style="margin-top:6px;">Or upload: <input type="file" data-action="store-upload" accept="image/*" />
         <span class="admin-uploadStatus" data-role="uploadStatus" hidden><span class="spinner" aria-hidden="true"></span><span data-role="busyText">Uploading…</span></span>
+      </div>
+    </div>
+    <div class="admin-field" style="grid-column:1/-1;">
+      <label>Back Image URL <span style="font-size:0.85em;color:#888;">(optional)</span></label>
+      <input type="text" data-field="imageBack" value="${imgBack.replace(/"/g, '&quot;')}" />
+      <div class="admin-mini admin-uploadRow" style="margin-top:6px;">Or upload: <input type="file" data-action="store-upload-back" accept="image/*" />
+        <span class="admin-uploadStatus" data-role="uploadStatusBack" hidden><span class="spinner" aria-hidden="true"></span><span data-role="busyText">Uploading…</span></span>
       </div>
     </div>
     <div class="admin-field" style="grid-column:1/-1;">
@@ -1526,7 +1536,8 @@
     listEl?.addEventListener('change', async (e) => {
       const input = e.target;
       if (!(input instanceof HTMLInputElement)) return;
-      if (input.getAttribute('data-action') !== 'store-upload') return;
+      const action = input.getAttribute('data-action');
+      if (action !== 'store-upload' && action !== 'store-upload-back') return;
       const parent = input.closest('.admin-item');
       const file = input.files?.[0];
       if (!parent || !file) return;
@@ -1547,23 +1558,26 @@
       try {
         await withScrollLock(y0, async () => {
           setNotice(notice, { message: 'Uploading image…' });
-          setInlineBusy(parent, 'uploadStatus', true, 'Uploading…');
+          setInlineBusy(parent, action === 'store-upload-back' ? 'uploadStatusBack' : 'uploadStatus', true, 'Uploading…');
           setButtonBusy(saveBtn, true);
           input.disabled = true;
           const id = parent.getAttribute('data-id') || '';
-          const up = await uploadFile(file, { key: `store-${id}` });
-          const imgField = parent.querySelector('[data-field="image"]');
-          if (imgField) imgField.value = up.url;
+          const isBack = action === 'store-upload-back';
+          const up = await uploadFile(file, { key: isBack ? `store-${id}-back` : `store-${id}` });
+          const field = parent.querySelector(isBack ? '[data-field="imageBack"]' : '[data-field="image"]');
+          if (field) field.value = up.url;
 
-          setInlinePreview(parent, up.url);
+          // Keep the main thumb as the front image.
+          if (!isBack) setInlinePreview(parent, up.url);
+
           // Mark as "pending" until the user clicks Save changes.
-          setPendingStoreImage(id, up.url);
+          if (!isBack) setPendingStoreImage(id, up.url);
           setNotice(notice, { message: `Uploaded (${up.provider || 'unknown'}). Click “Save changes” for this product.` });
         });
       } catch (err) {
         setNotice(notice, { message: err.message, isError: true });
       } finally {
-        setInlineBusy(parent, 'uploadStatus', false);
+        setInlineBusy(parent, action === 'store-upload-back' ? 'uploadStatusBack' : 'uploadStatus', false);
         setButtonBusy(saveBtn, false);
         input.disabled = false;
         input.value = '';
@@ -1594,6 +1608,7 @@
         name: item.querySelector('[data-field="name"]')?.value || '',
         price: item.querySelector('[data-field="price"]')?.value || 0,
         image: item.querySelector('[data-field="image"]')?.value || '',
+        imageBack: item.querySelector('[data-field="imageBack"]')?.value || '',
         desc: item.querySelector('[data-field="desc"]')?.value || '',
         sizes: item.querySelector('[data-field="sizes"]')?.value || '',
         category: item.querySelector('[data-field="category"]')?.value || '',
@@ -1693,6 +1708,7 @@
           name: addForm.querySelector('[name="name"]')?.value || '',
           price: addForm.querySelector('[name="price"]')?.value || 0,
           image: addForm.querySelector('[name="image"]')?.value || '',
+          imageBack: addForm.querySelector('[name="imageBack"]')?.value || '',
           desc: addForm.querySelector('[name="desc"]')?.value || '',
           sizes: addForm.querySelector('[name="sizes"]')?.value || '',
           category: addForm.querySelector('[name="category"]')?.value || '',
@@ -1747,7 +1763,8 @@
     addForm?.addEventListener('change', async (e) => {
       const input = e.target;
       if (!(input instanceof HTMLInputElement)) return;
-      if (input.getAttribute('data-action') !== 'store-add-upload') return;
+      const action = input.getAttribute('data-action');
+      if (action !== 'store-add-upload' && action !== 'store-add-upload-back') return;
       const file = input.files?.[0];
       if (!file) return;
 
@@ -1756,23 +1773,27 @@
       try {
         await withScrollLock(y0, async () => {
           setNotice(notice, { message: 'Uploading image…' });
-          setInlineBusy(addForm, 'addUploadStatus', true, 'Uploading…');
+          setInlineBusy(addForm, action === 'store-add-upload-back' ? 'addUploadStatusBack' : 'addUploadStatus', true, 'Uploading…');
           setButtonBusy(submitBtn, true);
           input.disabled = true;
 
           // New product has no ID yet; use a unique key.
           const key = `store-new-${Date.now()}`;
-          const up = await uploadFile(file, { key });
+          const isBack = action === 'store-add-upload-back';
+          const up = await uploadFile(file, { key: isBack ? `${key}-back` : key });
 
-          const imageField = addForm.querySelector('[name="image"]');
-          if (imageField) imageField.value = up.url;
+          const field = addForm.querySelector(isBack ? '[name="imageBack"]' : '[name="image"]');
+          if (field) field.value = up.url;
 
-          const thumb = addForm.querySelector('[data-role="addThumb"]');
-          if (thumb) {
-            const u = previewUrl(up.url);
-            thumb.innerHTML = u
-              ? `<img src="${u}" alt="" style="width:100%; height:100%; object-fit:cover; display:block;" />`
-              : `<div class="admin-mini" style="padding:10px;">No image</div>`;
+          // Keep the preview thumbnail as the front image.
+          if (!isBack) {
+            const thumb = addForm.querySelector('[data-role="addThumb"]');
+            if (thumb) {
+              const u = previewUrl(up.url);
+              thumb.innerHTML = u
+                ? `<img src="${u}" alt="" style="width:100%; height:100%; object-fit:cover; display:block;" />`
+                : `<div class="admin-mini" style="padding:10px;">No image</div>`;
+            }
           }
 
           // Persist draft so a live-reload won't lose the uploaded image preview.
@@ -1783,7 +1804,7 @@
       } catch (err) {
         setNotice(notice, { message: err.message, isError: true });
       } finally {
-        setInlineBusy(addForm, 'addUploadStatus', false);
+        setInlineBusy(addForm, action === 'store-add-upload-back' ? 'addUploadStatusBack' : 'addUploadStatus', false);
         setButtonBusy(submitBtn, false);
         input.disabled = false;
         input.value = '';

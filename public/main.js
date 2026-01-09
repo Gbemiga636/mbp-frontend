@@ -1011,16 +1011,29 @@
     const price = Number(p?.price || 0);
     const imageResolved = resolveMediaUrl(p?.image);
     const image = imageResolved || TRANSPARENT_PIXEL;
+    const imageBackResolved = resolveMediaUrl(p?.imageBack);
+    const imageBack = imageBackResolved || '';
+    const hasBack = Boolean(imageBack && imageBack !== TRANSPARENT_PIXEL);
     const desc = String(p?.desc || '').trim();
     const sizes = Array.isArray(p?.sizes) ? p.sizes.filter(Boolean).join(', ') : String(p?.sizes || '').trim();
     const sizeLine = sizes ? `Available sizes: ${sizes}` : 'Available sizes: —';
 
+    const cardClass = hasBack ? 'product-card has-back' : 'product-card';
+    const toggleBtn = hasBack ? `<button class="product-card__swap-toggle" type="button" data-role="swapToggle" aria-label="Toggle front/back image">
+      <span>Back</span>
+      <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
+        <path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>` : '';
+
     return `
-<article class="product-card" tabindex="0" data-id="${id}" data-name="${name.replace(/"/g, '&quot;')}" data-price="${price}" data-image="${image.replace(/"/g, '&quot;')}">
+<article class="${cardClass}" tabindex="0" data-id="${id}" data-name="${name.replace(/"/g, '&quot;')}" data-price="${price}" data-image="${image.replace(/"/g, '&quot;')}" data-image-back="${imageBack.replace(/"/g, '&quot;')}">
   <div class="product-card__img">
     <button class="product-card__imgBtn" type="button" aria-label="View ${name.replace(/"/g, '&quot;')} image">
-      <img src="${image}" alt="${name.replace(/"/g, '&quot;')}" loading="lazy" />
+      <img src="${image}" alt="${name.replace(/"/g, '&quot;')}" loading="lazy" data-role="frontImg" />
+      ${hasBack ? `<img src="${imageBack}" alt="${name.replace(/"/g, '&quot;')} back" loading="lazy" data-role="backImg" style="opacity:0;position:absolute;top:0;left:0;" />` : ''}
     </button>
+    ${toggleBtn}
   </div>
   <div class="product-card__body">
     <div class="product-card__top">
@@ -1273,10 +1286,81 @@
         if (!byCat[cat].length) return;
         el.innerHTML = byCat[cat].map(buildProductCardHtml).join('');
       });
+
+      // Wire up front/back swap on newly rendered cards.
+      initProductCardImageSwap();
     } catch {
       // keep static
     }
   };
+
+  const initProductCardImageSwap = () => {
+    const cards = Array.from(document.querySelectorAll('.product-card.has-back'));
+    for (const card of cards) {
+      if (card.dataset.swapInit === '1') continue;
+      card.dataset.swapInit = '1';
+
+      const front = card.querySelector('img[data-role="frontImg"]');
+      const back = card.querySelector('img[data-role="backImg"]');
+      const toggle = card.querySelector('[data-role="swapToggle"]');
+
+      if (!(front instanceof HTMLImageElement) || !(back instanceof HTMLImageElement)) continue;
+
+      let showingBack = false;
+      const apply = () => {
+        front.style.opacity = showingBack ? '0' : '1';
+        back.style.opacity = showingBack ? '1' : '0';
+        if (toggle) toggle.querySelector('span') && (toggle.querySelector('span').textContent = showingBack ? 'Front' : 'Back');
+      };
+
+      const flip = () => {
+        showingBack = !showingBack;
+        apply();
+      };
+
+      toggle?.addEventListener('click', (e) => {
+        e.preventDefault();
+        flip();
+      });
+
+      // Basic swipe support on touch devices.
+      let startX = 0;
+      let startY = 0;
+      let tracking = false;
+      const onTouchStart = (e) => {
+        const t = e.touches?.[0];
+        if (!t) return;
+        tracking = true;
+        startX = t.clientX;
+        startY = t.clientY;
+      };
+      const onTouchEnd = (e) => {
+        if (!tracking) return;
+        tracking = false;
+        const t = e.changedTouches?.[0];
+        if (!t) return;
+        const dx = t.clientX - startX;
+        const dy = t.clientY - startY;
+        if (Math.abs(dx) < 28 || Math.abs(dx) < Math.abs(dy)) return;
+        // swipe left/right flips
+        flip();
+      };
+
+      const imgBtn = card.querySelector('.product-card__imgBtn');
+      imgBtn?.addEventListener('touchstart', onTouchStart, { passive: true });
+      imgBtn?.addEventListener('touchend', onTouchEnd, { passive: true });
+
+      // Initial state
+      apply();
+    }
+  };
+
+  // For static store.html (when API is unavailable), still enable swapping.
+  try {
+    initProductCardImageSwap();
+  } catch {
+    // ignore
+  }
 
   const buildGalleryItemHtml = (it) => {
     const id = String(it?.id || '').trim() || `post-${Math.random().toString(16).slice(2)}`;
