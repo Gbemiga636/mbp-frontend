@@ -334,6 +334,7 @@
   const deliveryText = document.getElementById('deliveryText');
   const totalText = document.getElementById('totalText');
   const deliveryFeeValue = document.getElementById('deliveryFeeValue');
+  const deliveryZones = document.getElementById('deliveryZones');
   const checkoutForm = document.getElementById('checkoutForm');
   const checkoutBtn = document.getElementById('checkoutBtn');
   const checkoutPhone = document.getElementById('checkoutPhone');
@@ -376,15 +377,67 @@
 
   let deliveryFee = 2500;
 
+  const DELIVERY_ZONE_KEY = 'mbp_delivery_zone_v1';
+  const deliveryZoneOptions = {
+    lekki: { label: 'LEKKI', fee: 2000 },
+    vi_ikoyi: { label: 'VI/IKOYI', fee: 3000 },
+    ikota_ajah: { label: 'IKOTA/AJAH', fee: 3000 },
+    others: { label: 'OTHERS', fee: 5000 },
+  };
+
+  const getSavedDeliveryZone = () => {
+    try {
+      const z = String(window.localStorage.getItem(DELIVERY_ZONE_KEY) || '').trim();
+      return deliveryZoneOptions[z] ? z : '';
+    } catch {
+      return '';
+    }
+  };
+
+  const setSavedDeliveryZone = (zone) => {
+    const z = String(zone || '').trim();
+    if (!deliveryZoneOptions[z]) return;
+    try {
+      window.localStorage.setItem(DELIVERY_ZONE_KEY, z);
+    } catch {
+      // ignore
+    }
+  };
+
+  const getSelectedDeliveryZone = () => {
+    const z = getSavedDeliveryZone();
+    if (deliveryZoneOptions[z]) return z;
+    // Default selection
+    return 'lekki';
+  };
+
+  const applyDeliveryZoneToUi = () => {
+    if (!deliveryZones) return;
+    const selected = getSelectedDeliveryZone();
+    const buttons = Array.from(deliveryZones.querySelectorAll('button[data-zone]'));
+    for (const btn of buttons) {
+      const z = String(btn.getAttribute('data-zone') || '').trim();
+      btn.classList.toggle('is-selected', z === selected);
+    }
+  };
+
+  const getDeliveryFeeForSelectedZone = () => {
+    const selected = getSelectedDeliveryZone();
+    return Number(deliveryZoneOptions[selected]?.fee) || 0;
+  };
+
   const refreshTotals = () => {
     const cart = readCart();
     const subtotal = cart.reduce((sum, item) => sum + (Number(item?.price) || 0) * (Number(item?.qty) || 1), 0);
-    const total = subtotal + (cart.length ? deliveryFee : 0);
+    const selectedFee = getDeliveryFeeForSelectedZone();
+    const fee = cart.length ? selectedFee : 0;
+    const total = subtotal + fee;
 
     if (subtotalText) subtotalText.textContent = formatNaira(subtotal);
-    if (deliveryText) deliveryText.textContent = formatNaira(cart.length ? deliveryFee : 0);
+    if (deliveryText) deliveryText.textContent = formatNaira(fee);
     if (totalText) totalText.textContent = formatNaira(total);
-    if (deliveryFeeValue) deliveryFeeValue.textContent = String(deliveryFee);
+    if (deliveryFeeValue) deliveryFeeValue.textContent = String(selectedFee);
+    applyDeliveryZoneToUi();
   };
 
   const renderCart = () => {
@@ -515,6 +568,28 @@
     const phone = String(checkoutPhone.value || '').trim();
     const address = String(checkoutAddress?.value || '').trim();
     const notes = String(checkoutNotes?.value || '').trim();
+    const selectedZone = getSelectedDeliveryZone();
+    const selectedFee = getDeliveryFeeForSelectedZone();
+    const zoneLabel = String(deliveryZoneOptions[selectedZone]?.label || selectedZone);
+
+    // Treat delivery like a product for checkout (so backend can charge it) without altering the saved cart.
+    const itemsForCheckout = Array.isArray(cart) ? cart.slice() : [];
+    if (selectedFee > 0) {
+      itemsForCheckout.push({
+        id: `__delivery__${selectedZone}`,
+        name: `Delivery - ${zoneLabel}`,
+        price: selectedFee,
+        qty: 1,
+      });
+    }
+
+    // Add delivery info to notes for visibility (emails/admin) without requiring backend changes.
+    const deliveryNote = `Delivery area: ${zoneLabel} (₦${selectedFee})`;
+    const notesWithDelivery = notes
+      ? notes.includes('Delivery area:')
+        ? notes
+        : `${notes}\n${deliveryNote}`
+      : deliveryNote;
 
     try {
       if (checkoutBtn) {
@@ -522,7 +597,7 @@
         checkoutBtn.textContent = 'Redirecting...';
       }
 
-      const payload = { customer: { email, phone, address }, notes, items: cart };
+      const payload = { customer: { email, phone, address }, notes: notesWithDelivery, items: itemsForCheckout, deliveryZone: selectedZone, deliveryFee: selectedFee };
       const data = await fetchJson(`${API_BASE}/api/paystack/initialize`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -544,6 +619,25 @@
   if (cartItemsEl) {
     (async () => {
       await loadDeliveryFee();
+
+      // Setup delivery zone buttons (cart page only)
+      try {
+        const initial = getSelectedDeliveryZone();
+        setSavedDeliveryZone(initial);
+        applyDeliveryZoneToUi();
+
+        deliveryZones?.addEventListener('click', (e) => {
+          const btn = e.target?.closest?.('button[data-zone]');
+          if (!(btn instanceof HTMLButtonElement)) return;
+          const zone = String(btn.getAttribute('data-zone') || '').trim();
+          if (!deliveryZoneOptions[zone]) return;
+          setSavedDeliveryZone(zone);
+          refreshTotals();
+        });
+      } catch {
+        // ignore
+      }
+
       renderCart();
       await verifyFromQuery();
     })();

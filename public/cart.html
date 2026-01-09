@@ -98,7 +98,16 @@
                     <div class="cart-row"><span>Delivery</span><strong id="deliveryText">₦0</strong></div>
                     <div class="cart-row cart-row--total"><span>Total</span><strong id="totalText">₦0</strong></div>
                   </div>
-                  <div class="cart-card__fine">Delivery fee is currently set to ₦<span id="deliveryFeeValue">0</span>.</div>
+                  <div class="cart-card__fine">
+                    Choose your delivery area:
+                    <div class="delivery-zones" id="deliveryZones" aria-label="Delivery area">
+                      <button class="delivery-zone" type="button" data-zone="lekki">LEKKI</button>
+                      <button class="delivery-zone" type="button" data-zone="vi_ikoyi">VI/IKOYI</button>
+                      <button class="delivery-zone" type="button" data-zone="ikota_ajah">IKOTA/AJAH</button>
+                      <button class="delivery-zone" type="button" data-zone="others">OTHERS</button>
+                    </div>
+                    <div class="delivery-zone__note">Selected fee: ₦<span id="deliveryFeeValue">0</span></div>
+                  </div>
                 </div>
 
                 <div class="cart-card">
