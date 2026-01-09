@@ -1019,12 +1019,20 @@
     const sizeLine = sizes ? `Available sizes: ${sizes}` : 'Available sizes: —';
 
     const cardClass = hasBack ? 'product-card has-back' : 'product-card';
-    const toggleBtn = hasBack ? `<button class="product-card__swap-toggle" type="button" data-role="swapToggle" aria-label="Toggle front/back image">
-      <span>Back</span>
-      <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
-        <path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-      </svg>
-    </button>` : '';
+    const swapArrows = hasBack
+      ? `<div class="product-card__swap-arrows" aria-hidden="false">
+      <button class="product-card__swap-arrow" type="button" data-role="swapPrev" aria-label="Show previous image">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+      <button class="product-card__swap-arrow" type="button" data-role="swapNext" aria-label="Show next image">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+    </div>`
+      : '';
 
     return `
 <article class="${cardClass}" tabindex="0" data-id="${id}" data-name="${name.replace(/"/g, '&quot;')}" data-price="${price}" data-image="${image.replace(/"/g, '&quot;')}" data-image-back="${imageBack.replace(/"/g, '&quot;')}">
@@ -1033,7 +1041,7 @@
       <img src="${image}" alt="${name.replace(/"/g, '&quot;')}" loading="lazy" data-role="frontImg" />
       ${hasBack ? `<img src="${imageBack}" alt="${name.replace(/"/g, '&quot;')} back" loading="lazy" data-role="backImg" style="opacity:0;position:absolute;top:0;left:0;" />` : ''}
     </button>
-    ${toggleBtn}
+    ${swapArrows}
   </div>
   <div class="product-card__body">
     <div class="product-card__top">
@@ -1303,6 +1311,8 @@
       const front = card.querySelector('img[data-role="frontImg"]');
       const back = card.querySelector('img[data-role="backImg"]');
       const toggle = card.querySelector('[data-role="swapToggle"]');
+      const prev = card.querySelector('[data-role="swapPrev"]');
+      const next = card.querySelector('[data-role="swapNext"]');
 
       if (!(front instanceof HTMLImageElement) || !(back instanceof HTMLImageElement)) continue;
 
@@ -1319,6 +1329,16 @@
       };
 
       toggle?.addEventListener('click', (e) => {
+        e.preventDefault();
+        flip();
+      });
+
+      prev?.addEventListener('click', (e) => {
+        e.preventDefault();
+        flip();
+      });
+
+      next?.addEventListener('click', (e) => {
         e.preventDefault();
         flip();
       });
