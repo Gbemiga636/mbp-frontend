@@ -1291,7 +1291,18 @@
     };
     if (!grids.lingerie && !grids.underwear && !grids.pyjamas && !grids.nightwear) return;
 
-    if (!API_BASE) return;
+    const setGridStatus = (el, message) => {
+      if (!el) return;
+      el.innerHTML = `<div class="store-empty" role="status" aria-live="polite">${String(message || '')}</div>`;
+    };
+
+    if (!API_BASE) {
+      Object.values(grids).forEach((el) => setGridStatus(el, 'Store is not connected.'));
+      return;
+    }
+
+    // Always clear any existing static HTML so public === admin.
+    Object.values(grids).forEach((el) => setGridStatus(el, 'Loading products…'));
 
     try {
       const store = await fetchJson(`${API_BASE}/api/content/store`, { method: 'GET' });
@@ -1305,14 +1316,17 @@
       Object.keys(byCat).forEach((cat) => {
         const el = grids[cat];
         if (!el) return;
-        if (!byCat[cat].length) return;
+        if (!byCat[cat].length) {
+          setGridStatus(el, 'No products in this category yet.');
+          return;
+        }
         el.innerHTML = byCat[cat].map(buildProductCardHtml).join('');
       });
 
       // Wire up front/back swap on newly rendered cards.
       initProductCardImageSwap();
     } catch {
-      // keep static
+      Object.values(grids).forEach((el) => setGridStatus(el, 'Unable to load products right now. Please refresh.'));
     }
   };
 
