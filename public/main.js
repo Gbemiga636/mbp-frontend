@@ -1082,6 +1082,15 @@
 
     if (!API_BASE) return;
 
+    const setSectionStatus = (el, message) => {
+      if (!el) return;
+      el.innerHTML = `<div class="store-empty" role="status" aria-live="polite">${String(message || '')}</div>`;
+    };
+
+    // Always clear any existing static HTML so public === admin.
+    setSectionStatus(carousel, 'Loading featured pieces…');
+    setSectionStatus(reviewsCarousel, 'Loading reviews…');
+
     const ensureHeroBackgroundVideo = () => {
       if (!heroVideo) return;
       try {
@@ -1260,6 +1269,8 @@
 
       if (carousel && Array.isArray(home?.featured) && home.featured.length) {
         carousel.innerHTML = home.featured.map(buildProductCardHtml).join('');
+      } else {
+        setSectionStatus(carousel, 'No featured pieces yet.');
       }
 
       if (reviewsCarousel && Array.isArray(home?.reviews) && home.reviews.length) {
@@ -1276,9 +1287,12 @@
 `.trim();
           })
           .join('');
+      } else {
+        setSectionStatus(reviewsCarousel, 'No reviews yet.');
       }
     } catch {
-      // If backend is not available, keep the static HTML.
+      setSectionStatus(carousel, 'Unable to load featured pieces right now. Please refresh.');
+      setSectionStatus(reviewsCarousel, 'Unable to load reviews right now. Please refresh.');
     }
   };
 
@@ -1465,13 +1479,23 @@
     const grid = document.getElementById('igGrid');
     if (!grid) return;
     if (!API_BASE) return;
+
+    const setGridStatus = (message) => {
+      grid.innerHTML = `<div class="store-empty" role="status" aria-live="polite">${String(message || '')}</div>`;
+    };
+
+    // Always clear any existing static HTML so public === admin.
+    setGridStatus('Loading gallery…');
     try {
       const gallery = await fetchJson(`${API_BASE}/api/content/gallery`, { method: 'GET' });
       const items = Array.isArray(gallery?.items) ? gallery.items : [];
-      if (!items.length) return;
-      grid.innerHTML = items.map(buildGalleryItemHtml).join('');
+      if (!items.length) {
+        setGridStatus('No gallery items yet.');
+        return;
+      }
+      grid.innerHTML = items.map(buildGalleryItemHtml).join('') || '';
     } catch {
-      // keep static
+      setGridStatus('Unable to load gallery right now. Please refresh.');
     }
   };
 
