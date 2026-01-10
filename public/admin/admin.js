@@ -990,6 +990,7 @@
     const backupBtn = document.getElementById('contentBackupBtn');
     const restoreBtn = document.getElementById('contentRestoreBtn');
     const pullBtn = document.getElementById('contentPullBtn');
+    const initBtn = document.getElementById('contentInitBtn');
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -1302,6 +1303,22 @@
       }
     });
 
+    initBtn?.addEventListener('click', async () => {
+      try {
+        await withActionLock(initBtn, async () => {
+          if (initBtn) initBtn.textContent = 'Initializing…';
+          await fetchJson(`${API_BASE}/api/admin/data/init-empty-content`, {
+            method: 'POST',
+            headers: { ...authHeaders() },
+          });
+        });
+        setNotice(notice, { message: 'Initialized empty content ✓ Reloading…' });
+        await load();
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
+
     const saveHeroVideo = async (heroVideo, { fromUpload = false } = {}) => {
       const value = String(heroVideo || '').trim();
       await fetchJson(`${API_BASE}/api/admin/home/hero-video`, {
@@ -1546,6 +1563,7 @@
     const backupBtn = document.getElementById('storeBackupBtn');
     const restoreBtn = document.getElementById('storeRestoreBtn');
     const pullBtn = document.getElementById('storePullBtn');
+    const initBtn = document.getElementById('storeInitBtn');
 
     // Restore unsaved new-product draft after any accidental reload.
     restoreStoreAddDraft(addForm);
@@ -1707,6 +1725,22 @@
           });
         });
         setNotice(notice, { message: 'Pulled from Cloudinary ✓ Reloading products…' });
+        await load();
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
+
+    initBtn?.addEventListener('click', async () => {
+      try {
+        await withActionLock(initBtn, async () => {
+          if (initBtn) initBtn.textContent = 'Initializing…';
+          await fetchJson(`${API_BASE}/api/admin/data/init-empty-content`, {
+            method: 'POST',
+            headers: { ...authHeaders() },
+          });
+        });
+        setNotice(notice, { message: 'Initialized empty content ✓ Reloading products…' });
         await load();
       } catch (err) {
         setNotice(notice, { message: err.message, isError: true });
@@ -2021,6 +2055,7 @@
     const backupBtn = document.getElementById('contentBackupBtn');
     const restoreBtn = document.getElementById('contentRestoreBtn');
     const pullBtn = document.getElementById('contentPullBtn');
+    const initBtn = document.getElementById('contentInitBtn');
 
     // Restore unsaved new-gallery draft after any accidental reload.
     restoreGalleryAddDraft(addForm);
@@ -2156,6 +2191,22 @@
           });
         });
         setNotice(notice, { message: 'Pulled from Cloudinary ✓ Reloading…' });
+        await load();
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
+
+    initBtn?.addEventListener('click', async () => {
+      try {
+        await withActionLock(initBtn, async () => {
+          if (initBtn) initBtn.textContent = 'Initializing…';
+          await fetchJson(`${API_BASE}/api/admin/data/init-empty-content`, {
+            method: 'POST',
+            headers: { ...authHeaders() },
+          });
+        });
+        setNotice(notice, { message: 'Initialized empty content ✓ Reloading…' });
         await load();
       } catch (err) {
         setNotice(notice, { message: err.message, isError: true });
