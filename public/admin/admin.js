@@ -269,13 +269,22 @@
   };
 
   const fetchJson = async (url, options = {}) => {
-    const res = await fetch(url, {
-      ...options,
-      headers: {
-        'Content-Type': options.body instanceof FormData ? undefined : 'application/json',
-        ...(options.headers || {}),
-      },
-    });
+    let res;
+    try {
+      res = await fetch(url, {
+        ...options,
+        headers: {
+          'Content-Type': options.body instanceof FormData ? undefined : 'application/json',
+          ...(options.headers || {}),
+        },
+      });
+    } catch (e) {
+      const err = new Error(
+        'Cannot reach the backend API. Check window.MBP_API_BASE (public/config.js) and Render CORS (FRONTEND_ORIGIN / PUBLIC_SITE_URL).'
+      );
+      err.cause = e;
+      throw err;
+    }
 
     const text = await res.text();
     let data = null;
@@ -1516,7 +1525,13 @@
 
     // Home is edit-only; reviewAddForm is intentionally disabled/ignored.
 
-    await load();
+    try {
+      await load();
+    } catch (err) {
+      setNotice(notice, { message: err.message || 'Failed to load home content.', isError: true });
+      if (featuredList) featuredList.innerHTML = '<div class="admin-muted">Unable to load featured products.</div>';
+      if (reviewsList) reviewsList.innerHTML = '<div class="admin-muted">Unable to load reviews.</div>';
+    }
   };
 
   // Store editor
@@ -1850,6 +1865,8 @@
     addForm?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const submitBtn = addForm.querySelector('button[type="submit"]');
+      let prevMinWidth = submitBtn?.style?.minWidth;
+      let originalText = submitBtn?.textContent || 'Add product';
       try {
         setNotice(notice, { message: '' });
         const y0 = window.scrollY || 0;
@@ -1861,11 +1878,11 @@
           // ignore
         }
 
-        const originalText = submitBtn?.textContent || 'Add product';
+        originalText = submitBtn?.textContent || 'Add product';
         if (submitBtn) submitBtn.dataset.mbpText = originalText;
 
         // Freeze button width so label changes never cause layout jitter.
-        const prevMinWidth = submitBtn?.style?.minWidth;
+        prevMinWidth = submitBtn?.style?.minWidth;
         try {
           if (submitBtn) submitBtn.style.minWidth = `${Math.ceil(submitBtn.getBoundingClientRect().width)}px`;
         } catch {
@@ -1922,6 +1939,10 @@
         }, 1200);
       } catch (err) {
         setNotice(notice, { message: err.message, isError: true });
+        if (submitBtn) {
+          submitBtn.textContent = submitBtn.dataset.mbpText || originalText || 'Add product';
+          submitBtn.style.minWidth = prevMinWidth || '';
+        }
       } finally {
         setButtonBusy(submitBtn, false);
       }
@@ -1980,7 +2001,12 @@
       }
     });
 
-    await load();
+    try {
+      await load();
+    } catch (err) {
+      setNotice(notice, { message: err.message || 'Failed to load store products.', isError: true });
+      if (listEl) listEl.innerHTML = '<div class="admin-muted">Unable to load products.</div>';
+    }
   };
 
   // Gallery editor
@@ -2234,9 +2260,11 @@
 
     addForm?.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const submitBtn = addForm.querySelector('button[type="submit"]');
+      let prevMinWidth = submitBtn?.style?.minWidth;
+      let originalText = submitBtn?.textContent || 'Add gallery item';
       try {
         setNotice(notice, { message: '' });
-        const submitBtn = addForm.querySelector('button[type="submit"]');
         const y0 = window.scrollY || 0;
 
         // Snapshot viewport in case a dev live-reload happens mid-add.
@@ -2246,11 +2274,11 @@
           // ignore
         }
 
-        const originalText = submitBtn?.textContent || 'Add gallery item';
+        originalText = submitBtn?.textContent || 'Add gallery item';
         if (submitBtn) submitBtn.dataset.mbpText = originalText;
 
         // Freeze button width so label changes never cause layout jitter.
-        const prevMinWidth = submitBtn?.style?.minWidth;
+        prevMinWidth = submitBtn?.style?.minWidth;
         try {
           if (submitBtn) submitBtn.style.minWidth = `${Math.ceil(submitBtn.getBoundingClientRect().width)}px`;
         } catch {
@@ -2300,8 +2328,11 @@
         }, 1200);
       } catch (err) {
         setNotice(notice, { message: err.message, isError: true });
+        if (submitBtn) {
+          submitBtn.textContent = submitBtn.dataset.mbpText || originalText || 'Add gallery item';
+          submitBtn.style.minWidth = prevMinWidth || '';
+        }
       } finally {
-        const submitBtn = addForm?.querySelector?.('button[type="submit"]');
         setButtonBusy(submitBtn, false);
       }
     });
@@ -2368,7 +2399,12 @@
       }
     });
 
-    await load();
+    try {
+      await load();
+    } catch (err) {
+      setNotice(notice, { message: err.message || 'Failed to load gallery items.', isError: true });
+      if (listEl) listEl.innerHTML = '<div class="admin-muted">Unable to load gallery.</div>';
+    }
   };
 
   // Orders
