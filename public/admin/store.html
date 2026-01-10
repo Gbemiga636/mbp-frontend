@@ -50,6 +50,17 @@
 
           <section class="admin-main">
             <div class="admin-card">
+              <h2 class="admin-card__title">Backup & Restore</h2>
+              <p class="admin-card__sub">If products ever disappear after a restart, use these to restore the last backup.</p>
+              <div class="admin-row" style="gap:10px; flex-wrap:wrap;">
+                <button class="btn" type="button" id="storeBackupBtn">Backup store now</button>
+                <button class="btn btn--ghost" type="button" id="storeRestoreBtn">Restore last backup</button>
+                <button class="btn btn--ghost" type="button" id="storePullBtn">Force pull from Cloudinary</button>
+              </div>
+              <div class="admin-mini" style="margin-top:8px;">Tip: Backups are stored in Cloudinary raw JSON.</div>
+            </div>
+
+            <div class="admin-card">
               <h2 class="admin-card__title">Add New Product</h2>
               <p class="admin-card__sub">Add a product, then it will appear on the public Store page.</p>
               <form class="admin-form" id="storeAddForm">

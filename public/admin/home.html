@@ -51,6 +51,17 @@
 
           <section aria-label="Home editors">
             <div class="admin-card">
+              <h2 class="admin-card__title">Backup & Restore</h2>
+              <p class="admin-card__sub">If Home content ever resets after a restart, use these to restore the last backup.</p>
+              <div class="admin-row" style="gap:10px; flex-wrap:wrap;">
+                <button class="btn" type="button" id="contentBackupBtn">Backup site content now</button>
+                <button class="btn btn--ghost" type="button" id="contentRestoreBtn">Restore last backup</button>
+                <button class="btn btn--ghost" type="button" id="contentPullBtn">Force pull from Cloudinary</button>
+              </div>
+              <div class="admin-mini" style="margin-top:8px;">Tip: Backups are stored in Cloudinary raw JSON.</div>
+            </div>
+
+            <div class="admin-card">
               <h2 class="admin-card__title">Hero background video</h2>
               <p class="admin-card__sub">Paste a video URL or upload a new MP4.</p>
 

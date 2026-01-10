@@ -978,6 +978,10 @@
     if (!form) return;
     const notice = document.getElementById('adminNotice');
 
+    const backupBtn = document.getElementById('contentBackupBtn');
+    const restoreBtn = document.getElementById('contentRestoreBtn');
+    const pullBtn = document.getElementById('contentPullBtn');
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       setNotice(notice, { message: '' });
@@ -1223,6 +1227,72 @@
       if (reviewAddBtn) reviewAddBtn.disabled = true;
     };
 
+    const withActionLock = async (btn, fn) => {
+      const b = btn instanceof HTMLButtonElement ? btn : null;
+      const prevText = b ? b.textContent : '';
+      try {
+        setNotice(notice, { message: '' });
+        if (b) {
+          setButtonBusy(b, true);
+          if (prevText) b.dataset.mbpText = prevText;
+        }
+        return await fn();
+      } finally {
+        if (b) {
+          setButtonBusy(b, false);
+          b.textContent = b.dataset.mbpText || prevText;
+        }
+      }
+    };
+
+    backupBtn?.addEventListener('click', async () => {
+      try {
+        await withActionLock(backupBtn, async () => {
+          if (backupBtn) backupBtn.textContent = 'Backing up…';
+          await fetchJson(`${API_BASE}/api/admin/data/backup-content`, {
+            method: 'POST',
+            headers: { ...authHeaders() },
+          });
+        });
+        setNotice(notice, { message: 'Backup created successfully ✓' });
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
+
+    restoreBtn?.addEventListener('click', async () => {
+      try {
+        await withActionLock(restoreBtn, async () => {
+          if (restoreBtn) restoreBtn.textContent = 'Restoring…';
+          await fetchJson(`${API_BASE}/api/admin/data/restore-content-backup`, {
+            method: 'POST',
+            headers: { ...authHeaders() },
+          });
+        });
+        setNotice(notice, { message: 'Backup restored ✓ Reloading…' });
+        await load();
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
+
+    pullBtn?.addEventListener('click', async () => {
+      try {
+        await withActionLock(pullBtn, async () => {
+          if (pullBtn) pullBtn.textContent = 'Pulling…';
+          await fetchJson(`${API_BASE}/api/admin/data/pull`, {
+            method: 'POST',
+            headers: { ...authHeaders() },
+            body: JSON.stringify({ files: ['content', 'settings'] }),
+          });
+        });
+        setNotice(notice, { message: 'Pulled from Cloudinary ✓ Reloading…' });
+        await load();
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
+
     const saveHeroVideo = async (heroVideo, { fromUpload = false } = {}) => {
       const value = String(heroVideo || '').trim();
       await fetchJson(`${API_BASE}/api/admin/home/hero-video`, {
@@ -1458,6 +1528,10 @@
     const listEl = document.getElementById('storeList');
     const addForm = document.getElementById('storeAddForm');
 
+    const backupBtn = document.getElementById('storeBackupBtn');
+    const restoreBtn = document.getElementById('storeRestoreBtn');
+    const pullBtn = document.getElementById('storePullBtn');
+
     // Restore unsaved new-product draft after any accidental reload.
     restoreStoreAddDraft(addForm);
     // Keep draft up to date while editing the add form.
@@ -1557,6 +1631,72 @@
       // If a live-reload happened after upload (before save), restore the unsaved preview.
       applyPendingStoreImagesToList(listEl);
     };
+
+    const withActionLock = async (btn, fn) => {
+      const b = btn instanceof HTMLButtonElement ? btn : null;
+      const prevText = b ? b.textContent : '';
+      try {
+        setNotice(notice, { message: '' });
+        if (b) {
+          setButtonBusy(b, true);
+          if (prevText) b.dataset.mbpText = prevText;
+        }
+        return await fn();
+      } finally {
+        if (b) {
+          setButtonBusy(b, false);
+          b.textContent = b.dataset.mbpText || prevText;
+        }
+      }
+    };
+
+    backupBtn?.addEventListener('click', async () => {
+      try {
+        await withActionLock(backupBtn, async () => {
+          if (backupBtn) backupBtn.textContent = 'Backing up…';
+          await fetchJson(`${API_BASE}/api/admin/data/backup-content`, {
+            method: 'POST',
+            headers: { ...authHeaders() },
+          });
+        });
+        setNotice(notice, { message: 'Backup created successfully ✓' });
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
+
+    restoreBtn?.addEventListener('click', async () => {
+      try {
+        await withActionLock(restoreBtn, async () => {
+          if (restoreBtn) restoreBtn.textContent = 'Restoring…';
+          await fetchJson(`${API_BASE}/api/admin/data/restore-content-backup`, {
+            method: 'POST',
+            headers: { ...authHeaders() },
+          });
+        });
+        setNotice(notice, { message: 'Backup restored ✓ Reloading products…' });
+        await load();
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
+
+    pullBtn?.addEventListener('click', async () => {
+      try {
+        await withActionLock(pullBtn, async () => {
+          if (pullBtn) pullBtn.textContent = 'Pulling…';
+          await fetchJson(`${API_BASE}/api/admin/data/pull`, {
+            method: 'POST',
+            headers: { ...authHeaders() },
+            body: JSON.stringify({ files: ['content', 'settings'] }),
+          });
+        });
+        setNotice(notice, { message: 'Pulled from Cloudinary ✓ Reloading products…' });
+        await load();
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
 
     rememberScrollBeforeFilePicker(listEl);
 
@@ -1852,6 +1992,10 @@
     const listEl = document.getElementById('galleryList');
     const addForm = document.getElementById('galleryAddForm');
 
+    const backupBtn = document.getElementById('contentBackupBtn');
+    const restoreBtn = document.getElementById('contentRestoreBtn');
+    const pullBtn = document.getElementById('contentPullBtn');
+
     // Restore unsaved new-gallery draft after any accidental reload.
     restoreGalleryAddDraft(addForm);
     // Keep draft up to date while editing the add form.
@@ -1925,6 +2069,72 @@
       const items = data?.items || [];
       if (listEl) listEl.innerHTML = items.map(renderItem).join('') || '<div class="admin-muted">No gallery items yet.</div>';
     };
+
+    const withActionLock = async (btn, fn) => {
+      const b = btn instanceof HTMLButtonElement ? btn : null;
+      const prevText = b ? b.textContent : '';
+      try {
+        setNotice(notice, { message: '' });
+        if (b) {
+          setButtonBusy(b, true);
+          if (prevText) b.dataset.mbpText = prevText;
+        }
+        return await fn();
+      } finally {
+        if (b) {
+          setButtonBusy(b, false);
+          b.textContent = b.dataset.mbpText || prevText;
+        }
+      }
+    };
+
+    backupBtn?.addEventListener('click', async () => {
+      try {
+        await withActionLock(backupBtn, async () => {
+          if (backupBtn) backupBtn.textContent = 'Backing up…';
+          await fetchJson(`${API_BASE}/api/admin/data/backup-content`, {
+            method: 'POST',
+            headers: { ...authHeaders() },
+          });
+        });
+        setNotice(notice, { message: 'Backup created successfully ✓' });
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
+
+    restoreBtn?.addEventListener('click', async () => {
+      try {
+        await withActionLock(restoreBtn, async () => {
+          if (restoreBtn) restoreBtn.textContent = 'Restoring…';
+          await fetchJson(`${API_BASE}/api/admin/data/restore-content-backup`, {
+            method: 'POST',
+            headers: { ...authHeaders() },
+          });
+        });
+        setNotice(notice, { message: 'Backup restored ✓ Reloading…' });
+        await load();
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
+
+    pullBtn?.addEventListener('click', async () => {
+      try {
+        await withActionLock(pullBtn, async () => {
+          if (pullBtn) pullBtn.textContent = 'Pulling…';
+          await fetchJson(`${API_BASE}/api/admin/data/pull`, {
+            method: 'POST',
+            headers: { ...authHeaders() },
+            body: JSON.stringify({ files: ['content', 'settings'] }),
+          });
+        });
+        setNotice(notice, { message: 'Pulled from Cloudinary ✓ Reloading…' });
+        await load();
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
 
     listEl?.addEventListener('change', async (e) => {
       const input = e.target;
