@@ -282,7 +282,16 @@
   };
 
   const fetchJson = async (url, options) => {
-    const res = await fetch(url, { cache: 'no-store', ...options });
+    let res;
+    try {
+      res = await fetch(url, { cache: 'no-store', ...options });
+    } catch (e) {
+      const err = new Error('Network/CORS error: could not reach the server. Please check your connection and that the backend allows this site origin.');
+      err.cause = e;
+      err.code = 'NETWORK_ERROR';
+      throw err;
+    }
+
     const text = await res.text();
     let data = null;
     try {
@@ -292,7 +301,11 @@
     }
     if (!res.ok) {
       const message = data?.error || data?.message || `Request failed (${res.status})`;
-      throw new Error(message);
+      const err = new Error(message);
+      err.status = res.status;
+      err.code = data?.code;
+      err.data = data;
+      throw err;
     }
     return data;
   };
@@ -1339,8 +1352,9 @@
 
       // Wire up front/back swap on newly rendered cards.
       initProductCardImageSwap();
-    } catch {
-      Object.values(grids).forEach((el) => setGridStatus(el, 'Unable to load products right now. Please refresh.'));
+    } catch (err) {
+      const msg = String(err?.message || 'Unable to load products right now. Please refresh.');
+      Object.values(grids).forEach((el) => setGridStatus(el, msg));
     }
   };
 
