@@ -1058,6 +1058,9 @@
     const initBtn = document.getElementById('contentInitBtn');
     const dataStatusEl = document.getElementById('dataStatus');
 
+    const allBackupBtn = document.getElementById('allBackupBtn');
+    const allRestoreBtn = document.getElementById('allRestoreBtn');
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       setNotice(notice, { message: '' });
@@ -1385,6 +1388,39 @@
           });
         });
         setNotice(notice, { message: 'Initialized empty content ✓ Reloading…' });
+        await load();
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
+
+    allBackupBtn?.addEventListener('click', async () => {
+      try {
+        await withActionLock(allBackupBtn, async () => {
+          if (allBackupBtn) allBackupBtn.textContent = 'Backing up…';
+          await fetchJson(`${API_BASE}/api/admin/data/backup-all`, {
+            method: 'POST',
+            headers: { ...authHeaders() },
+          });
+        });
+        setNotice(notice, { message: 'Full backup created successfully ✓' });
+        await refreshDataStatusPanel(dataStatusEl);
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
+
+    allRestoreBtn?.addEventListener('click', async () => {
+      if (!window.confirm('Restore EVERYTHING? This will overwrite content, settings, and orders on the server.')) return;
+      try {
+        await withActionLock(allRestoreBtn, async () => {
+          if (allRestoreBtn) allRestoreBtn.textContent = 'Restoring…';
+          await fetchJson(`${API_BASE}/api/admin/data/restore-all-backup`, {
+            method: 'POST',
+            headers: { ...authHeaders() },
+          });
+        });
+        setNotice(notice, { message: 'Full restore complete ✓ Reloading…' });
         await load();
       } catch (err) {
         setNotice(notice, { message: err.message, isError: true });
@@ -1729,6 +1765,9 @@
     const initBtn = document.getElementById('storeInitBtn');
     const dataStatusEl = document.getElementById('dataStatus');
 
+    const allBackupBtn = document.getElementById('allBackupBtn');
+    const allRestoreBtn = document.getElementById('allRestoreBtn');
+
     // Restore unsaved new-product draft after any accidental reload.
     restoreStoreAddDraft(addForm);
     // Keep draft up to date while editing the add form.
@@ -1907,6 +1946,39 @@
           });
         });
         setNotice(notice, { message: 'Initialized empty content ✓ Reloading products…' });
+        await load();
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
+
+    allBackupBtn?.addEventListener('click', async () => {
+      try {
+        await withActionLock(allBackupBtn, async () => {
+          if (allBackupBtn) allBackupBtn.textContent = 'Backing up…';
+          await fetchJson(`${API_BASE}/api/admin/data/backup-all`, {
+            method: 'POST',
+            headers: { ...authHeaders() },
+          });
+        });
+        setNotice(notice, { message: 'Full backup created successfully ✓' });
+        await refreshDataStatusPanel(dataStatusEl);
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
+
+    allRestoreBtn?.addEventListener('click', async () => {
+      if (!window.confirm('Restore EVERYTHING? This will overwrite content, settings, and orders on the server.')) return;
+      try {
+        await withActionLock(allRestoreBtn, async () => {
+          if (allRestoreBtn) allRestoreBtn.textContent = 'Restoring…';
+          await fetchJson(`${API_BASE}/api/admin/data/restore-all-backup`, {
+            method: 'POST',
+            headers: { ...authHeaders() },
+          });
+        });
+        setNotice(notice, { message: 'Full restore complete ✓ Reloading…' });
         await load();
       } catch (err) {
         setNotice(notice, { message: err.message, isError: true });
@@ -2222,6 +2294,10 @@
     const restoreBtn = document.getElementById('contentRestoreBtn');
     const pullBtn = document.getElementById('contentPullBtn');
     const initBtn = document.getElementById('contentInitBtn');
+    const dataStatusEl = document.getElementById('dataStatus');
+
+    const allBackupBtn = document.getElementById('allBackupBtn');
+    const allRestoreBtn = document.getElementById('allRestoreBtn');
 
     // Restore unsaved new-gallery draft after any accidental reload.
     restoreGalleryAddDraft(addForm);
@@ -2375,6 +2451,39 @@
           });
         });
         setNotice(notice, { message: 'Initialized empty content ✓ Reloading…' });
+        await load();
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
+
+    allBackupBtn?.addEventListener('click', async () => {
+      try {
+        await withActionLock(allBackupBtn, async () => {
+          if (allBackupBtn) allBackupBtn.textContent = 'Backing up…';
+          await fetchJson(`${API_BASE}/api/admin/data/backup-all`, {
+            method: 'POST',
+            headers: { ...authHeaders() },
+          });
+        });
+        setNotice(notice, { message: 'Full backup created successfully ✓' });
+        await refreshDataStatusPanel(dataStatusEl);
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
+
+    allRestoreBtn?.addEventListener('click', async () => {
+      if (!window.confirm('Restore EVERYTHING? This will overwrite content, settings, and orders on the server.')) return;
+      try {
+        await withActionLock(allRestoreBtn, async () => {
+          if (allRestoreBtn) allRestoreBtn.textContent = 'Restoring…';
+          await fetchJson(`${API_BASE}/api/admin/data/restore-all-backup`, {
+            method: 'POST',
+            headers: { ...authHeaders() },
+          });
+        });
+        setNotice(notice, { message: 'Full restore complete ✓ Reloading…' });
         await load();
       } catch (err) {
         setNotice(notice, { message: err.message, isError: true });
