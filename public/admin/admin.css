@@ -231,6 +231,19 @@ body,
   box-shadow: none;
 }
 
+.admin-actions .btn.btn--ghost.btn--danger {
+  border-color: rgba(168, 75, 87, 0.32);
+  background: rgba(168, 75, 87, 0.10);
+  color: rgba(18, 18, 22, 0.92);
+}
+
+/* Use on toolbars too (not only inside .admin-actions) */
+.btn.btn--ghost.btn--danger {
+  border-color: rgba(168, 75, 87, 0.32);
+  background: rgba(168, 75, 87, 0.10);
+  color: rgba(18, 18, 22, 0.92);
+}
+
 .admin-pill {
   display: inline-flex;
   align-items: center;
@@ -241,6 +254,41 @@ body,
   background: rgba(255, 255, 255, 0.70);
   font-size: 12px;
   color: rgba(18, 18, 22, 0.75);
+}
+
+.admin-pill--ok {
+  border-color: rgba(34, 140, 92, 0.28);
+  background: rgba(34, 140, 92, 0.10);
+  color: rgba(18, 18, 22, 0.88);
+  font-weight: 900;
+}
+
+.admin-pill--warn {
+  border-color: rgba(216, 176, 124, 0.42);
+  background: rgba(216, 176, 124, 0.16);
+  color: rgba(18, 18, 22, 0.88);
+  font-weight: 900;
+}
+
+.admin-pill--bad {
+  border-color: rgba(168, 75, 87, 0.35);
+  background: rgba(168, 75, 87, 0.12);
+  color: rgba(18, 18, 22, 0.92);
+  font-weight: 900;
+}
+
+.admin-status {
+  border-radius: 16px;
+  border: 1px solid rgba(18, 18, 22, 0.10);
+  background: rgba(255, 255, 255, 0.65);
+  padding: 10px 12px;
+}
+
+.admin-status__pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .admin-pill--unread {

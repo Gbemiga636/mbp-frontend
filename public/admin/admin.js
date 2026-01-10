@@ -343,6 +343,71 @@
     el.classList.toggle('notice--error', Boolean(isError));
   };
 
+  const escapeHtml = (value) =>
+    String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+
+  const formatTs = (ms) => {
+    const n = Number(ms || 0);
+    if (!n) return '—';
+    try {
+      return new Date(n).toLocaleString();
+    } catch {
+      return String(n);
+    }
+  };
+
+  const renderDataStatusHtml = (status) => {
+    const cloudConfigured = Boolean(status?.cloudinary?.configured);
+    const syncEnabled = Boolean(status?.cloudinary?.syncEnabled);
+    const expected = Boolean(status?.restore?.expected);
+    const contentReady = Boolean(status?.restore?.contentReady);
+
+    const restoreAttempts = Number(status?.restore?.attempts || 0);
+    const restoreLastErr = String(status?.restore?.lastError || '').trim();
+
+    const writeLastErr = String(status?.write?.lastError || '').trim();
+
+    const pill = (kind, text) => `<span class="admin-pill admin-pill--${kind}">${escapeHtml(text)}</span>`;
+
+    const pills = [
+      pill(cloudConfigured ? 'ok' : 'bad', cloudConfigured ? 'Cloudinary: configured' : 'Cloudinary: NOT configured'),
+      pill(syncEnabled ? 'ok' : 'bad', syncEnabled ? 'Sync: ON' : 'Sync: OFF'),
+      pill(contentReady ? 'ok' : expected ? 'warn' : 'ok', contentReady ? 'Content: ready' : expected ? 'Content: restoring' : 'Content: local'),
+    ].join(' ');
+
+    const restoreLine = expected
+      ? `Restore expected • attempts: ${restoreAttempts} • last success: ${escapeHtml(formatTs(status?.restore?.lastSuccessAt))}`
+      : 'Restore not expected (local content mode)';
+
+    const restoreErrLine = restoreLastErr ? `Restore error: ${escapeHtml(restoreLastErr)}` : 'Restore error: —';
+    const writeErrLine = writeLastErr ? `Last write error: ${escapeHtml(writeLastErr)}` : 'Last write error: —';
+
+    return `
+<div class="admin-status">
+  <div class="admin-status__pills">${pills}</div>
+  <div class="admin-mini" style="margin-top:6px;">${restoreLine}</div>
+  <div class="admin-mini">${restoreErrLine}</div>
+  <div class="admin-mini">${writeErrLine}</div>
+</div>
+`.trim();
+  };
+
+  const refreshDataStatusPanel = async (panelEl) => {
+    if (!(panelEl instanceof HTMLElement)) return;
+    panelEl.innerHTML = `<div class="admin-mini" style="display:flex; gap:10px; align-items:center;"><span class="spinner" aria-hidden="true"></span><span>Checking data status…</span></div>`;
+    try {
+      const status = await fetchJson(`${API_BASE}/api/admin/data/status`, { headers: authHeaders(), cache: 'no-store' });
+      panelEl.innerHTML = renderDataStatusHtml(status);
+    } catch (err) {
+      panelEl.innerHTML = `<div class="admin-mini">Status unavailable: ${escapeHtml(err?.message || 'Unknown error')}</div>`;
+    }
+  };
+
   const setButtonBusy = (btn, isBusy) => {
     if (!btn) return;
     btn.toggleAttribute('data-busy', Boolean(isBusy));
@@ -991,6 +1056,7 @@
     const restoreBtn = document.getElementById('contentRestoreBtn');
     const pullBtn = document.getElementById('contentPullBtn');
     const initBtn = document.getElementById('contentInitBtn');
+    const dataStatusEl = document.getElementById('dataStatus');
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -1093,6 +1159,12 @@
 
     const notice = document.getElementById('adminNotice');
 
+    const backupBtn = document.getElementById('contentBackupBtn');
+    const restoreBtn = document.getElementById('contentRestoreBtn');
+    const pullBtn = document.getElementById('contentPullBtn');
+    const initBtn = document.getElementById('contentInitBtn');
+    const dataStatusEl = document.getElementById('dataStatus');
+
     const heroInput = document.getElementById('heroVideo');
     const heroSave = document.getElementById('heroSave');
     const heroUpload = document.getElementById('heroUpload');
@@ -1141,6 +1213,7 @@
       <div class="admin-mini">₦${Number(p.price || 0).toLocaleString('en-NG')} • ${p.image || 'No image'}</div>
     </div>
     <div class="admin-actions">
+      <button class="btn btn--ghost btn--danger" type="button" data-action="featured-delete">Delete</button>
       <button class="btn" type="button" data-action="featured-save">Save changes</button>
     </div>
   </div>
@@ -1188,6 +1261,7 @@
       <div class="admin-mini">${(r.text || '').slice(0, 72).replace(/</g, '&lt;')}${(r.text || '').length > 72 ? '…' : ''}</div>
     </div>
     <div class="admin-actions">
+      <button class="btn btn--ghost btn--danger" type="button" data-action="review-delete">Delete</button>
       <button class="btn" type="button" data-action="review-save">Save changes</button>
     </div>
   </div>
@@ -1207,6 +1281,7 @@
 
     const load = async () => {
       setNotice(notice, { message: '' });
+      await refreshDataStatusPanel(dataStatusEl);
       const [home, featured, reviews] = await Promise.all([
         fetchJson(`${API_BASE}/api/content/home`, { cache: 'no-store' }),
         fetchJson(`${API_BASE}/api/admin/home/featured`, { headers: authHeaders(), cache: 'no-store' }),
@@ -1232,9 +1307,6 @@
       if (featuredAddBtn) featuredAddBtn.disabled = featuredCount >= MAX_HOME_FEATURED;
       if (reviewAddBtn) reviewAddBtn.disabled = reviewsCount >= MAX_HOME_REVIEWS;
 
-      // Home is edit-only; disable add forms if they exist.
-      if (featuredAddBtn) featuredAddBtn.disabled = true;
-      if (reviewAddBtn) reviewAddBtn.disabled = true;
     };
 
     const withActionLock = async (btn, fn) => {
@@ -1450,8 +1522,7 @@
       const id = item?.getAttribute('data-id') || '';
       if (!id) return;
 
-      // Home is edit-only.
-      if (action !== 'featured-save') return;
+      if (action !== 'featured-save' && action !== 'featured-delete') return;
 
       const payloadFromItem = () => {
         const name = item.querySelector('[data-field="name"]')?.value || '';
@@ -1469,24 +1540,41 @@
         btn.dataset.mbpText = originalText;
 
         await withScrollLock(y0, async () => {
-          btn.textContent = 'Saving…';
+          btn.textContent = action === 'featured-delete' ? 'Deleting…' : 'Saving…';
           try {
             btn.blur();
           } catch {
             // ignore
           }
           setButtonBusy(btn, true);
-          await fetchJson(`${API_BASE}/api/admin/home/featured/${encodeURIComponent(id)}`, {
-            method: 'PUT',
-            headers: { ...authHeaders() },
-            body: JSON.stringify(payloadFromItem()),
-          });
+
+          if (action === 'featured-delete') {
+            const ok = window.confirm('Delete this featured piece?');
+            if (!ok) return;
+            await fetchJson(`${API_BASE}/api/admin/home/featured/${encodeURIComponent(id)}`, {
+              method: 'DELETE',
+              headers: { ...authHeaders() },
+            });
+          } else {
+            await fetchJson(`${API_BASE}/api/admin/home/featured/${encodeURIComponent(id)}`, {
+              method: 'PUT',
+              headers: { ...authHeaders() },
+              body: JSON.stringify(payloadFromItem()),
+            });
+          }
         });
 
-        // No reload here (prevents scroll jumps). Keep UI as-is.
-        clearPendingHomeFeaturedImage(id);
-        setNotice(notice, { message: 'Featured piece saved ✓' });
-        flashSavedTick(btn);
+        if (action === 'featured-delete') {
+          clearPendingHomeFeaturedImage(id);
+          setNotice(notice, { message: 'Featured piece deleted ✓ Reloading…' });
+          await load();
+        } else {
+          // No reload here (prevents scroll jumps). Keep UI as-is.
+          clearPendingHomeFeaturedImage(id);
+          setNotice(notice, { message: 'Featured piece saved ✓' });
+          flashSavedTick(btn);
+          await refreshDataStatusPanel(dataStatusEl);
+        }
       } catch (err) {
         setNotice(notice, { message: err.message, isError: true });
       } finally {
@@ -1494,7 +1582,38 @@
       }
     });
 
-    // Home is edit-only; featuredAddForm is intentionally disabled/ignored.
+    featuredAddForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (featuredCount >= MAX_HOME_FEATURED) {
+        setNotice(notice, { message: `You already have ${MAX_HOME_FEATURED} featured items. Delete one first.`, isError: true });
+        return;
+      }
+      const submitBtn = featuredAddForm.querySelector('button[type="submit"]');
+      const payload = {
+        name: String(featuredAddForm.querySelector('[name="name"]')?.value || '').trim(),
+        price: Number(featuredAddForm.querySelector('[name="price"]')?.value || 0),
+        image: String(featuredAddForm.querySelector('[name="image"]')?.value || '').trim(),
+        desc: String(featuredAddForm.querySelector('[name="desc"]')?.value || '').trim(),
+        sizes: String(featuredAddForm.querySelector('[name="sizes"]')?.value || '').trim(),
+      };
+
+      try {
+        setNotice(notice, { message: '' });
+        setButtonBusy(submitBtn, true);
+        await fetchJson(`${API_BASE}/api/admin/home/featured`, {
+          method: 'POST',
+          headers: { ...authHeaders() },
+          body: JSON.stringify(payload),
+        });
+        featuredAddForm.reset();
+        setNotice(notice, { message: 'Featured piece added ✓ Reloading…' });
+        await load();
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      } finally {
+        setButtonBusy(submitBtn, false);
+      }
+    });
 
     reviewsList?.addEventListener('click', async (e) => {
       const btn = e.target.closest('button[data-action]');
@@ -1504,8 +1623,7 @@
       const id = item?.getAttribute('data-id') || '';
       if (!id) return;
 
-      // Home is edit-only.
-      if (action !== 'review-save') return;
+      if (action !== 'review-save' && action !== 'review-delete') return;
 
       try {
         setNotice(notice, { message: '' });
@@ -1519,28 +1637,73 @@
         btn.dataset.mbpText = originalText;
 
         await withScrollLock(y0, async () => {
-          btn.textContent = 'Saving…';
+          btn.textContent = action === 'review-delete' ? 'Deleting…' : 'Saving…';
           try {
             btn.blur();
           } catch {
             // ignore
           }
           setButtonBusy(btn, true);
-          await fetchJson(`${API_BASE}/api/admin/home/reviews/${encodeURIComponent(id)}`, {
-            method: 'PUT',
-            headers: { ...authHeaders() },
-            body: JSON.stringify(payload),
-          });
+
+          if (action === 'review-delete') {
+            const ok = window.confirm('Delete this review?');
+            if (!ok) return;
+            await fetchJson(`${API_BASE}/api/admin/home/reviews/${encodeURIComponent(id)}`, {
+              method: 'DELETE',
+              headers: { ...authHeaders() },
+            });
+          } else {
+            await fetchJson(`${API_BASE}/api/admin/home/reviews/${encodeURIComponent(id)}`, {
+              method: 'PUT',
+              headers: { ...authHeaders() },
+              body: JSON.stringify(payload),
+            });
+          }
         });
 
-        setNotice(notice, { message: 'Review saved ✓' });
-        flashSavedTick(btn);
+        if (action === 'review-delete') {
+          setNotice(notice, { message: 'Review deleted ✓ Reloading…' });
+          await load();
+        } else {
+          setNotice(notice, { message: 'Review saved ✓' });
+          flashSavedTick(btn);
+          await refreshDataStatusPanel(dataStatusEl);
+        }
       } catch (err) {
         setNotice(notice, { message: err.message, isError: true });
+      } finally {
+        setButtonBusy(btn, false);
       }
     });
 
-    // Home is edit-only; reviewAddForm is intentionally disabled/ignored.
+    reviewAddForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (reviewsCount >= MAX_HOME_REVIEWS) {
+        setNotice(notice, { message: `You already have ${MAX_HOME_REVIEWS} reviews. Delete one first.`, isError: true });
+        return;
+      }
+      const submitBtn = reviewAddForm.querySelector('button[type="submit"]');
+      const payload = {
+        text: String(reviewAddForm.querySelector('[name="text"]')?.value || '').trim(),
+        meta: String(reviewAddForm.querySelector('[name="meta"]')?.value || '').trim(),
+      };
+      try {
+        setNotice(notice, { message: '' });
+        setButtonBusy(submitBtn, true);
+        await fetchJson(`${API_BASE}/api/admin/home/reviews`, {
+          method: 'POST',
+          headers: { ...authHeaders() },
+          body: JSON.stringify(payload),
+        });
+        reviewAddForm.reset();
+        setNotice(notice, { message: 'Review added ✓ Reloading…' });
+        await load();
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      } finally {
+        setButtonBusy(submitBtn, false);
+      }
+    });
 
     try {
       await load();
@@ -1564,6 +1727,7 @@
     const restoreBtn = document.getElementById('storeRestoreBtn');
     const pullBtn = document.getElementById('storePullBtn');
     const initBtn = document.getElementById('storeInitBtn');
+    const dataStatusEl = document.getElementById('dataStatus');
 
     // Restore unsaved new-product draft after any accidental reload.
     restoreStoreAddDraft(addForm);
@@ -1663,6 +1827,8 @@
 
       // If a live-reload happened after upload (before save), restore the unsaved preview.
       applyPendingStoreImagesToList(listEl);
+
+      await refreshDataStatusPanel(dataStatusEl);
     };
 
     const withActionLock = async (btn, fn) => {
@@ -2129,6 +2295,8 @@
       const data = await fetchJson(`${API_BASE}/api/admin/gallery/items`, { headers: authHeaders(), cache: 'no-store' });
       const items = data?.items || [];
       if (listEl) listEl.innerHTML = items.map(renderItem).join('') || '<div class="admin-muted">No gallery items yet.</div>';
+
+      await refreshDataStatusPanel(dataStatusEl);
     };
 
     const withActionLock = async (btn, fn) => {

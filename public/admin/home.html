@@ -53,13 +53,14 @@
             <div class="admin-card">
               <h2 class="admin-card__title">Backup & Restore</h2>
               <p class="admin-card__sub">If Home content ever resets after a restart, use these to restore the last backup.</p>
-              <div class="admin-row" style="gap:10px; flex-wrap:wrap;">
+              <div class="admin-row admin-toolRow" style="gap:10px; flex-wrap:wrap;">
                 <button class="btn" type="button" id="contentBackupBtn">Backup site content now</button>
-                <button class="btn btn--ghost" type="button" id="contentRestoreBtn">Restore last backup</button>
+                <button class="btn btn--ghost btn--danger" type="button" id="contentRestoreBtn">Restore last backup</button>
                 <button class="btn btn--ghost" type="button" id="contentPullBtn">Force pull from Cloudinary</button>
-                <button class="btn btn--ghost" type="button" id="contentInitBtn">Initialize empty content</button>
+                <button class="btn btn--ghost btn--danger" type="button" id="contentInitBtn">Initialize empty content</button>
               </div>
               <div class="admin-mini" style="margin-top:8px;">Tip: Backups are stored in Cloudinary raw JSON.</div>
+              <div id="dataStatus" style="margin-top:10px;"></div>
             </div>
 
             <div class="admin-card">
@@ -81,14 +82,59 @@
 
             <div class="admin-card">
               <h2 class="admin-card__title">Featured pieces</h2>
-              <p class="admin-card__sub">Edit the 5 products shown on the homepage carousel.</p>
+              <p class="admin-card__sub">Add up to 5 products shown on the homepage carousel.</p>
+
+              <form id="featuredAddForm" style="margin: 8px 0 12px;">
+                <div class="admin-grid">
+                  <div class="admin-field" style="grid-column:1/-1;">
+                    <label>Name</label>
+                    <input name="name" type="text" placeholder="e.g. Lace Set" required />
+                  </div>
+                  <div class="admin-field">
+                    <label>Price (NGN)</label>
+                    <input name="price" type="number" min="0" step="1" placeholder="0" />
+                  </div>
+                  <div class="admin-field" style="grid-column:1/-1;">
+                    <label>Image URL</label>
+                    <input name="image" type="text" placeholder="https://... (Cloudinary) or /assets/..." />
+                    <div class="admin-mini" style="margin-top:6px;">Tip: after adding, you can use “Or upload” inside the item card.</div>
+                  </div>
+                  <div class="admin-field" style="grid-column:1/-1;">
+                    <label>Description</label>
+                    <textarea name="desc" placeholder="Short description"></textarea>
+                  </div>
+                  <div class="admin-field" style="grid-column:1/-1;">
+                    <label>Sizes (comma separated)</label>
+                    <input name="sizes" type="text" placeholder="S, M, L" />
+                  </div>
+                  <div class="admin-row" style="grid-column:1/-1; justify-content:flex-end;">
+                    <button class="btn" type="submit">Add featured piece</button>
+                  </div>
+                </div>
+              </form>
 
               <div class="admin-list" id="featuredList"></div>
             </div>
 
             <div class="admin-card">
               <h2 class="admin-card__title">Reviews</h2>
-              <p class="admin-card__sub">Edit the 5 customer reviews shown on the homepage.</p>
+              <p class="admin-card__sub">Add up to 5 customer reviews shown on the homepage.</p>
+
+              <form id="reviewAddForm" style="margin: 8px 0 12px;">
+                <div class="admin-grid">
+                  <div class="admin-field" style="grid-column:1/-1;">
+                    <label>Review text</label>
+                    <textarea name="text" placeholder="Write the customer review" required></textarea>
+                  </div>
+                  <div class="admin-field" style="grid-column:1/-1;">
+                    <label>Meta (e.g., Ada — Lagos)</label>
+                    <input name="meta" type="text" placeholder="Name — City" />
+                  </div>
+                  <div class="admin-row" style="grid-column:1/-1; justify-content:flex-end;">
+                    <button class="btn" type="submit">Add review</button>
+                  </div>
+                </div>
+              </form>
 
               <div class="admin-list" id="reviewsList"></div>
             </div>
