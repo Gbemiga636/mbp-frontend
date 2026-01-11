@@ -362,6 +362,10 @@
   };
 
   const renderDataStatusHtml = (status) => {
+    const mysqlConfigured = Boolean(status?.mysql?.configured);
+    const mysqlLastErr = String(status?.mysql?.lastError || '').trim();
+    const mysqlTable = String(status?.mysql?.table || '').trim();
+
     const cloudConfigured = Boolean(status?.cloudinary?.configured);
     const syncEnabled = Boolean(status?.cloudinary?.syncEnabled);
     const expected = Boolean(status?.restore?.expected);
@@ -374,7 +378,15 @@
 
     const pill = (kind, text) => `<span class="admin-pill admin-pill--${kind}">${escapeHtml(text)}</span>`;
 
+    const mysqlPillKind = !mysqlConfigured ? 'warn' : mysqlLastErr ? 'warn' : 'ok';
+    const mysqlPillText = !mysqlConfigured
+      ? 'MySQL: OFF'
+      : mysqlTable
+      ? `MySQL: ON (${mysqlTable})`
+      : 'MySQL: ON';
+
     const pills = [
+      pill(mysqlPillKind, mysqlPillText),
       pill(cloudConfigured ? 'ok' : 'bad', cloudConfigured ? 'Cloudinary: configured' : 'Cloudinary: NOT configured'),
       pill(syncEnabled ? 'ok' : 'bad', syncEnabled ? 'Sync: ON' : 'Sync: OFF'),
       pill(contentReady ? 'ok' : expected ? 'warn' : 'ok', contentReady ? 'Content: ready' : expected ? 'Content: restoring' : 'Content: local'),
@@ -386,12 +398,18 @@
 
     const restoreErrLine = restoreLastErr ? `Restore error: ${escapeHtml(restoreLastErr)}` : 'Restore error: —';
     const writeErrLine = writeLastErr ? `Last write error: ${escapeHtml(writeLastErr)}` : 'Last write error: —';
+    const mysqlErrLine = mysqlConfigured
+      ? mysqlLastErr
+        ? `MySQL error: ${escapeHtml(mysqlLastErr)}`
+        : 'MySQL error: —'
+      : 'MySQL: not configured (set MYSQL_URL to enable durable DB storage)';
 
     return `
 <div class="admin-status">
   <div class="admin-status__pills">${pills}</div>
   <div class="admin-mini" style="margin-top:6px;">${restoreLine}</div>
   <div class="admin-mini">${restoreErrLine}</div>
+  <div class="admin-mini">${mysqlErrLine}</div>
   <div class="admin-mini">${writeErrLine}</div>
 </div>
 `.trim();
