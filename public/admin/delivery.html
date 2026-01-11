@@ -8,7 +8,7 @@
     <title>Admin — Delivery Fee</title>
     <link rel="icon" href="../assets/Logo.PNG" />
     <link rel="stylesheet" href="../styles.css?v=20260106_5" />
-    <link rel="stylesheet" href="admin.css?v=20260110_1" />
+    <link rel="stylesheet" href="admin.css?v=20260111_1" />
   </head>
 
   <body data-admin-auth="true" data-admin-page="delivery">
@@ -50,6 +50,17 @@
 
           <section aria-label="Delivery fee editor">
             <div class="admin-card">
+              <h2 class="admin-card__title">Backup & Restore</h2>
+              <p class="admin-card__sub">Back up everything (site content + orders) so nothing ever resets after restarts.</p>
+              <div class="admin-row admin-toolRow" style="gap:10px; flex-wrap:wrap;">
+                <button class="btn btn--ghost" type="button" id="allBackupBtn">Backup EVERYTHING (incl orders)</button>
+                <button class="btn btn--ghost btn--danger" type="button" id="allRestoreBtn">Restore EVERYTHING</button>
+              </div>
+              <div class="admin-mini" style="margin-top:8px;">Tip: Backups are stored in Cloudinary raw JSON.</div>
+              <div id="dataStatus" style="margin-top:10px;"></div>
+            </div>
+
+            <div class="admin-card">
               <h2 class="admin-card__title">Set delivery fee (NGN)</h2>
               <p class="admin-card__sub">This updates immediately on the backend.</p>
 
@@ -69,7 +80,7 @@
       </div>
     </main>
 
-    <script src="../config.js?v=20260110_1"></script>
-    <script src="admin.js?v=20260110_1"></script>
+    <script src="../config.js?v=20260111_1"></script>
+    <script src="admin.js?v=20260111_1"></script>
   </body>
 </html>

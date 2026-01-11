@@ -2744,6 +2744,10 @@
     const listEl = document.getElementById('ordersList');
     const detailEl = document.getElementById('orderDetail');
 
+    const dataStatusEl = document.getElementById('dataStatus');
+    const allBackupBtn = document.getElementById('allBackupBtn');
+    const allRestoreBtn = document.getElementById('allRestoreBtn');
+
     const listCard = listEl?.closest('.admin-card') || null;
     let listScrollY = 0;
 
@@ -2819,10 +2823,62 @@
     };
 
     const load = async () => {
+      await refreshDataStatusPanel(dataStatusEl);
       const data = await fetchJson(`${API_BASE}/api/admin/orders`, { headers: authHeaders(), cache: 'no-store' });
       const orders = data?.orders || [];
       if (listEl) listEl.innerHTML = orders.map(renderRow).join('') || '<div class="admin-muted">No orders yet.</div>';
     };
+
+    const withActionLock = async (btn, fn) => {
+      const b = btn instanceof HTMLButtonElement ? btn : null;
+      const prevText = b ? b.textContent : '';
+      try {
+        setNotice(notice, { message: '' });
+        if (b) {
+          setButtonBusy(b, true);
+          if (prevText) b.dataset.mbpText = prevText;
+        }
+        return await fn();
+      } finally {
+        if (b) {
+          setButtonBusy(b, false);
+          b.textContent = b.dataset.mbpText || prevText;
+        }
+      }
+    };
+
+    allBackupBtn?.addEventListener('click', async () => {
+      try {
+        await withActionLock(allBackupBtn, async () => {
+          if (allBackupBtn) allBackupBtn.textContent = 'Backing up…';
+          await fetchJson(`${API_BASE}/api/admin/data/backup-all`, {
+            method: 'POST',
+            headers: { ...authHeaders() },
+          });
+        });
+        setNotice(notice, { message: 'Full backup created successfully ✓' });
+        await refreshDataStatusPanel(dataStatusEl);
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
+
+    allRestoreBtn?.addEventListener('click', async () => {
+      if (!window.confirm('Restore EVERYTHING? This will overwrite content, settings, and orders on the server.')) return;
+      try {
+        await withActionLock(allRestoreBtn, async () => {
+          if (allRestoreBtn) allRestoreBtn.textContent = 'Restoring…';
+          await fetchJson(`${API_BASE}/api/admin/data/restore-all-backup`, {
+            method: 'POST',
+            headers: { ...authHeaders() },
+          });
+        });
+        setNotice(notice, { message: 'Full restore complete ✓ Reloading…' });
+        await load();
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
 
     const markRowRead = (ref) => {
       const row = listEl?.querySelector(`.admin-item[data-ref="${CSS.escape(String(ref || ''))}"]`) || null;
@@ -2933,10 +2989,66 @@
     const input = document.getElementById('deliveryFee');
     const saveBtn = document.getElementById('deliverySave');
 
+    const dataStatusEl = document.getElementById('dataStatus');
+    const allBackupBtn = document.getElementById('allBackupBtn');
+    const allRestoreBtn = document.getElementById('allRestoreBtn');
+
     const load = async () => {
+      await refreshDataStatusPanel(dataStatusEl);
       const data = await fetchJson(`${API_BASE}/api/admin/delivery-fee`, { headers: authHeaders(), cache: 'no-store' });
       if (input) input.value = Number(data?.deliveryFee || 2500);
     };
+
+    const withActionLock = async (btn, fn) => {
+      const b = btn instanceof HTMLButtonElement ? btn : null;
+      const prevText = b ? b.textContent : '';
+      try {
+        setNotice(notice, { message: '' });
+        if (b) {
+          setButtonBusy(b, true);
+          if (prevText) b.dataset.mbpText = prevText;
+        }
+        return await fn();
+      } finally {
+        if (b) {
+          setButtonBusy(b, false);
+          b.textContent = b.dataset.mbpText || prevText;
+        }
+      }
+    };
+
+    allBackupBtn?.addEventListener('click', async () => {
+      try {
+        await withActionLock(allBackupBtn, async () => {
+          if (allBackupBtn) allBackupBtn.textContent = 'Backing up…';
+          await fetchJson(`${API_BASE}/api/admin/data/backup-all`, {
+            method: 'POST',
+            headers: { ...authHeaders() },
+          });
+        });
+        setNotice(notice, { message: 'Full backup created successfully ✓' });
+        await refreshDataStatusPanel(dataStatusEl);
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
+
+    allRestoreBtn?.addEventListener('click', async () => {
+      if (!window.confirm('Restore EVERYTHING? This will overwrite content, settings, and orders on the server.')) return;
+      try {
+        await withActionLock(allRestoreBtn, async () => {
+          if (allRestoreBtn) allRestoreBtn.textContent = 'Restoring…';
+          await fetchJson(`${API_BASE}/api/admin/data/restore-all-backup`, {
+            method: 'POST',
+            headers: { ...authHeaders() },
+          });
+        });
+        setNotice(notice, { message: 'Full restore complete ✓' });
+        await load();
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
 
     saveBtn?.addEventListener('click', async () => {
       try {
