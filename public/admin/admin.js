@@ -303,6 +303,117 @@
     return data;
   };
 
+  const filenameFromContentDisposition = (value) => {
+    const raw = String(value || '').trim();
+    if (!raw) return '';
+    const parts = raw.split(';').map((p) => p.trim());
+
+    // RFC 5987 (filename*=UTF-8''...)
+    const star = parts.find((p) => /^filename\*=/i.test(p));
+    if (star) {
+      const m = star.match(/^filename\*=(.+)$/i);
+      const v = m ? m[1].trim() : '';
+      const idx = v.indexOf("''");
+      const encoded = idx >= 0 ? v.slice(idx + 2) : v;
+      try {
+        return decodeURIComponent(encoded.replace(/^"|"$/g, ''));
+      } catch {
+        return encoded.replace(/^"|"$/g, '');
+      }
+    }
+
+    const plain = parts.find((p) => /^filename=/i.test(p));
+    if (!plain) return '';
+    const m = plain.match(/^filename=(.+)$/i);
+    return m ? m[1].trim().replace(/^"|"$/g, '') : '';
+  };
+
+  const downloadBlobAsFile = (blob, filename) => {
+    const safeName = String(filename || '').trim() || `mbp-backup-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = safeName;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    window.setTimeout(() => {
+      try {
+        URL.revokeObjectURL(url);
+      } catch {
+        // ignore
+      }
+      try {
+        a.remove();
+      } catch {
+        // ignore
+      }
+    }, 0);
+  };
+
+  const getExportPreviewSummary = (snapshot) => {
+    const storeProducts = Array.isArray(snapshot?.store?.products) ? snapshot.store.products.length : 0;
+    const galleryItems = Array.isArray(snapshot?.gallery?.items) ? snapshot.gallery.items.length : 0;
+    const orders = Array.isArray(snapshot?.orders) ? snapshot.orders.length : 0;
+    const featured = Array.isArray(snapshot?.home?.featured) ? snapshot.home.featured.length : 0;
+    const reviews = Array.isArray(snapshot?.home?.reviews) ? snapshot.home.reviews.length : 0;
+    return `${storeProducts} products, ${galleryItems} gallery items, ${orders} orders, ${featured} featured, ${reviews} reviews`;
+  };
+
+  const downloadEverythingSnapshot = async ({ onPreview } = {}) => {
+    let res;
+    try {
+      res = await fetch(`${API_BASE}/api/admin/data/export-all`, {
+        method: 'GET',
+        headers: { ...authHeaders() },
+        cache: 'no-store',
+      });
+    } catch (e) {
+      const err = new Error(
+        'Cannot reach the backend API. Check window.MBP_API_BASE (public/config.js) and Render CORS (FRONTEND_ORIGIN / PUBLIC_SITE_URL).'
+      );
+      err.cause = e;
+      throw err;
+    }
+
+    if (!res.ok) {
+      let message = `Request failed (${res.status})`;
+      try {
+        const text = await res.text();
+        const parsed = text ? JSON.parse(text) : null;
+        message = parsed?.error || parsed?.message || message;
+      } catch {
+        // ignore
+      }
+      const err = new Error(message);
+      err.status = res.status;
+      throw err;
+    }
+
+    const filename = filenameFromContentDisposition(res.headers.get('content-disposition')) || '';
+
+    // Read once: parse for preview, then download that same content.
+    const text = await res.text();
+    let parsed = null;
+    try {
+      parsed = text ? JSON.parse(text) : null;
+    } catch {
+      parsed = null;
+    }
+
+    try {
+      if (typeof onPreview === 'function' && parsed && typeof parsed === 'object') {
+        onPreview(getExportPreviewSummary(parsed));
+      }
+    } catch {
+      // ignore
+    }
+
+    const blob = new Blob([text], { type: 'application/json' });
+    downloadBlobAsFile(blob, filename);
+    return parsed;
+  };
+
   const requireAuthOnPage = async () => {
     const needsAuth = document.body?.getAttribute('data-admin-auth') === 'true';
     if (!needsAuth) return;
@@ -1078,6 +1189,7 @@
 
     const allBackupBtn = document.getElementById('allBackupBtn');
     const allRestoreBtn = document.getElementById('allRestoreBtn');
+    const exportAllBtn = document.getElementById('exportAllBtn');
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -1184,6 +1296,9 @@
     const restoreBtn = document.getElementById('contentRestoreBtn');
     const pullBtn = document.getElementById('contentPullBtn');
     const initBtn = document.getElementById('contentInitBtn');
+    const allBackupBtn = document.getElementById('allBackupBtn');
+    const allRestoreBtn = document.getElementById('allRestoreBtn');
+    const exportAllBtn = document.getElementById('exportAllBtn');
     const dataStatusEl = document.getElementById('dataStatus');
 
     const heroInput = document.getElementById('heroVideo');
@@ -1440,6 +1555,20 @@
         });
         setNotice(notice, { message: 'Full restore complete ✓ Reloading…' });
         await load();
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
+
+    exportAllBtn?.addEventListener('click', async () => {
+      try {
+        await withActionLock(exportAllBtn, async () => {
+          if (exportAllBtn) exportAllBtn.textContent = 'Preparing…';
+          await downloadEverythingSnapshot({
+            onPreview: (summary) => setNotice(notice, { message: `Export preview: ${summary}. Downloading…` }),
+          });
+        });
+        setNotice(notice, { message: 'Downloaded full snapshot ✓' });
       } catch (err) {
         setNotice(notice, { message: err.message, isError: true });
       }
@@ -1785,6 +1914,7 @@
 
     const allBackupBtn = document.getElementById('allBackupBtn');
     const allRestoreBtn = document.getElementById('allRestoreBtn');
+    const exportAllBtn = document.getElementById('exportAllBtn');
 
     // Restore unsaved new-product draft after any accidental reload.
     restoreStoreAddDraft(addForm);
@@ -1998,6 +2128,20 @@
         });
         setNotice(notice, { message: 'Full restore complete ✓ Reloading…' });
         await load();
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
+
+    exportAllBtn?.addEventListener('click', async () => {
+      try {
+        await withActionLock(exportAllBtn, async () => {
+          if (exportAllBtn) exportAllBtn.textContent = 'Preparing…';
+          await downloadEverythingSnapshot({
+            onPreview: (summary) => setNotice(notice, { message: `Export preview: ${summary}. Downloading…` }),
+          });
+        });
+        setNotice(notice, { message: 'Downloaded full snapshot ✓' });
       } catch (err) {
         setNotice(notice, { message: err.message, isError: true });
       }
@@ -2508,6 +2652,20 @@
       }
     });
 
+    exportAllBtn?.addEventListener('click', async () => {
+      try {
+        await withActionLock(exportAllBtn, async () => {
+          if (exportAllBtn) exportAllBtn.textContent = 'Preparing…';
+          await downloadEverythingSnapshot({
+            onPreview: (summary) => setNotice(notice, { message: `Export preview: ${summary}. Downloading…` }),
+          });
+        });
+        setNotice(notice, { message: 'Downloaded full snapshot ✓' });
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
+
     listEl?.addEventListener('change', async (e) => {
       const input = e.target;
       if (!(input instanceof HTMLInputElement)) return;
@@ -2765,6 +2923,25 @@
     const dataStatusEl = document.getElementById('dataStatus');
     const allBackupBtn = document.getElementById('allBackupBtn');
     const allRestoreBtn = document.getElementById('allRestoreBtn');
+    const exportAllBtn = document.getElementById('exportAllBtn');
+
+    const withActionLock = async (btn, fn) => {
+      const b = btn instanceof HTMLButtonElement ? btn : null;
+      const prevText = b ? b.textContent : '';
+      try {
+        setNotice(notice, { message: '' });
+        if (b) {
+          setButtonBusy(b, true);
+          if (prevText) b.dataset.mbpText = prevText;
+        }
+        return await fn();
+      } finally {
+        if (b) {
+          setButtonBusy(b, false);
+          b.textContent = b.dataset.mbpText || prevText;
+        }
+      }
+    };
 
     const listCard = listEl?.closest('.admin-card') || null;
     let listScrollY = 0;
@@ -2845,24 +3022,6 @@
       const data = await fetchJson(`${API_BASE}/api/admin/orders`, { headers: authHeaders(), cache: 'no-store' });
       const orders = data?.orders || [];
       if (listEl) listEl.innerHTML = orders.map(renderRow).join('') || '<div class="admin-muted">No orders yet.</div>';
-    };
-
-    const withActionLock = async (btn, fn) => {
-      const b = btn instanceof HTMLButtonElement ? btn : null;
-      const prevText = b ? b.textContent : '';
-      try {
-        setNotice(notice, { message: '' });
-        if (b) {
-          setButtonBusy(b, true);
-          if (prevText) b.dataset.mbpText = prevText;
-        }
-        return await fn();
-      } finally {
-        if (b) {
-          setButtonBusy(b, false);
-          b.textContent = b.dataset.mbpText || prevText;
-        }
-      }
     };
 
     allBackupBtn?.addEventListener('click', async () => {
@@ -2975,6 +3134,20 @@
       }
     };
 
+    exportAllBtn?.addEventListener('click', async () => {
+      try {
+        await withActionLock(exportAllBtn, async () => {
+          if (exportAllBtn) exportAllBtn.textContent = 'Preparing…';
+          await downloadEverythingSnapshot({
+            onPreview: (summary) => setNotice(notice, { message: `Export preview: ${summary}. Downloading…` }),
+          });
+        });
+        setNotice(notice, { message: 'Downloaded full snapshot ✓' });
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
+
     listEl?.addEventListener('click', (e) => {
       const btn = e.target.closest('button[data-action="order-open"]');
       const row = e.target.closest('.admin-item');
@@ -3010,6 +3183,7 @@
     const dataStatusEl = document.getElementById('dataStatus');
     const allBackupBtn = document.getElementById('allBackupBtn');
     const allRestoreBtn = document.getElementById('allRestoreBtn');
+    const exportAllBtn = document.getElementById('exportAllBtn');
 
     const load = async () => {
       await refreshDataStatusPanel(dataStatusEl);
@@ -3063,6 +3237,20 @@
         });
         setNotice(notice, { message: 'Full restore complete ✓' });
         await load();
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      }
+    });
+
+    exportAllBtn?.addEventListener('click', async () => {
+      try {
+        await withActionLock(exportAllBtn, async () => {
+          if (exportAllBtn) exportAllBtn.textContent = 'Preparing…';
+          await downloadEverythingSnapshot({
+            onPreview: (summary) => setNotice(notice, { message: `Export preview: ${summary}. Downloading…` }),
+          });
+        });
+        setNotice(notice, { message: 'Downloaded full snapshot ✓' });
       } catch (err) {
         setNotice(notice, { message: err.message, isError: true });
       }
