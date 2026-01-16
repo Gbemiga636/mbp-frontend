@@ -1,3 +1,17 @@
+.btn--soldout {
+  background: #d8b07c !important;
+  color: #fff !important;
+  border: none;
+  font-size: 1rem;
+  padding: 10px 0;
+  margin-top: 0;
+  box-shadow: 0 2px 8px rgba(168,75,87,0.08);
+  transition: background 0.2s;
+}
+.btn--soldout:hover:not([disabled]) {
+  background: #a84b57 !important;
+  color: #fff !important;
+}
 /* Sold Out button state */
 .btn[disabled], .btn.btn--soldout {
   background: #ccc !important;

@@ -96,7 +96,9 @@
             <div class="form-actions">
               <button type="submit" class="btn" data-role="saveBtn">Save Changes</button>
               <button type="button" class="btn btn--ghost" data-role="deleteBtn">Delete</button>
-              <button type="button" class="btn btn--soldout" data-role="soldOutBtn">
+            </div>
+            <div class="form-actions" style="margin-top:8px;">
+              <button type="button" class="btn btn--soldout" data-role="soldOutBtn" style="width:100%;font-weight:600;">
                 ${product.soldOut ? "Restore Product" : "Mark as Sold Out"}
               </button>
             </div>
