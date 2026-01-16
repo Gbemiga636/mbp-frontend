@@ -5,21 +5,29 @@ document.getElementById('restoreForm').addEventListener('submit', async function
   const fileInput = document.getElementById('backupFile');
   const statusDiv = document.getElementById('restoreStatus');
   statusDiv.textContent = '';
-
-  if (!fileInput.files.length) {
-    statusDiv.textContent = 'Please select a backup JSON file.';
-    return;
-  }
-
-
-  const file = fileInput.files[0];
-  const formData = new FormData();
-  formData.append('file', file);
-
   try {
     const res = await fetch('/api/admin/data/restore-all', {
       method: 'POST',
       body: formData,
+      credentials: 'include'
+    });
+    const contentType = res.headers.get('content-type') || '';
+    let result = {};
+    if (contentType.includes('application/json')) {
+      result = await res.json();
+    } else {
+      // If not JSON, treat as error
+      statusDiv.textContent = 'Restore failed: Server did not return JSON.';
+      return;
+    }
+    if (res.ok && result.ok) {
+      statusDiv.textContent = 'Restore successful! Site data has been replaced.';
+    } else {
+      statusDiv.textContent = 'Restore failed: ' + (result.error || 'Unknown error');
+    }
+  } catch (err) {
+    statusDiv.textContent = 'Restore failed: ' + err.message;
+  }
       credentials: 'include'
     });
     const result = await res.json();
