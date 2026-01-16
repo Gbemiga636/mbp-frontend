@@ -1,3 +1,11 @@
+/* Sold Out button state */
+.btn[disabled], .btn.btn--soldout {
+  background: #ccc !important;
+  color: #888 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  opacity: 0.7 !important;
+}
 /* MBP Lingerie — Home */
 
 :root{

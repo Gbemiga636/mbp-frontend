@@ -1078,7 +1078,9 @@
     <p class="product-card__desc">${desc.replace(/</g, '&lt;')}</p>
     <div class="product-card__sizes">${sizeLine.replace(/</g, '&lt;')}</div>
     <div class="product-card__actions">
-      <button class="btn btn--card add-to-cart" type="button">Add to Cart</button>
+      <button class="btn btn--card add-to-cart" type="button" ${p.soldOut ? 'disabled' : ''}>
+        ${p.soldOut ? 'Sold Out' : 'Add to Cart'}
+      </button>
     </div>
   </div>
 </article>
