@@ -11,9 +11,10 @@ document.getElementById('restoreForm').addEventListener('submit', async function
     return;
   }
 
+
   const file = fileInput.files[0];
   const formData = new FormData();
-  formData.append('backup', file);
+  formData.append('file', file);
 
   try {
     const res = await fetch('/api/admin/data/restore-all', {
@@ -22,7 +23,7 @@ document.getElementById('restoreForm').addEventListener('submit', async function
       credentials: 'include'
     });
     const result = await res.json();
-    if (res.ok && result.success) {
+    if (res.ok && result.ok) {
       statusDiv.textContent = 'Restore successful! Site data has been replaced.';
     } else {
       statusDiv.textContent = 'Restore failed: ' + (result.error || 'Unknown error');
