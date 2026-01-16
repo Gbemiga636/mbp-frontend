@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Restore Backup</title>
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+  <h1>Restore Site Backup</h1>
+  <form id="restoreForm">
+    <label for="backupFile">Select backup JSON file:</label>
+    <input type="file" id="backupFile" name="backupFile" accept="application/json" required>
+    <button type="submit">Upload & Restore</button>
+  </form>
+  <div id="restoreStatus"></div>
+  <a href="/admin/home.html">&larr; Back to Admin Home</a>
+  <script src="/admin/restore.js"></script>
+</body>
+</html>

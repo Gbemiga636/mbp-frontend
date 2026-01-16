@@ -2133,22 +2133,6 @@
       }
     });
 
-    exportAllBtn?.addEventListener('click', async () => {
-      try {
-        await withActionLock(exportAllBtn, async () => {
-          if (exportAllBtn) exportAllBtn.textContent = 'Preparing…';
-          await downloadEverythingSnapshot({
-            onPreview: (summary) => setNotice(notice, { message: `Export preview: ${summary}. Downloading…` }),
-          });
-        });
-        setNotice(notice, { message: 'Downloaded full snapshot ✓' });
-      } catch (err) {
-        setNotice(notice, { message: err.message, isError: true });
-      }
-    });
-
-    rememberScrollBeforeFilePicker(listEl);
-
     listEl?.addEventListener('change', async (e) => {
       const input = e.target;
       if (!(input instanceof HTMLInputElement)) return;
@@ -2652,24 +2636,11 @@
       }
     });
 
-    exportAllBtn?.addEventListener('click', async () => {
-      try {
-        await withActionLock(exportAllBtn, async () => {
-          if (exportAllBtn) exportAllBtn.textContent = 'Preparing…';
-          await downloadEverythingSnapshot({
-            onPreview: (summary) => setNotice(notice, { message: `Export preview: ${summary}. Downloading…` }),
-          });
-        });
-        setNotice(notice, { message: 'Downloaded full snapshot ✓' });
-      } catch (err) {
-        setNotice(notice, { message: err.message, isError: true });
-      }
-    });
-
     listEl?.addEventListener('change', async (e) => {
       const input = e.target;
       if (!(input instanceof HTMLInputElement)) return;
-      if (input.getAttribute('data-action') !== 'gallery-upload') return;
+      const action = input.getAttribute('data-action');
+      if (action !== 'gallery-upload') return;
       const parent = input.closest('.admin-item');
       const file = input.files?.[0];
       if (!parent || !file) return;
@@ -2696,8 +2667,7 @@
           setButtonBusy(saveBtn, true);
           input.disabled = true;
           const id = parent.getAttribute('data-id') || '';
-          const kind = parent.querySelector('[data-field="type"]')?.value || 'image';
-          const up = await uploadFile(file, { key: `gallery-${id}-${kind}` });
+          const up = await uploadFile(file, { key: `gallery-${id}` });
 
           const srcField = parent.querySelector('[data-field="src"]');
           if (srcField) srcField.value = up.url;
@@ -2719,47 +2689,11 @@
 
     listEl?.addEventListener('click', async (e) => {
       const btn = e.target.closest('button[data-action]');
-      if (!btn) return;
-      const action = btn.getAttribute('data-action');
-      const item = btn.closest('.admin-item');
-      const id = item?.getAttribute('data-id') || '';
-      if (!id) return;
-
-      const payload = {
-        type: item.querySelector('[data-field="type"]')?.value || 'image',
-        src: item.querySelector('[data-field="src"]')?.value || '',
-        caption: item.querySelector('[data-field="caption"]')?.value || '',
-      };
-
-      try {
-        setNotice(notice, { message: '' });
-        if (action === 'gallery-save') {
-          setButtonBusy(btn, true);
-          await fetchJson(`${API_BASE}/api/admin/gallery/items/${encodeURIComponent(id)}`, {
-            method: 'PUT',
-            headers: { ...authHeaders() },
-            body: JSON.stringify(payload),
-          });
-          setNotice(notice, { message: 'Gallery item saved.' });
-          await preserveScroll(async () => {
-            await load();
-            scrollToItem(listEl, id);
-          });
-        }
-        if (action === 'gallery-delete') {
-          setButtonBusy(btn, true);
-          await fetchJson(`${API_BASE}/api/admin/gallery/items/${encodeURIComponent(id)}`, {
-            method: 'DELETE',
-            headers: { ...authHeaders() },
-          });
-          setNotice(notice, { message: 'Gallery item deleted.' });
-          await preserveScroll(load);
-        }
-      } catch (err) {
-        setNotice(notice, { message: err.message, isError: true });
-      } finally {
-        setButtonBusy(btn, false);
-      }
+      const row = e.target.closest('.admin-item');
+      if (!btn && !row) return;
+      const ref = row?.getAttribute('data-ref');
+      if (!ref) return;
+      openOrder(ref);
     });
 
     addForm?.addEventListener('submit', async (e) => {
@@ -2794,9 +2728,6 @@
           src: addForm.querySelector('[name="src"]')?.value || '',
           caption: addForm.querySelector('[name="caption"]')?.value || '',
         };
-
-        // Keep draft fresh right before submit.
-        captureGalleryAddDraft(addForm);
 
         const created = await withScrollLock(y0, async () => {
           if (submitBtn) submitBtn.textContent = 'Adding…';
@@ -2851,14 +2782,6 @@
 
       const y0 = Number(input.dataset.scrollY || window.scrollY || 0);
       const submitBtn = addForm.querySelector('button[type="submit"]');
-
-      // Snapshot viewport in case a dev live-reload happens mid-upload.
-      try {
-        saveScrollSnapshot({ page: 'gallery', anchorSelector: '#galleryAddForm button[type="submit"]', extra: { reason: 'gallery-add-upload' } });
-      } catch {
-        // ignore
-      }
-
       try {
         await withScrollLock(y0, async () => {
           setNotice(notice, { message: 'Uploading…' });
@@ -2889,9 +2812,6 @@
 
           setNotice(notice, { message: `Uploaded (${up.provider || 'unknown'}). Click “Add gallery item”.` });
         });
-
-        // Persist draft so a live-reload won't lose the uploaded media preview.
-        captureGalleryAddDraft(addForm);
       } catch (err) {
         setNotice(notice, { message: err.message, isError: true });
       } finally {
@@ -3242,20 +3162,6 @@
       }
     });
 
-    exportAllBtn?.addEventListener('click', async () => {
-      try {
-        await withActionLock(exportAllBtn, async () => {
-          if (exportAllBtn) exportAllBtn.textContent = 'Preparing…';
-          await downloadEverythingSnapshot({
-            onPreview: (summary) => setNotice(notice, { message: `Export preview: ${summary}. Downloading…` }),
-          });
-        });
-        setNotice(notice, { message: 'Downloaded full snapshot ✓' });
-      } catch (err) {
-        setNotice(notice, { message: err.message, isError: true });
-      }
-    });
-
     saveBtn?.addEventListener('click', async () => {
       try {
         setNotice(notice, { message: '' });
@@ -3292,4 +3198,18 @@
     await initOrders();
     await initDelivery();
   });
+
+  // Add this to the admin panel navigation (e.g., after export button setup)
+  function addRestoreLink() {
+    const nav = document.querySelector('.admin-nav, nav, header, body');
+    if (!nav || document.getElementById('restoreLink')) return;
+    const link = document.createElement('a');
+    link.href = '/admin/restore.html';
+    link.textContent = 'Restore Backup';
+    link.id = 'restoreLink';
+    link.style.marginLeft = '1em';
+    link.style.fontWeight = 'bold';
+    nav.appendChild(link);
+  }
+  addRestoreLink();
 })();
