@@ -60,6 +60,7 @@
       return;
     }
 
+
     elList.innerHTML = products.map(product => `
       <div class="admin-item" data-id="${product.id}">
         <div class="admin-item__thumb">
@@ -95,6 +96,9 @@
             <div class="form-actions">
               <button type="submit" class="btn" data-role="saveBtn">Save Changes</button>
               <button type="button" class="btn btn--ghost" data-role="deleteBtn">Delete</button>
+              <button type="button" class="btn btn--soldout" data-role="soldOutBtn">
+                ${product.soldOut ? "Restore Product" : "Mark as Sold Out"}
+              </button>
             </div>
           </form>
         </div>
@@ -103,6 +107,26 @@
 
     // Attach event listeners
     products.forEach(product => {
+            const soldOutBtn = card.querySelector('[data-role="soldOutBtn"]');
+            soldOutBtn.addEventListener('click', async () => {
+              await handleSoldOutToggle(product.id, !product.soldOut);
+            });
+        const handleSoldOutToggle = async (id, newStatus) => {
+          try {
+            setNotice(elNotice);
+            const res = await fetchJson(`${API_BASE}/api/admin/store/products/${id}/soldout`, {
+              method: 'PUT',
+              body: JSON.stringify({ soldOut: newStatus }),
+              headers: authHeaders(),
+            });
+            const idx = products.findIndex(p => p.id === id);
+            if (idx >= 0) products[idx].soldOut = newStatus;
+            renderProducts();
+            setNotice(elNotice, { message: newStatus ? 'Product marked as Sold Out.' : 'Product restored!', isSuccess: true });
+          } catch (err) {
+            setNotice(elNotice, { message: err.message || 'Failed to update sold out status.', isError: true });
+          }
+        };
       const card = elList.querySelector(`[data-id="${product.id}"]`);
       if (!card) return;
 
