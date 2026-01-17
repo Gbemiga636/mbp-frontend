@@ -3,8 +3,8 @@
 
   const elNotice = document.getElementById('adminNotice');
   const elList = document.getElementById('storeList');
-  const elAddForm = document.getElementById('addProductForm');
-  const elAddBtn = document.getElementById('addProductBtn');
+  const elAddForm = document.getElementById('storeAddForm');
+  const elAddBtn = document.querySelector('#storeAddForm button[type="submit"]');
 
   let products = [];
 
