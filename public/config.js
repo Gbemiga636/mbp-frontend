@@ -15,7 +15,8 @@
 	if (isLocal) return;
 
 	// In production (GitHub Pages / hosted), point to Render backend.
-	window.MBP_API_BASE = 'https://mbp-backend.onrender.com';
+	// Temporary backend (switch back when ready):
+	window.MBP_API_BASE = 'https://mbp-backend-pqvs.onrender.com';
 })();
 //
 // Leave unset for local development (the scripts auto-infer http://localhost:4000).
