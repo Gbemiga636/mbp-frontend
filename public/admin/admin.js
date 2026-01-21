@@ -1942,14 +1942,16 @@
       const img = String(p.image || '');
       const imgBack = String(p.imageBack || '');
       const imgPreview = previewUrl(img);
+      const soldOut = Boolean(p?.soldOut);
       return `
-<div class="admin-item" data-id="${p.id}">
+<div class="admin-item ${soldOut ? 'is-soldout' : ''}" data-id="${p.id}">
   <div class="admin-item__top">
     <div>
       <div style="font-weight:900;">${p.name || 'Product'}</div>
       <div class="admin-mini">${cat} • ₦${Number(p.price || 0).toLocaleString('en-NG')}</div>
     </div>
     <div class="admin-actions">
+      <button class="btn btn--ghost ${soldOut ? '' : 'btn--danger'}" type="button" data-action="store-soldout">${soldOut ? 'Restore product' : 'Mark sold out'}</button>
       <button class="btn btn--ghost" type="button" data-action="store-delete">Delete</button>
       <button class="btn" type="button" data-action="store-save">Save changes</button>
     </div>
@@ -2003,6 +2005,25 @@
   </div>
 </div>
 `.trim();
+    };
+
+    const toggleSoldOut = async (id, nextSoldOut, btn) => {
+      const label = nextSoldOut ? 'Marking sold out…' : 'Restoring…';
+      try {
+        await withActionLock(btn, async () => {
+          if (btn) btn.textContent = label;
+          await fetchJson(`${API_BASE}/api/admin/store/products/${encodeURIComponent(id)}/soldout`, {
+            method: 'PUT',
+            headers: { ...authHeaders() },
+            body: JSON.stringify({ soldOut: Boolean(nextSoldOut) }),
+          });
+        });
+
+        setNotice(notice, { message: nextSoldOut ? 'Product marked as Sold Out ✓' : 'Product restored ✓', isSuccess: true });
+        await load();
+      } catch (err) {
+        setNotice(notice, { message: err.message || 'Failed to update Sold Out status.', isError: true });
+      }
     };
 
     const load = async () => {
@@ -2184,6 +2205,20 @@
         input.value = '';
         input.dataset.scrollY = '';
       }
+    });
+
+    listEl?.addEventListener('click', async (e) => {
+      const btn = e.target?.closest?.('button[data-action]');
+      if (!(btn instanceof HTMLButtonElement)) return;
+      const action = btn.getAttribute('data-action');
+      if (action !== 'store-soldout') return;
+
+      const item = btn.closest('.admin-item');
+      const id = item?.getAttribute('data-id');
+      if (!id) return;
+
+      const isSoldOut = item.classList.contains('is-soldout');
+      await toggleSoldOut(id, !isSoldOut, btn);
     });
 
     listEl?.addEventListener('click', async (e) => {

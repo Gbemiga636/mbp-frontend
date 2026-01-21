@@ -11,6 +11,27 @@ body,
 
 .admin {
   padding: 24px 0 56px;
+.admin-item.is-soldout {
+  opacity: 0.90;
+  border-color: rgba(168,75,87,0.22);
+  box-shadow: 0 10px 30px rgba(168,75,87,.08);
+}
+.admin-item.is-soldout .admin-item__top > div:first-child {
+  position: relative;
+}
+.admin-item.is-soldout .admin-item__top > div:first-child::after {
+  content: 'SOLD OUT';
+  display: inline-block;
+  margin-left: 10px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: rgba(18,18,22,0.78);
+  background: rgba(216,176,124,0.30);
+  border: 1px solid rgba(216,176,124,0.42);
+}
 }
 
 .admin__inner {

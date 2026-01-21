@@ -310,6 +310,31 @@
     return data;
   };
 
+  const sleep = (ms) => new Promise((r) => window.setTimeout(r, ms));
+
+  const isWakeUpError = (err) => {
+    const status = Number(err?.status || 0);
+    if (err?.code === 'NETWORK_ERROR') return true;
+    return status === 502 || status === 503 || status === 504;
+  };
+
+  const fetchJsonWithWakeRetry = async (url, options, { retries = 4, baseDelayMs = 900, onAttempt } = {}) => {
+    let attempt = 0;
+    while (true) {
+      attempt += 1;
+      try {
+        if (typeof onAttempt === 'function') onAttempt({ attempt, retries, phase: 'request' });
+        return await fetchJson(url, options);
+      } catch (err) {
+        const canRetry = attempt <= retries && isWakeUpError(err);
+        if (!canRetry) throw err;
+        if (typeof onAttempt === 'function') onAttempt({ attempt, retries, phase: 'retry', err });
+        const delay = baseDelayMs * attempt;
+        await sleep(delay);
+      }
+    }
+  };
+
   // Cookie banner (accept all / reject non-essential)
   const cookieBanner = document.getElementById('cookieBanner');
   const cookieAccept = document.getElementById('cookieAccept');
@@ -1320,9 +1345,14 @@
     };
     if (!grids.lingerie && !grids.underwear && !grids.pyjamas && !grids.nightwear) return;
 
-    const setGridStatus = (el, message) => {
+    const setGridStatus = (el, message, { withSpinner = false } = {}) => {
       if (!el) return;
-      el.innerHTML = `<div class="store-empty" role="status" aria-live="polite">${String(message || '')}</div>`;
+      el.innerHTML = `
+<div class="store-empty" role="status" aria-live="polite" style="display:flex; gap:10px; align-items:center; justify-content:center;">
+  ${withSpinner ? '<span class="spinner" aria-hidden="true"></span>' : ''}
+  <span>${String(message || '')}</span>
+</div>
+`.trim();
     };
 
     if (!API_BASE) {
@@ -1331,10 +1361,20 @@
     }
 
     // Always clear any existing static HTML so public === admin.
-    Object.values(grids).forEach((el) => setGridStatus(el, 'Loading products…'));
+    Object.values(grids).forEach((el) => setGridStatus(el, 'Loading products…', { withSpinner: true }));
 
     try {
-      const store = await fetchJson(`${API_BASE}/api/content/store`, { method: 'GET' });
+      const store = await fetchJsonWithWakeRetry(`${API_BASE}/api/content/store`, { method: 'GET' }, {
+        retries: 5,
+        baseDelayMs: 900,
+        onAttempt: ({ attempt, retries, phase }) => {
+          if (phase === 'retry' && attempt >= 1) {
+            Object.values(grids).forEach((el) =>
+              setGridStatus(el, `Waking up server… (${Math.min(attempt + 1, retries + 1)}/${retries + 1})`, { withSpinner: true })
+            );
+          }
+        },
+      });
       const products = Array.isArray(store?.products) ? store.products : [];
       const byCat = { lingerie: [], underwear: [], pyjamas: [], nightwear: [] };
       for (const p of products) {
@@ -1355,7 +1395,9 @@
       // Wire up front/back swap on newly rendered cards.
       initProductCardImageSwap();
     } catch (err) {
-      const msg = String(err?.message || 'Unable to load products right now. Please refresh.');
+      const msg = isWakeUpError(err)
+        ? 'Server is taking longer to wake up. Please wait a moment and refresh.'
+        : String(err?.message || 'Unable to load products right now. Please refresh.');
       Object.values(grids).forEach((el) => setGridStatus(el, msg));
     }
   };
