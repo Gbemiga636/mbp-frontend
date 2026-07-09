@@ -24,6 +24,10 @@ yarn-error.log*
 # Node dependencies (repo root shouldn't have these, but safe)
 node_modules/
 
-# Misc
-*.tmp
+# Backup archives (large; keep locally)
+mbp-backup-*.json
+mbp-backup-media-*/
+public/mbp-backup-*.json
+scripts/.url-map-cache.json
+
 *.swp

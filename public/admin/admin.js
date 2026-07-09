@@ -2724,11 +2724,55 @@
 
     listEl?.addEventListener('click', async (e) => {
       const btn = e.target.closest('button[data-action]');
-      const row = e.target.closest('.admin-item');
-      if (!btn && !row) return;
-      const ref = row?.getAttribute('data-ref');
-      if (!ref) return;
-      openOrder(ref);
+      if (!btn) return;
+      const action = btn.getAttribute('data-action');
+      const item = btn.closest('.admin-item');
+      const id = item?.getAttribute('data-id') || '';
+      if (!id) return;
+
+      const payload = {
+        type: item.querySelector('[data-field="type"]')?.value || 'image',
+        src: item.querySelector('[data-field="src"]')?.value || '',
+        caption: item.querySelector('[data-field="caption"]')?.value || '',
+      };
+
+      try {
+        setNotice(notice, { message: '' });
+        const y0 = window.scrollY || 0;
+        await withScrollLock(y0, async () => {
+          btn.textContent = action === 'gallery-delete' ? 'Deleting…' : 'Saving…';
+          setButtonBusy(btn, true);
+          if (action === 'gallery-delete') {
+            const ok = window.confirm('Delete this gallery item?');
+            if (!ok) return;
+            await fetchJson(`${API_BASE}/api/admin/gallery/items/${encodeURIComponent(id)}`, {
+              method: 'DELETE',
+              headers: { ...authHeaders() },
+            });
+          } else if (action === 'gallery-save') {
+            await fetchJson(`${API_BASE}/api/admin/gallery/items/${encodeURIComponent(id)}`, {
+              method: 'PUT',
+              headers: { ...authHeaders() },
+              body: JSON.stringify(payload),
+            });
+          } else {
+            return;
+          }
+        });
+
+        if (action === 'gallery-delete') {
+          setNotice(notice, { message: 'Gallery item deleted ✓ Reloading…' });
+          await load();
+        } else if (action === 'gallery-save') {
+          setNotice(notice, { message: 'Gallery item saved ✓' });
+          flashSavedTick(btn);
+          await refreshDataStatusPanel(dataStatusEl);
+        }
+      } catch (err) {
+        setNotice(notice, { message: err.message, isError: true });
+      } finally {
+        setButtonBusy(btn, false);
+      }
     });
 
     addForm?.addEventListener('submit', async (e) => {

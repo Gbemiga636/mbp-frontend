@@ -410,3 +410,87 @@ html {
   display: inline-block;
   animation: adminSpin 0.8s linear infinite;
 }
+
+/* Admin UI polish */
+.admin-card {
+  border-radius: 18px;
+  border: 1px solid rgba(12, 12, 14, 0.08);
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(12, 12, 14, 0.05);
+}
+
+.admin-card__title {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.admin-card__sub {
+  color: rgba(12, 12, 14, 0.58);
+  line-height: 1.6;
+}
+
+.admin-item {
+  border-radius: 16px;
+  border: 1px solid rgba(12, 12, 14, 0.08);
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(12, 12, 14, 0.04);
+  transition: box-shadow 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.admin-item:hover {
+  box-shadow: 0 10px 28px rgba(12, 12, 14, 0.07);
+}
+
+.admin-field input,
+.admin-field textarea,
+.admin-field select {
+  border-radius: 12px;
+  border: 1px solid rgba(12, 12, 14, 0.10);
+  background: #ffffff;
+  font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.admin-field input:focus,
+.admin-field textarea:focus,
+.admin-field select:focus {
+  outline: none;
+  border-color: rgba(139, 41, 56, 0.32);
+  box-shadow: 0 0 0 3px rgba(139, 41, 56, 0.14);
+}
+
+.admin-nav {
+  border-radius: 18px;
+  border: 1px solid rgba(12, 12, 14, 0.08);
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(12, 12, 14, 0.05);
+}
+
+.admin-nav__links a {
+  border-radius: 12px;
+  font-weight: 600;
+  transition: background 200ms ease, color 200ms ease;
+}
+
+.admin-nav__links a:hover,
+.admin-nav__links a.is-active {
+  background: rgba(139, 41, 56, 0.08);
+}
+
+.notice {
+  border-radius: 14px;
+  border: 1px solid rgba(12, 12, 14, 0.08);
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(12, 12, 14, 0.04);
+}
+
+.admin-status {
+  border-radius: 16px;
+  border: 1px solid rgba(12, 12, 14, 0.08);
+  background: #ffffff;
+}
+
+.spinner {
+  border-color: rgba(139, 41, 56, 0.16);
+  border-top-color: rgba(139, 41, 56, 0.88);
+}
