@@ -281,6 +281,55 @@
     return s;
   };
 
+  const videoMimeType = (url) => {
+    const u = String(url || '').toLowerCase();
+    if (u.includes('.mov')) return 'video/quicktime';
+    if (u.includes('.webm')) return 'video/webm';
+    return 'video/mp4';
+  };
+
+  const preloadMedia = (url, as = 'video') => {
+    const resolved = resolveMediaUrl(url);
+    if (!resolved || typeof document === 'undefined') return;
+    const id = `mbp-preload-${as}-${resolved}`;
+    if (document.getElementById(id)) return;
+    const link = document.createElement('link');
+    link.id = id;
+    link.rel = 'preload';
+    link.as = as;
+    link.href = resolved;
+    document.head.appendChild(link);
+  };
+
+  const applyVideoSource = (sourceEl, videoEl, url) => {
+    const resolved = resolveMediaUrl(url);
+    if (!sourceEl || !resolved) return false;
+    const current = sourceEl.getAttribute('src') || '';
+    if (current === resolved) return true;
+    sourceEl.setAttribute('src', resolved);
+    sourceEl.setAttribute('type', videoMimeType(resolved));
+    if (videoEl) {
+      try {
+        videoEl.load();
+      } catch {
+        // ignore
+      }
+    }
+    return true;
+  };
+
+  const getHomeContent = (() => {
+    let promise = null;
+    return () => {
+      if (!API_BASE) return Promise.resolve(null);
+      if (window.__MBP_HOME_PREFETCH__) return window.__MBP_HOME_PREFETCH__;
+      if (!promise) {
+        promise = fetchJson(`${API_BASE}/api/content/home`, { method: 'GET' }).catch(() => null);
+      }
+      return promise;
+    };
+  })();
+
   const fetchJson = async (url, options) => {
     let res;
     try {
@@ -1241,9 +1290,11 @@
     }
 
     try {
-      const home = await fetchJson(`${API_BASE}/api/content/home`, { method: 'GET' });
+      const home = await getHomeContent();
+      if (!home) throw new Error('home unavailable');
 
       const heroUrl = resolveMediaUrl(home?.heroVideo);
+      if (heroUrl) preloadMedia(heroUrl, 'video');
       if (heroSource) {
         const current = heroSource.getAttribute('src') || '';
         if (!heroUrl) {
@@ -1263,7 +1314,7 @@
             // ignore
           }
         } else if (current !== heroUrl) {
-          heroSource.setAttribute('src', heroUrl);
+          applyVideoSource(heroSource, heroVideo, heroUrl);
           if (heroVideo) {
             try {
               // Force background-video behavior: no controls, autoplay+loop, muted.
@@ -1280,7 +1331,6 @@
               if (heroSection) heroSection.classList.remove('is-video-playing');
 
               heroVideo.style.display = '';
-              heroVideo.load();
               kickstartHeroPlayback();
             } catch {
               // ignore
@@ -1304,6 +1354,17 @@
           } catch {
             // ignore
           }
+        }
+      }
+
+      const bandSource = document.querySelector('.video-band__video source');
+      const bandVideoEl = document.querySelector('.video-band__video');
+      const bandUrl = resolveMediaUrl(home?.bandVideo);
+      if (bandUrl) {
+        preloadMedia(bandUrl, 'video');
+        applyVideoSource(bandSource, bandVideoEl, bandUrl);
+        if (bandVideoEl && typeof bandVideoEl.play === 'function') {
+          bandVideoEl.play().catch(() => {});
         }
       }
 

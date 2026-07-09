@@ -6,7 +6,35 @@
     <meta name="theme-color" content="#f6f2ee" />
     <title>MBP Lingerie</title>
     <link rel="icon" href="assets/Logo.PNG" />
-    <link rel="preload" as="video" href="assets/mbpvid2.mp4" />
+    <script>
+      (function () {
+        if (location.protocol === 'file:') return;
+        var origin = location.origin;
+        window.__MBP_HOME_PREFETCH__ = fetch(origin + '/api/content/home', { cache: 'no-store' })
+          .then(function (r) { return r.json(); })
+          .then(function (home) {
+            if (!home) return home;
+            var hero = String(home.heroVideo || '').trim();
+            var band = String(home.bandVideo || '').trim();
+            if (hero) {
+              var link = document.createElement('link');
+              link.rel = 'preload';
+              link.as = 'video';
+              link.href = hero;
+              document.head.appendChild(link);
+            }
+            if (band) {
+              var link2 = document.createElement('link');
+              link2.rel = 'preload';
+              link2.as = 'video';
+              link2.href = band;
+              document.head.appendChild(link2);
+            }
+            return home;
+          })
+          .catch(function () { return null; });
+      })();
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="styles.css?v=20260709_1" />
   </head>
@@ -162,7 +190,7 @@
       <!-- Video background band section -->
       <section class="video-band" aria-label="Ambient video">
         <video class="video-band__video" autoplay muted loop playsinline preload="auto">
-          <source src="assets/mbpvid1.mp4" type="video/mp4" />
+          <source src="" type="video/mp4" />
         </video>
         <div class="video-band__overlay" aria-hidden="true"></div>
       </section>

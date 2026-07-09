@@ -56,7 +56,7 @@ function normalizeSizes(value) {
 }
 
 async function getHome() {
-  return (await dbGet('home')) || { heroVideo: '', featured: [], reviews: [] };
+  return (await dbGet('home')) || { heroVideo: '', bandVideo: '', preloadVideo: '', featured: [], reviews: [] };
 }
 
 async function getStore() {

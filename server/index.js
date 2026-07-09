@@ -144,7 +144,7 @@ function createApp() {
   app.post('/api/admin/data/init-empty-content', auth.requireAdmin, async (_req, res, next) => {
     try {
       await db.restoreSnapshot({
-        home: { heroVideo: '', featured: [], reviews: [] },
+        home: { heroVideo: '', bandVideo: '', preloadVideo: '', featured: [], reviews: [] },
         store: { products: [] },
         gallery: { items: [] },
         settings: { deliveryFee: 0 },
