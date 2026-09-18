@@ -1,0 +1,95 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import {
+  BarChart3, Boxes, FolderTree, LayoutDashboard, LogOut, MessageCircle,
+  Package, Percent, Settings, ShoppingBag, Users, Image as ImageIcon, Layers, Star,
+} from 'lucide-react';
+import { useAdmin } from '@/components/admin/AdminProvider';
+import styles from './AdminShell.module.css';
+
+const NAV = [
+  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/orders', label: 'Orders', icon: ShoppingBag },
+  { href: '/admin/products', label: 'Products', icon: Package },
+  { href: '/admin/inventory', label: 'Inventory', icon: Boxes },
+  { href: '/admin/categories', label: 'Categories', icon: FolderTree },
+  { href: '/admin/collections', label: 'Collections', icon: Layers },
+  { href: '/admin/customers', label: 'Customers', icon: Users },
+  { href: '/admin/promotions', label: 'Promotions', icon: Percent },
+  { href: '/admin/content', label: 'Content', icon: ImageIcon },
+  { href: '/admin/reviews', label: 'Reviews', icon: Star },
+  { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
+  { href: '/admin/messages', label: 'Messages', icon: MessageCircle },
+  { href: '/admin/settings', label: 'Settings', icon: Settings },
+];
+
+export function AdminShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout, authFetch } = useAdmin();
+  const [live, setLive] = useState(0);
+  const isLogin = pathname === '/admin/login';
+
+  useEffect(() => {
+    if (isLogin || !user) return;
+    const tick = () => {
+      authFetch('/api/admin/analytics/summary')
+        .then((r) => r.json())
+        .then((j) => setLive(Number(j.liveViewers || 0)))
+        .catch(() => null);
+    };
+    tick();
+    const t = window.setInterval(tick, 15000);
+    return () => window.clearInterval(t);
+  }, [isLogin, user, authFetch]);
+
+  useEffect(() => {
+    if (!isLogin && !user) {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('mbp_admin_token') : null;
+      if (!token) router.replace('/admin/login');
+    }
+  }, [isLogin, user, router]);
+
+  if (isLogin) return <>{children}</>;
+
+  if (!user) {
+    return <div className={styles.loading}>Checking session…</div>;
+  }
+
+  return (
+    <div className={styles.shell}>
+      <aside className={styles.sidebar}>
+        <div className={styles.brand}>
+          <strong>MBP Admin</strong>
+          <span>{user.email}</span>
+        </div>
+        <div className={styles.live} title="People on the site right now">
+          <span className={styles.dot} />
+          <div>
+            <strong>{live}</strong>
+            <div>viewing now</div>
+          </div>
+        </div>
+        <nav>
+          {NAV.map((item) => {
+            const Icon = item.icon;
+            const active = pathname === item.href || (item.href !== '/admin' && pathname?.startsWith(item.href));
+            return (
+              <Link key={item.href} href={item.href} className={active ? styles.active : ''}>
+                <Icon size={16} />
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+        <button type="button" className={styles.logout} onClick={() => { logout(); router.push('/admin/login'); }}>
+          <LogOut size={16} /> Sign out
+        </button>
+      </aside>
+      <div className={styles.main}>{children}</div>
+    </div>
+  );
+}

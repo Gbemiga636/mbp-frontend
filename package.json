@@ -2,9 +2,15 @@
   "name": "mbp-lingerie",
   "private": true,
   "scripts": {
-    "dev": "node server/local.js",
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:web": "next dev -p 3000",
+    "dev:api": "node server/local.js",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
     "verify": "node scripts/verify-deploy.js",
     "migrate:supabase": "node scripts/migrate-to-supabase.js",
+    "migrate:relational": "node scripts/migrate-kv-to-sql.js",
     "backup": "node download-mbp-backup.js --with-media"
   },
   "dependencies": {
@@ -12,10 +18,24 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "framer-motion": "^11.18.2",
     "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^0.475.0",
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.16.1",
+    "next": "^15.2.4",
     "pg": "^8.13.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "recharts": "^2.15.1",
     "serverless-http": "^3.2.0"
+  },
+  "devDependencies": {
+    "@netlify/plugin-nextjs": "^5.9.4",
+    "@types/node": "^22.13.10",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "concurrently": "^9.1.2",
+    "typescript": "^5.8.2"
   }
 }

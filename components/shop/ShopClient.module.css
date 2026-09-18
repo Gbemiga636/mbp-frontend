@@ -1,0 +1,95 @@
+.page { padding: 2.5rem 0 5rem; }
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.head h1 { margin: 0.15rem 0; }
+
+.layout {
+  display: grid;
+  gap: 2rem;
+}
+
+.desktopFilters { display: none; }
+
+.filters {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.filters label {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.filters select,
+.filters input[type='range'] {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid var(--line);
+  background: transparent;
+  border-radius: 0;
+  padding: 0 0.7rem;
+}
+
+.check {
+  display: flex !important;
+  align-items: center;
+  gap: 0.5rem;
+  grid-template-columns: none;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.9rem;
+}
+
+.empty {
+  min-height: 240px;
+  display: grid;
+  place-content: center;
+  gap: 0.8rem;
+  text-align: center;
+}
+
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 65;
+}
+
+.sheetScrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(16, 12, 10, 0.4);
+}
+
+.sheetPanel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #f7f3ee;
+  border-radius: 0;
+  padding: 1.15rem 1.15rem 1.6rem;
+  max-height: 80vh;
+  overflow: auto;
+}
+
+.sheetTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+@media (min-width: 900px) {
+  .layout { grid-template-columns: 220px 1fr; gap: 2.8rem; }
+  .desktopFilters { display: block; }
+  .head button { display: none; }
+}

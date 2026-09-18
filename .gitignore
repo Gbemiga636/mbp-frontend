@@ -8,7 +8,6 @@ Desktop.ini
 
 # Backend repo (separate)
 backend/
-# (Removed 'backend/' so backend changes are tracked)
 
 # Logs
 *.log
@@ -21,8 +20,10 @@ yarn-error.log*
 **/.env.*
 !**/.env.example
 
-# Node dependencies (repo root shouldn't have these, but safe)
+# Node / Next
 node_modules/
+.next/
+out/
 
 # Backup archives (large; keep locally)
 mbp-backup-*.json

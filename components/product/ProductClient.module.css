@@ -1,0 +1,132 @@
+.page { padding: 2.5rem 0 5rem; }
+
+.layout {
+  display: grid;
+  gap: 2rem;
+}
+
+.gallery { display: grid; gap: 0.7rem; }
+
+.main {
+  border-radius: 0;
+  overflow: hidden;
+  background: var(--bg-deep);
+  min-height: 360px;
+}
+
+.main img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.thumbs {
+  display: flex;
+  gap: 0.45rem;
+  overflow: auto;
+}
+
+.thumbs button {
+  border: 1px solid var(--line);
+  border-radius: 0;
+  overflow: hidden;
+  padding: 0;
+  width: 72px;
+  height: 90px;
+  background: transparent;
+}
+
+.thumbs img { width: 100%; height: 100%; object-fit: cover; }
+.activeThumb { outline: 1px solid var(--ink); }
+
+.info h1 { margin: 0.15rem 0 0.7rem; }
+
+.priceRow {
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 1rem;
+}
+
+.sale {
+  background: var(--accent);
+  color: #fff;
+  border-radius: 0;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.desc { color: var(--muted); font-weight: 300; max-width: 38ch; }
+
+.field { margin: 1.25rem 0; display: grid; gap: 0.5rem; }
+.fieldTop { display: flex; justify-content: space-between; font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.chips button {
+  border: 1px solid var(--line);
+  background: transparent;
+  border-radius: 0;
+  min-width: 48px;
+  padding: 0.5rem 0.85rem;
+  letter-spacing: 0.08em;
+}
+.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+.error {
+  margin: 0.15rem 0 0;
+  color: var(--error);
+  font-size: 0.88rem;
+}
+
+.qty {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.qty button {
+  width: 36px;
+  height: 36px;
+  border-radius: 0;
+  border: 1px solid var(--line);
+  background: transparent;
+}
+
+.cta {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 1.15rem;
+  position: sticky;
+  bottom: 0.75rem;
+  background: linear-gradient(180deg, transparent, var(--bg) 30%);
+  padding-top: 0.75rem;
+}
+
+.metaBox {
+  margin-top: 1.8rem;
+  padding: 1.15rem 0 0;
+  border-radius: 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  background: transparent;
+  display: grid;
+  gap: 0.45rem;
+  font-size: 0.9rem;
+  font-weight: 300;
+}
+
+.related { margin-top: 4.5rem; }
+.related h2 { margin-bottom: 1.2rem; }
+
+@media (min-width: 960px) {
+  .layout {
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 3.5rem;
+    align-items: start;
+  }
+  .cta { position: static; background: none; padding-top: 0; }
+}

@@ -1,0 +1,111 @@
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 1.1rem;
+  background: #14100e;
+  color: #fffaf6;
+}
+
+.exit {
+  animation: fadeOut 0.7s var(--ease) forwards;
+}
+
+.glow {
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(176, 138, 79, 0.35), transparent 70%);
+  filter: blur(8px);
+  animation: pulse 2.2s ease-in-out infinite;
+}
+
+.mark {
+  position: relative;
+  z-index: 1;
+  width: 150px;
+  display: grid;
+  justify-items: center;
+  gap: 0.4rem;
+}
+
+.mark img {
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.4));
+  animation: rise 1s var(--ease) both;
+}
+
+.silhouette {
+  width: 72px;
+  height: 96px;
+  color: rgba(255, 250, 246, 0.55);
+}
+
+.outline {
+  opacity: 0.85;
+}
+
+.fill {
+  transform-origin: bottom;
+  transform: translateY(100%);
+  animation: fillUp 2.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.letters {
+  display: flex;
+  gap: 0.55rem;
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  letter-spacing: 0.32em;
+  z-index: 1;
+}
+
+.letters span {
+  opacity: 0;
+  animation: letterIn 0.5s ease forwards;
+}
+
+.letters span:nth-child(1) { animation-delay: 0.35s; }
+.letters span:nth-child(2) { animation-delay: 0.55s; }
+.letters span:nth-child(3) { animation-delay: 0.75s; }
+
+.hint {
+  z-index: 1;
+  margin: 0;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  opacity: 0.7;
+}
+
+@keyframes fillUp {
+  to { transform: translateY(0); }
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes letterIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.45; transform: scale(0.92); }
+  50% { opacity: 0.9; transform: scale(1.08); }
+}
+
+@keyframes fadeOut {
+  to { opacity: 0; visibility: hidden; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill, .letters span, .mark img, .glow { animation: none; }
+  .fill { transform: none; }
+  .letters span { opacity: 1; }
+}

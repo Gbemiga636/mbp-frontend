@@ -1,0 +1,106 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: end center;
+  padding: 1rem;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(16, 12, 10, 0.46);
+  backdrop-filter: blur(8px);
+}
+
+.panel {
+  position: relative;
+  z-index: 1;
+  width: min(440px, 100%);
+  background: #f7f3ee;
+  border-radius: 0;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  padding: 1.4rem 1.25rem 1.5rem;
+  display: grid;
+  gap: 0.9rem;
+  animation: rise 0.35s var(--ease);
+}
+
+.close {
+  position: absolute;
+  top: 0.8rem;
+  right: 0.8rem;
+}
+
+.product {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 0.9rem;
+  align-items: center;
+  padding-right: 2.4rem;
+}
+
+.product img {
+  width: 72px;
+  height: 90px;
+  object-fit: cover;
+}
+
+.product p {
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+}
+
+.ask {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.45rem;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.chips button {
+  min-width: 52px;
+  min-height: 44px;
+  border-radius: 0;
+  border: 1px solid var(--line);
+  background: transparent;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+
+.active {
+  background: var(--ink) !important;
+  color: #fff !important;
+}
+
+.error {
+  margin: 0;
+  color: var(--error);
+  font-size: 0.88rem;
+}
+
+.guide {
+  text-align: center;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (min-width: 720px) {
+  .overlay { place-items: center; }
+}

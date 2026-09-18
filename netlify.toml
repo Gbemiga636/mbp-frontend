@@ -1,14 +1,17 @@
 [build]
-  command = "npm install"
-  publish = "public"
-  functions = "netlify/functions"
+  command = "npm run build"
+  publish = ".next"
 
 [build.environment]
   NODE_VERSION = "22"
 
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
 [functions]
   node_bundler = "esbuild"
   included_files = ["server/**"]
+  directory = "netlify/functions"
 
 [functions.api]
   timeout = 26
@@ -18,3 +21,23 @@
   to = "/.netlify/functions/api/:splat"
   status = 200
   force = true
+
+[[redirects]]
+  from = "/admin/login.html"
+  to = "/admin/login"
+  status = 301
+
+[[redirects]]
+  from = "/admin/home.html"
+  to = "/admin"
+  status = 301
+
+[[redirects]]
+  from = "/admin/store.html"
+  to = "/admin/products"
+  status = 301
+
+[[redirects]]
+  from = "/admin/orders.html"
+  to = "/admin/orders"
+  status = 301

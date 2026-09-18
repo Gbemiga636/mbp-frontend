@@ -1,0 +1,135 @@
+'use client';
+
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { useAdmin } from '@/components/admin/AdminProvider';
+
+function formatNaira(n: number) {
+  return `₦${Number(n || 0).toLocaleString('en-NG')}`;
+}
+
+export default function AdminDashboardPage() {
+  const { authFetch, user } = useAdmin();
+  const [data, setData] = useState<any>(null);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!user) return;
+    const load = () => {
+      authFetch('/api/admin/analytics/summary')
+        .then(async (r) => {
+          const j = await r.json();
+          if (!r.ok) throw new Error(j.error || 'Failed');
+          setData(j);
+        })
+        .catch((e) => setError(e.message));
+    };
+    load();
+    const t = window.setInterval(load, 15000);
+    return () => window.clearInterval(t);
+  }, [user, authFetch]);
+
+  if (!user) return null;
+
+  return (
+    <div className="admin-page">
+      <MobileNav />
+      <div className="admin-hero">
+        <div>
+          <p className="admin-kicker">Overview</p>
+          <h1>Dashboard</h1>
+        </div>
+      </div>
+      {error && <p style={{ color: '#9b2c2c' }}>{error}</p>}
+      {!data && !error && <p className="admin-muted">Loading live metrics…</p>}
+      {data && (
+        <>
+          <div className="admin-grid">
+            <div className="admin-card live">
+              <span><i className="admin-live-dot" /> Viewing now</span>
+              <strong>{data.liveViewers || 0}</strong>
+            </div>
+            <Metric label="Page views today" value={String(data.todayPageViews || 0)} />
+            <Metric label="Total revenue" value={formatNaira(data.totalRevenue)} />
+            <Metric label="Today revenue" value={formatNaira(data.todayRevenue)} />
+            <Metric label="Orders" value={String(data.totalOrders)} />
+            <Metric label="Today orders" value={String(data.todayOrders)} />
+            <Metric label="AOV" value={formatNaira(data.averageOrderValue)} />
+            <Metric label="Products" value={String(data.productCount)} />
+            <Metric label="Low stock" value={String(data.lowStockCount)} />
+            <Metric label="Out of stock" value={String(data.outOfStockCount)} />
+            <Metric label="WhatsApp clicks" value={String(data.whatsappClicks)} />
+            <Metric label="Product views" value={String(data.productViews)} />
+          </div>
+          {(data.livePaths || []).length > 0 && (
+            <>
+              <h2>Where they are</h2>
+              <table className="admin-table">
+                <thead><tr><th>Page</th><th>Viewers</th></tr></thead>
+                <tbody>
+                  {data.livePaths.map((row: any) => (
+                    <tr key={row.path}><td>{row.path}</td><td>{row.count}</td></tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
+          )}
+          <div className="admin-actions">
+            <Link className="admin-btn" href="/admin/orders">View orders</Link>
+            <Link className="admin-btn ghost" href="/admin/products">Manage products</Link>
+            <Link className="admin-btn ghost" href="/admin/analytics">Analytics</Link>
+          </div>
+          <h2>Live activity</h2>
+          {(data.recentEvents || []).length === 0 ? (
+            <p className="admin-muted">No tracked events yet. Events appear as shoppers browse.</p>
+          ) : (
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Event</th>
+                  <th>Detail</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.recentEvents.slice(0, 20).map((e: any) => (
+                  <tr key={e.id}>
+                    <td>{String(e.at || '').replace('T', ' ').slice(0, 19)}</td>
+                    <td>{e.type}</td>
+                    <td className="admin-muted">{JSON.stringify(e.payload || {}).slice(0, 80)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="admin-card">
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  );
+}
+
+function MobileNav() {
+  const links = [
+    ['/admin', 'Home'],
+    ['/admin/orders', 'Orders'],
+    ['/admin/products', 'Products'],
+    ['/admin/analytics', 'Analytics'],
+    ['/admin/settings', 'Settings'],
+  ];
+  return (
+    <div className="admin-mobile-nav">
+      {links.map(([href, label]) => (
+        <Link key={href} href={href}>{label}</Link>
+      ))}
+    </div>
+  );
+}
