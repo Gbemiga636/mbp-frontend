@@ -4,9 +4,11 @@
   z-index: 40;
   height: calc(var(--header-h) + env(safe-area-inset-top));
   padding-top: env(safe-area-inset-top);
-  backdrop-filter: blur(22px);
-  background: rgba(247, 243, 238, 0.86);
-  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(28px) saturate(1.45);
+  -webkit-backdrop-filter: blur(28px) saturate(1.45);
+  background: rgba(247, 243, 238, 0.58);
+  border-bottom: 1px solid var(--glass-line);
+  box-shadow: 0 12px 40px rgba(22, 18, 16, 0.05);
 }
 
 .inner {
@@ -28,6 +30,12 @@
   width: 52px;
   height: 52px;
   object-fit: contain;
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  letter-spacing: 0.18em;
 }
 
 .left {
@@ -69,21 +77,60 @@
   position: absolute;
   top: 130%;
   left: 0;
-  min-width: 220px;
-  padding: 1.1rem 1.15rem;
-  border-radius: 0;
-  background: #fffcf8;
+  min-width: 520px;
+  padding: 1.2rem 1.3rem;
+  background: rgba(255, 252, 248, 0.94);
   border: 1px solid var(--line);
-  box-shadow: var(--shadow);
+  box-shadow: 0 22px 50px rgba(22, 18, 16, 0.12);
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 1.2rem;
+}
+
+.megaCats {
+  display: grid;
   gap: 0.35rem;
 }
 
+.megaCat {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 0.7rem;
+  align-items: center;
+  padding: 0.35rem 0;
+}
+
+.megaThumb {
+  width: 44px;
+  height: 54px;
+  overflow: hidden;
+  background: var(--bg-deep);
+}
+
+.megaThumb img { width: 100%; height: 100%; object-fit: cover; }
+
+.megaFeat p {
+  margin: 0 0 0.6rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.megaFeat a {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 0.65rem;
+  align-items: center;
+  margin-bottom: 0.7rem;
+  font-size: 0.9rem;
+}
+
+.megaFeat img { width: 56px; height: 70px; object-fit: cover; }
+
 .mega a {
   display: block;
-  padding: 0.5rem 0;
-  font-size: 0.92rem;
-  font-weight: 400;
-  letter-spacing: 0.02em;
+  padding: 0.35rem 0;
+  font-size: 0.95rem;
 }
 
 .megaWrap:hover .mega,
@@ -97,7 +144,9 @@
 .scrim {
   position: fixed;
   inset: 0;
-  background: rgba(16, 12, 10, 0.42);
+  background: rgba(16, 12, 10, 0.36);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   opacity: 0;
   transition: opacity 0.3s var(--ease);
   z-index: 50;
@@ -106,8 +155,10 @@
 .panel {
   position: fixed;
   inset: 0 auto 0 0;
-  width: min(92vw, 380px);
-  background: #f7f3ee;
+  width: min(100vw, 420px);
+  background: rgba(247, 243, 238, 0.78);
+  backdrop-filter: blur(28px) saturate(1.3);
+  -webkit-backdrop-filter: blur(28px) saturate(1.3);
   z-index: 51;
   transform: translateX(-105%);
   transition: transform 0.45s var(--ease);

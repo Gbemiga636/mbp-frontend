@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import type { Product } from '@/lib/types';
 import { CATEGORIES } from '@/lib/types';
 import { ProductCard } from '@/components/product/ProductCard';
@@ -11,14 +12,19 @@ type Sort = 'recommended' | 'newest' | 'price-asc' | 'price-desc';
 export function ShopClient({
   products,
   initialCategory,
+  initialSort,
+  initialBadge,
   title = 'Shop',
 }: {
   products: Product[];
   initialCategory?: string;
+  initialSort?: string;
+  initialBadge?: string;
   title?: string;
 }) {
   const [category, setCategory] = useState(initialCategory || 'all');
-  const [sort, setSort] = useState<Sort>('recommended');
+  const [sort, setSort] = useState<Sort>((initialSort as Sort) || 'recommended');
+  const [badge] = useState(initialBadge || '');
   const [size, setSize] = useState('all');
   const [onlyInStock, setOnlyInStock] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -36,6 +42,7 @@ export function ShopClient({
   const filtered = useMemo(() => {
     let list = [...products];
     if (category !== 'all') list = list.filter((p) => (p.category || '').toLowerCase() === category);
+    if (badge) list = list.filter((p) => (p.badges || []).some((b) => b === badge));
     if (onlyInStock) list = list.filter((p) => !p.soldOut);
     if (size !== 'all') list = list.filter((p) => (p.sizes || []).includes(size));
     if (maxPrice > 0) list = list.filter((p) => Number(p.salePrice || p.price || 0) <= maxPrice);
@@ -44,7 +51,7 @@ export function ShopClient({
     if (sort === 'price-desc') list.sort((a, b) => Number(b.salePrice || b.price) - Number(a.salePrice || a.price));
     if (sort === 'newest') list = list.reverse();
     return list;
-  }, [products, category, sort, size, onlyInStock, maxPrice]);
+  }, [products, category, sort, size, onlyInStock, maxPrice, badge]);
 
   const Filters = (
     <div className={styles.filters}>
@@ -109,6 +116,22 @@ export function ShopClient({
           Filters
         </button>
       </header>
+
+      <nav className={styles.cats} aria-label="Categories">
+        <Link href="/shop" className={category === 'all' ? styles.on : ''} onClick={() => setCategory('all')}>
+          All
+        </Link>
+        {CATEGORIES.map((c) => (
+          <Link
+            key={c.slug}
+            href={`/shop/${c.slug}`}
+            className={category === c.slug ? styles.on : ''}
+            onClick={() => setCategory(c.slug)}
+          >
+            {c.name}
+          </Link>
+        ))}
+      </nav>
 
       <div className={styles.layout}>
         <aside className={styles.desktopFilters}>{Filters}</aside>

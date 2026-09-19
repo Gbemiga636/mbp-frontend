@@ -1,0 +1,26 @@
+.intro {
+  padding: 1.2rem 0 0;
+  margin-bottom: 2.4rem;
+  max-width: 40rem;
+}
+
+.intro p {
+  margin: 0 0 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+.intro h1 {
+  margin: 0;
+}
+
+.lead {
+  margin-top: 0.9rem;
+  color: var(--muted);
+  font-weight: 300;
+  font-size: 1.08rem;
+  line-height: 1.7;
+}

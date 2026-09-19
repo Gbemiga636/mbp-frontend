@@ -13,8 +13,10 @@ const FALLBACK: GalleryItem[] = [
   { id: 'img-l1', type: 'image', src: '/assets/lingerie1.jpeg', caption: 'Lingerie' },
   { id: 'vid-1', type: 'video', src: '/assets/mbpvid1.mp4', caption: 'Movement' },
   { id: 'img-n1', type: 'image', src: '/assets/nightwear1.jpeg', caption: 'Nightwear' },
+  { id: 'img-silk', type: 'image', src: '/assets/mbp-editorial-silk.png', caption: 'Silk' },
   { id: 'img-l4', type: 'image', src: '/assets/lingerie4.jpeg', caption: 'Evening glow' },
   { id: 'img-n3', type: 'image', src: '/assets/nightwear3.jpeg', caption: 'Soft nights' },
+  { id: 'img-lace', type: 'image', src: '/assets/mbp-editorial-lace.png', caption: 'Lace' },
   { id: 'img-u1', type: 'image', src: '/assets/underwear1.jpeg', caption: 'Essentials' },
   { id: 'img-pic', type: 'image', src: '/assets/Pic.png', caption: 'The house' },
 ];

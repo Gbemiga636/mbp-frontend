@@ -9,6 +9,8 @@ import { CartDrawer } from '@/components/layout/CartDrawer';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { BrandLoader } from '@/components/layout/BrandLoader';
+import { ExperienceCursor } from '@/components/experience/Cursor';
+import { whatsappUrl } from '@/lib/format';
 import { SizePrompt } from '@/components/product/SizePrompt';
 import { ShoppingAssistant } from '@/components/assistant/ShoppingAssistant';
 import { storage } from '@/lib/storage';
@@ -26,7 +28,7 @@ export function SiteChrome({ children, products = [] }: { children: React.ReactN
     if (isAdmin) return;
     setConsent(storage.getConsent());
     trackEvent('page_view', { path: window.location.pathname });
-  }, [isAdmin]);
+  }, [isAdmin, pathname]);
 
   useEffect(() => {
     if (isAdmin) return;
@@ -73,8 +75,9 @@ export function SiteChrome({ children, products = [] }: { children: React.ReactN
 
   return (
     <>
+      <ExperienceCursor />
       <BrandLoader />
-      <Header />
+      <Header products={products} />
       <main className="site-main">{children}</main>
       <Footer />
       <CartDrawer />
@@ -84,13 +87,15 @@ export function SiteChrome({ children, products = [] }: { children: React.ReactN
 
       <a
         className={styles.wa}
-        href="https://wa.me/2348087504905?text=Hello%20MBP%20Lingerie%2C%20I%20need%20assistance%20with%20an%20order."
+        href={whatsappUrl('Hello MBP Lingerie, I need assistance with an order.')}
         target="_blank"
         rel="noreferrer"
         aria-label="Chat on WhatsApp"
+        data-cursor="Chat"
         onClick={() => trackEvent('whatsapp_click', { source: 'floating' })}
       >
-        <MessageCircle size={22} />
+        <MessageCircle size={20} />
+        <span>Chat</span>
       </a>
 
       <div className="toast-stack" aria-live="polite">

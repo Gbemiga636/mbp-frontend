@@ -2,8 +2,9 @@
   position: fixed;
   inset: 0;
   z-index: 70;
-  background: rgba(20, 12, 10, 0.45);
-  backdrop-filter: blur(8px);
+  background: rgba(20, 12, 10, 0.32);
+  backdrop-filter: blur(18px) saturate(1.2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
   display: grid;
   align-content: start;
   padding: 1rem;
@@ -12,10 +13,12 @@
 .panel {
   width: min(720px, 100%);
   margin: 4vh auto 0;
-  background: #f7f3ee;
+  background: var(--glass-strong);
   border-radius: 0;
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow);
+  border: 1px solid var(--glass-line);
+  backdrop-filter: blur(28px) saturate(1.35);
+  -webkit-backdrop-filter: blur(28px) saturate(1.35);
+  box-shadow: 0 30px 70px rgba(22, 18, 16, 0.16);
   padding: 1rem;
   max-height: 80vh;
   overflow: auto;
@@ -41,7 +44,8 @@
 
 .section { margin-top: 1rem; }
 .chips { display: flex; flex-wrap: wrap; gap: 0.45rem; }
-.chips button {
+.chips button,
+.chips a {
   border: 1px solid var(--line);
   background: var(--bg);
   border-radius: 0;

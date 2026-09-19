@@ -1,5 +1,6 @@
 .footer {
   position: relative;
+  z-index: 2;
   margin-top: 6rem;
   padding: 4.5rem 0 1.5rem;
   overflow: hidden;
@@ -8,7 +9,16 @@
   border-top: 1px solid rgba(212, 181, 122, 0.18);
 }
 
-.glow { display: none; }
+.glow {
+  position: absolute;
+  width: 42rem;
+  height: 42rem;
+  left: 50%;
+  top: -28%;
+  transform: translateX(-50%);
+  background: radial-gradient(circle, rgba(196, 165, 116, 0.18), transparent 66%);
+  pointer-events: none;
+}
 
 .top {
   position: relative;
@@ -35,6 +45,32 @@
   max-width: 32rem;
   color: rgba(243, 236, 228, 0.64);
   font-weight: 300;
+}
+
+.cats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.65rem;
+  margin-top: 1.4rem;
+}
+
+.cats a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 42px;
+  padding: 0 1rem;
+  border: 1px solid rgba(212, 181, 122, 0.28);
+  color: #f3ece4;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.cats a:hover {
+  background: rgba(255, 250, 246, 0.08);
+  color: #fff;
 }
 
 .grid {

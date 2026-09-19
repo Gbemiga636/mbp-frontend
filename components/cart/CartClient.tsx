@@ -73,6 +73,7 @@ export function CartClient() {
           id: i.id,
           name: i.name,
           price: i.price,
+          qty: i.qty,
           quantity: i.qty,
           size: i.size,
           color: i.color,
@@ -82,6 +83,7 @@ export function CartClient() {
           id: `__delivery__${zoneId}`,
           name: `Delivery (${zones.find((z) => z.id === zoneId)?.label || zoneId})`,
           price: delivery,
+          qty: 1,
           quantity: 1,
         },
       ];
@@ -89,6 +91,7 @@ export function CartClient() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          customer: { email, phone, address },
           email,
           phone,
           address,

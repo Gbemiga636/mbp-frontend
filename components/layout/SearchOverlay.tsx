@@ -66,17 +66,37 @@ export function SearchOverlay({ products }: { products: Product[] }) {
           </button>
         </div>
 
-        {!q && recent.length > 0 && (
-          <div className={styles.section}>
-            <p className="muted">Recent</p>
-            <div className={styles.chips}>
-              {recent.map((r) => (
-                <button key={r} type="button" onClick={() => setQ(r)}>
-                  {r}
-                </button>
-              ))}
+        {!q && (
+          <>
+            {recent.length > 0 && (
+              <div className={styles.section}>
+                <p className="muted">Recent</p>
+                <div className={styles.chips}>
+                  {recent.map((r) => (
+                    <button key={r} type="button" onClick={() => setQ(r)}>
+                      {r}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div className={styles.section}>
+              <p className="muted">Looking for</p>
+              <div className={styles.chips}>
+                {[
+                  ['Everyday', '/shop/underwear'],
+                  ['A set', '/shop/lingerie'],
+                  ['New', '/shop?sort=newest'],
+                  ['Best sellers', '/shop?badge=bestseller'],
+                  ['Size guide', '/size-guide'],
+                ].map(([label, href]) => (
+                  <Link key={href} href={href} onClick={() => setSearchOpen(false)}>
+                    {label}
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
+          </>
         )}
 
         {q && results.length === 0 && (

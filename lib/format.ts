@@ -45,14 +45,15 @@ export function productWhatsAppMessage(opts: {
   const { product, size, color, quantity = 1, productUrl } = opts;
   const { price } = displayPrice(product);
   return [
-    'Hello MBP Lingerie, I am interested in:',
+    'Hello MBP Lingerie',
     '',
+    'I’d like to order:',
     `Product: ${product.name}`,
-    `Price: ${formatNaira(price)}`,
-    `Selected Size: ${size || 'Not selected'}`,
-    `Selected Color: ${color || 'Not selected'}`,
+    `Size: ${size || 'Not selected'}`,
+    `Colour: ${color || 'Not selected'}`,
     `Quantity: ${quantity}`,
-    `Product Link: ${productUrl}`,
+    `Price: ${formatNaira(price)}`,
+    `Product link: ${productUrl}`,
     '',
     'Please assist me with my order.',
   ].join('\n');
@@ -65,12 +66,14 @@ export function cartWhatsAppMessage(items: CartItem[], siteUrl: string): string 
   );
   const total = items.reduce((s, it) => s + it.price * it.qty, 0);
   return [
-    'Hello MBP Lingerie, I would like to order the following from my cart:',
+    'Hello MBP Lingerie',
+    '',
+    'Order enquiry',
     '',
     ...lines,
     '',
-    `Cart total (items): ${formatNaira(total)}`,
-    `Site: ${siteUrl}`,
+    `Total: ${formatNaira(total)}`,
+    `Cart: ${siteUrl}/cart`,
     '',
     'Please assist me with my order.',
   ].join('\n');

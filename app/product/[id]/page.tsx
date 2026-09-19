@@ -50,7 +50,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <ProductClient product={product} related={related} />
+      <ProductClient product={product} related={related} catalog={all} />
     </>
   );
 }

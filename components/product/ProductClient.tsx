@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Product } from '@/lib/types';
 import { displayPrice, formatNaira, productImages, productWhatsAppMessage, whatsappUrl } from '@/lib/format';
 import { useStore } from '@/components/providers/StoreProvider';
@@ -13,8 +14,16 @@ import styles from './ProductClient.module.css';
 
 const FALLBACK_SIZES = ['S', 'M', 'L', 'XL'];
 
-export function ProductClient({ product, related }: { product: Product; related: Product[] }) {
-  const { addToCart, toggleWishlist, isWishlisted, pushRecent } = useStore();
+export function ProductClient({
+  product,
+  related,
+  catalog = [],
+}: {
+  product: Product;
+  related: Product[];
+  catalog?: Product[];
+}) {
+  const { addToCart, toggleWishlist, isWishlisted, pushRecent, recentIds } = useStore();
   const images = productImages(product);
   const [active, setActive] = useState(0);
   const [size, setSize] = useState('');
@@ -49,12 +58,40 @@ export function ProductClient({ product, related }: { product: Product; related:
     <div className={`container ${styles.page}`}>
       <div className={styles.layout}>
         <div className={styles.gallery}>
-          <div className={styles.main}>
+          <div className={styles.main} data-cursor="View">
             {images[active] ? (
-              <Image src={images[active]} alt={product.name} width={900} height={1100} unoptimized priority />
+              <Image
+                src={images[active]}
+                alt={`${product.name}${images.length > 1 ? `, ${active === 0 ? 'front' : 'back'}` : ''}`}
+                width={900}
+                height={1100}
+                unoptimized
+                priority
+              />
             ) : (
               <div className="skeleton" style={{ minHeight: 420 }} />
             )}
+            {images.length > 1 ? (
+              <>
+                <button
+                  type="button"
+                  className={`${styles.nav} ${styles.navPrev}`}
+                  aria-label="Previous image"
+                  onClick={() => setActive((i) => (i - 1 + images.length) % images.length)}
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.nav} ${styles.navNext}`}
+                  aria-label="Next image"
+                  onClick={() => setActive((i) => (i + 1) % images.length)}
+                >
+                  <ChevronRight size={18} />
+                </button>
+                <span className={styles.face}>{active === 0 ? 'Front' : 'Back'}</span>
+              </>
+            ) : null}
           </div>
           {images.length > 1 && (
             <div className={styles.thumbs}>
@@ -75,6 +112,9 @@ export function ProductClient({ product, related }: { product: Product; related:
             {pricing.original ? <s className="muted">{formatNaira(pricing.original)}</s> : null}
             {pricing.discountPct ? <span className={styles.sale}>-{pricing.discountPct}%</span> : null}
           </div>
+          {product.stock != null && !product.soldOut && Number(product.stock) > 0 && Number(product.stock) <= 5 && (
+            <p className={styles.error}>Only {product.stock} left</p>
+          )}
           {product.desc && <p className={styles.desc}>{product.desc}</p>}
 
           <div className={styles.field}>
@@ -173,11 +213,36 @@ export function ProductClient({ product, related }: { product: Product; related:
 
       {related.length > 0 && (
         <section className={styles.related}>
-          <h2 className="display h3">You may also like</h2>
+          <h2 className="display h3">Complete the look</h2>
           <div className="grid-products">
-            {related.map((p) => (
+            {related.slice(0, 4).map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
+          </div>
+        </section>
+      )}
+
+      {related.length > 4 && (
+        <section className={styles.related}>
+          <h2 className="display h3">You may also like</h2>
+          <div className="grid-products">
+            {related.slice(4).map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {catalog.filter((p) => recentIds.includes(p.id) && p.id !== product.id).length > 0 && (
+        <section className={styles.related}>
+          <h2 className="display h3">Recently viewed</h2>
+          <div className="grid-products">
+            {catalog
+              .filter((p) => recentIds.includes(p.id) && p.id !== product.id)
+              .slice(0, 4)
+              .map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
           </div>
         </section>
       )}

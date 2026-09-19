@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useAdmin } from '@/components/admin/AdminProvider';
 
 function formatNaira(n: number) {
@@ -73,6 +74,21 @@ export default function AdminDashboardPage() {
                 </tbody>
               </table>
             </>
+          )}
+          {(data.ordersOverTime || []).length > 0 && (
+            <div className="admin-card" style={{ padding: '1rem', margin: '1.2rem 0 2rem' }}>
+              <span>Orders over time</span>
+              <div style={{ height: 220, marginTop: '0.8rem' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={data.ordersOverTime}>
+                    <XAxis dataKey="date" hide />
+                    <YAxis hide />
+                    <Tooltip />
+                    <Area type="monotone" dataKey="value" stroke="#5c1730" fill="#5c1730" fillOpacity={0.16} name="Orders / value" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           )}
           <div className="admin-actions">
             <Link className="admin-btn" href="/admin/orders">View orders</Link>

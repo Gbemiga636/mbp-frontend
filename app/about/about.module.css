@@ -1,0 +1,43 @@
+.page {
+  padding: 3.2rem 0 6.5rem;
+}
+
+.split {
+  display: grid;
+  gap: 2.2rem;
+  align-items: center;
+}
+
+.media {
+  position: relative;
+  min-height: 360px;
+  overflow: hidden;
+  background: var(--bg-deep);
+}
+
+.media img {
+  object-fit: cover;
+}
+
+.copy {
+  display: grid;
+  gap: 1.15rem;
+  color: var(--muted);
+  font-weight: 300;
+  font-size: 1.05rem;
+  line-height: 1.75;
+}
+
+.copy p { margin: 0; }
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 0.4rem;
+}
+
+@media (min-width: 900px) {
+  .split { grid-template-columns: 1fr 1fr; gap: 4rem; }
+  .media { min-height: 520px; }
+}

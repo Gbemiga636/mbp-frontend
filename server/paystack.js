@@ -26,16 +26,28 @@ function computeTotals(items) {
   let subtotal = 0;
   for (const it of lines) {
     const price = Number(it?.price || 0);
-    const qty = Number(it?.qty || 1);
+    const qty = Number(it?.qty || it?.quantity || 1);
     subtotal += price * qty;
   }
   return { subtotal, delivery: 0, total: subtotal, items: lines };
 }
 
-async function initializePayment({ customer, notes, items, deliveryZone, deliveryFee }) {
+async function initializePayment(body = {}) {
+  const customer = body.customer || {
+    email: body.email,
+    phone: body.phone,
+    address: body.address,
+  };
+  const notes = body.notes;
+  const items = (Array.isArray(body.items) ? body.items : []).map((it) => ({
+    ...it,
+    qty: Number(it?.qty || it?.quantity || 1),
+  }));
+  const deliveryZone = body.deliveryZone;
+  const deliveryFee = body.deliveryFee;
   const totals = computeTotals(items);
   const reference = `mbp_${crypto.randomBytes(8).toString('hex')}`;
-  const callbackUrl = PAYSTACK_CALLBACK_URL || (PUBLIC_SITE_URL ? `${PUBLIC_SITE_URL}/cart.html` : undefined);
+  const callbackUrl = body.callback_url || PAYSTACK_CALLBACK_URL || (PUBLIC_SITE_URL ? `${PUBLIC_SITE_URL}/cart` : undefined);
 
   const init = await paystackFetch('/transaction/initialize', {
     method: 'POST',

@@ -3,21 +3,14 @@
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import {
-  ArrowDown,
-  ArrowRight,
-  ChevronLeft,
-  ChevronRight,
-  Gift,
-  MessageCircle,
-  Ruler,
-  Sparkles,
-  Truck,
-} from 'lucide-react';
+import { ArrowDown, ArrowRight, ChevronLeft, ChevronRight, MessageCircle, Ruler } from 'lucide-react';
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import type { HomeContent, Product } from '@/lib/types';
 import { ProductCard } from '@/components/product/ProductCard';
 import { CATEGORIES } from '@/lib/types';
+import { DEFAULT_REVIEWS, catalogImages, imageByCategory } from '@/lib/defaults';
+import { Reveal } from '@/components/home/Reveal';
+import { SilkScene } from '@/components/experience/SilkScene';
 import styles from './home.module.css';
 
 const WORDS = ['Luxury.', 'Confidence.', 'You.'];
@@ -32,27 +25,6 @@ const CATEGORY_VISUALS: Record<string, { image: string; blurb: string }> = {
   nightwear: { image: '/assets/nightwear1.jpeg', blurb: 'Soft nights, sharp presence' },
   pyjamas: { image: '/assets/nightwear3.jpeg', blurb: 'Lounge luxury, all day' },
 };
-
-const MOMENTS = [
-  {
-    title: 'Evening Glow',
-    text: 'Lace, satin, and silhouettes made for after dark.',
-    href: '/shop/lingerie',
-    image: '/assets/lingerie4.jpeg',
-  },
-  {
-    title: 'Quiet Luxury',
-    text: 'Second-skin fabrics that feel expensive before anyone sees them.',
-    href: '/shop/underwear',
-    image: '/assets/underwear1.jpeg',
-  },
-  {
-    title: 'Night Ritual',
-    text: 'Sleepwear that turns wind-down into a ceremony.',
-    href: '/shop/nightwear',
-    image: '/assets/nightwear5.jpeg',
-  },
-];
 
 const ATMOSPHERE = [
   '/assets/lingerie1.jpeg',
@@ -189,7 +161,7 @@ function AtmosphereCarousel({ images }: { images: string[] }) {
       >
         {images.map((src) => (
           <figure key={src} className={styles.atmosphereSlide}>
-            <Image src={src} alt="" fill sizes="(max-width:768px) 80vw, 28vw" />
+            <Image src={src} alt="" fill sizes="(max-width:768px) 80vw, 28vw" unoptimized />
           </figure>
         ))}
       </div>
@@ -248,15 +220,23 @@ export function HomePageClient({
   const contentY = useTransform(scrollYProgress, [0, 1], ['0%', reduce ? '0%' : '-8%']);
 
   const featured = home.featured?.length ? home.featured : products.slice(0, 10);
-  const bestsellers = products.filter((p) => p.badges?.includes('bestseller')).slice(0, 10);
   const newest = products.slice(0, 10);
-  const lookProducts = products.slice(8, 14);
+  const reviews = home.reviews?.length ? home.reviews : DEFAULT_REVIEWS;
   const heroVideo = String(home.heroVideo || '').trim() || MAIN_HERO_VIDEO;
   const bandVideo = String(home.bandVideo || '').trim() || BAND_FALLBACK;
+  const wardrobe = CATEGORIES.map((c) => ({
+    ...c,
+    ...CATEGORY_VISUALS[c.slug],
+    image: imageByCategory(products, c.slug, CATEGORY_VISUALS[c.slug]?.image || '/assets/lingerie1.jpeg'),
+  }));
+  const world = catalogImages(products, ATMOSPHERE, 8);
+  const editorialImage = imageByCategory(products, 'lingerie', '/assets/lingerie2.jpeg');
+  const fitImage = imageByCategory(products, 'nightwear', '/assets/nightwear1.jpeg');
 
   return (
     <div className={styles.experience}>
-      {/* 1. Cinematic hero */}
+      <SilkScene className={styles.silk} />
+
       <section className={styles.hero} ref={heroRef} aria-label="Hero">
         <motion.div className={styles.heroMedia} style={{ y: heroY, scale: heroScale }}>
           {!videoFailed ? (
@@ -308,7 +288,6 @@ export function HomePageClient({
         </motion.div>
       </section>
 
-      {/* 2. Marquee */}
       <div className={styles.marquee} aria-hidden>
         <div className={styles.marqueeTrack}>
           {Array.from({ length: 2 }).map((_, i) => (
@@ -319,101 +298,95 @@ export function HomePageClient({
         </div>
       </div>
 
-      {/* 3. Trust / promise strip */}
-      <section id="discover" className={styles.promiseBand}>
-        <div className={`container ${styles.promiseHead}`}>
-          <p className={styles.eyebrow}>The promise</p>
-          <h2 className="display h2">Made to arrive beautifully.</h2>
-          <p className={styles.promiseLead}>
-            Four quiet standards behind every MBP piece — from the first unboxing to the last wear.
-          </p>
-        </div>
-        <div className={`container ${styles.promises}`}>
-          {[
-            { n: '01', icon: Truck, title: 'Discreet delivery', text: 'Lagos zones, privacy-first packaging, no spectacle on the doorstep.' },
-            { n: '02', icon: Ruler, title: 'Fit guidance', text: 'A stylist on WhatsApp, real measurements, never guesswork.' },
-            { n: '03', icon: Sparkles, title: 'Editorial pieces', text: 'Fabrics and cuts that feel expensive on skin and on camera.' },
-            { n: '04', icon: Gift, title: 'Ready to gift', text: 'Soft unboxing, every order — for her, or for you.' },
-          ].map((item, i) => {
-            const Icon = item.icon;
-            return (
-              <motion.article
-                key={item.title}
-                className={styles.promise}
-                initial={reduce ? false : { opacity: 0, y: 28 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-10%' }}
-                transition={{ delay: i * 0.06, duration: 0.5 }}
-              >
-                <span className={styles.promiseNum}>{item.n}</span>
-                <span className={styles.promiseIcon}><Icon size={18} strokeWidth={1.5} /></span>
-                <h3>{item.title}</h3>
-                <p>{item.text}</p>
-              </motion.article>
-            );
-          })}
+      <section id="discover" className={styles.intents}>
+        <div className="container">
+          <Reveal>
+            <p className={styles.eyebrow}>Begin here</p>
+            <h2 className="display h2">What are you looking for?</h2>
+          </Reveal>
+          <div className={styles.intentRow}>
+            {wardrobe.map((item, i) => (
+              <Reveal key={item.slug} delay={i * 0.06} y={24}>
+                <Link href={`/shop/${item.slug}`} data-cursor="Explore">
+                  <span>{String(i + 1).padStart(2, '0')}</span>
+                  {item.name}
+                </Link>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* 4. Shop by category — immersive tiles */}
+      <section className={styles.moods}>
+        <Reveal y={28}>
+          <Link href="/shop/lingerie" className={styles.mood} data-cursor="Explore">
+            <Image src="/assets/lingerie3.jpeg" alt="" fill sizes="50vw" unoptimized />
+            <div>
+              <p>The everyday</p>
+              <h3 className="display">Soft enough to forget. Fine enough to keep.</h3>
+            </div>
+          </Link>
+        </Reveal>
+        <Reveal delay={0.08} y={28}>
+          <Link href="/shop/lingerie" className={styles.mood} data-cursor="Explore">
+            <Image src={imageByCategory(products, 'lingerie', '/assets/lingerie4.jpeg')} alt="" fill sizes="50vw" unoptimized />
+            <div>
+              <p>After dark</p>
+              <h3 className="display">Lace, satin, and a little more intention.</h3>
+            </div>
+          </Link>
+        </Reveal>
+      </section>
+
       <section className={styles.section}>
         <div className={`container ${styles.sectionHead}`}>
-          <div>
+          <Reveal>
             <p className={styles.eyebrow}>The wardrobe</p>
             <h2 className="display h2">Four ways to begin.</h2>
-          </div>
+          </Reveal>
           <Link href="/shop" className={styles.textLink}>
             View all <ArrowRight size={16} />
           </Link>
         </div>
         <div className={`container ${styles.catGrid}`}>
-          {CATEGORIES.map((c, i) => {
-            const visual = CATEGORY_VISUALS[c.slug];
-            return (
-              <motion.div
-                key={c.slug}
-                initial={reduce ? false : { opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.06, duration: 0.55 }}
-              >
-                <Link href={`/shop/${c.slug}`} className={styles.catTile}>
-                  <div className={styles.catImg}>
-                    <Image src={visual.image} alt={c.name} fill sizes="(max-width:768px) 50vw, 25vw" />
-                  </div>
-                  <div className={styles.catShade} aria-hidden />
-                  <div className={styles.catCopy}>
-                    <span className="display">{c.name}</span>
-                    <p>{visual.blurb}</p>
-                    <span className={styles.catCta}>Shop</span>
-                  </div>
-                </Link>
-              </motion.div>
-            );
-          })}
+          {wardrobe.map((c, i) => (
+            <Reveal key={c.slug} delay={i * 0.07}>
+              <Link href={`/shop/${c.slug}`} className={styles.catTile}>
+                <div className={styles.catImg}>
+                  <Image src={c.image} alt={c.name} fill sizes="(max-width:768px) 50vw, 25vw" unoptimized />
+                </div>
+                <div className={styles.catShade} aria-hidden />
+                <div className={styles.catCopy}>
+                  <span className="display">{c.name}</span>
+                  <p>{c.blurb}</p>
+                  <span className={styles.catCta}>Shop</span>
+                </div>
+              </Link>
+            </Reveal>
+          ))}
         </div>
       </section>
 
-      {/* 5. Featured rail */}
       <section className={`container ${styles.section}`}>
         <div className={styles.sectionHead}>
-          <div>
+          <Reveal>
             <p className={styles.eyebrow}>The edit</p>
             <h2 className="display h2">Featured this season</h2>
-          </div>
+          </Reveal>
           <Link href="/shop" className={styles.textLink}>
             Shop featured <ArrowRight size={16} />
           </Link>
         </div>
-        <ProductRail products={featured} label="Swipe" />
+        <Reveal>
+          <ProductRail products={featured} label="Swipe" />
+        </Reveal>
       </section>
 
-      {/* 6. Editorial split */}
       <section className={styles.editorial}>
         <div className={styles.editorialMedia}>
-          <Image src="/assets/lingerie2.jpeg" alt="MBP editorial mood" fill sizes="(max-width:900px) 100vw, 50vw" />
+          <Image src={editorialImage} alt="MBP editorial mood" fill sizes="(max-width:900px) 100vw, 50vw" unoptimized />
         </div>
-        <div className={styles.editorialCopy}>
+        <Reveal className={styles.editorialCopy} delay={0.08}>
           <p className={styles.eyebrow}>The house</p>
           <h2 className="display h2">Designed for every private moment.</h2>
           <p>
@@ -428,59 +401,24 @@ export function HomePageClient({
               Find my size
             </Link>
           </div>
-        </div>
+        </Reveal>
       </section>
 
-      {/* 7. Style chapters */}
       <section className={`container ${styles.section}`}>
         <div className={styles.sectionHead}>
-          <div>
-            <p className={styles.eyebrow}>Chapters</p>
-            <h2 className="display h2">Shop the mood</h2>
-          </div>
-        </div>
-        <div className={styles.moments}>
-          {MOMENTS.map((m, i) => (
-            <motion.div
-              key={m.title}
-              className={styles.moment}
-              initial={reduce ? false : { opacity: 0, rotateX: 8, y: 30 }}
-              whileInView={{ opacity: 1, rotateX: 0, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08, duration: 0.6 }}
-            >
-              <Link href={m.href}>
-                <div className={styles.momentImg}>
-                  <Image src={m.image} alt={m.title} fill sizes="(max-width:768px) 100vw, 33vw" />
-                </div>
-                <div className={styles.momentCopy}>
-                  <h3 className="display">{m.title}</h3>
-                  <p>{m.text}</p>
-                  <span>
-                    Explore <ArrowRight size={14} />
-                  </span>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* 8. New arrivals */}
-      <section className={`container ${styles.section}`}>
-        <div className={styles.sectionHead}>
-          <div>
+          <Reveal>
             <p className={styles.eyebrow}>Just in</p>
             <h2 className="display h2">New arrivals</h2>
-          </div>
+          </Reveal>
           <Link href="/shop" className={styles.textLink}>
             See what&apos;s new <ArrowRight size={16} />
           </Link>
         </div>
-        <ProductRail products={newest} label="New" />
+        <Reveal>
+          <ProductRail products={newest} label="New" />
+        </Reveal>
       </section>
 
-      {/* 9. Parallax video band */}
       <section className={styles.band} aria-label="Ambient film">
         <video autoPlay muted loop playsInline preload="metadata">
           <source src={bandVideo} type="video/mp4" />
@@ -495,24 +433,9 @@ export function HomePageClient({
         </div>
       </section>
 
-      {/* 10. Best sellers / more products */}
-      <section className={`container ${styles.section}`}>
-        <div className={styles.sectionHead}>
-          <div>
-            <p className={styles.eyebrow}>Most loved</p>
-            <h2 className="display h2">{bestsellers.length ? 'Best sellers' : 'Complete the look'}</h2>
-          </div>
-          <Link href="/shop" className={styles.textLink}>
-            Shop all <ArrowRight size={16} />
-          </Link>
-        </div>
-        <ProductRail products={bestsellers.length ? bestsellers : lookProducts} label="Loved" />
-      </section>
-
-      {/* 11. Fit experience */}
       <section className={styles.fitBand}>
         <div className={`container ${styles.fitInner}`}>
-          <div>
+          <Reveal>
             <p className={styles.eyebrow}>Fit</p>
             <h2 className="display h2">Not sure of your size?</h2>
             <p className="muted">
@@ -531,98 +454,100 @@ export function HomePageClient({
                 <MessageCircle size={16} /> Ask on WhatsApp
               </a>
             </div>
-          </div>
-          <div className={styles.fitVisual}>
-            <Image src="/assets/Pic.png" alt="MBP fit mood" fill sizes="(max-width:900px) 100vw, 40vw" />
-          </div>
+          </Reveal>
+          <Reveal className={styles.fitVisual} delay={0.08}>
+            <Image src={fitImage} alt="MBP nightwear" fill sizes="(max-width:900px) 100vw, 40vw" unoptimized />
+          </Reveal>
         </div>
       </section>
 
-      {/* 12. Reviews */}
-      {(home.reviews?.length || 0) > 0 && (
-        <section className={`container ${styles.section}`}>
-          <div className={styles.sectionHead}>
-            <div>
-              <p className={styles.eyebrow}>Voices</p>
-              <h2 className="display h2">Loved by her</h2>
-            </div>
-          </div>
-          <ReviewRail reviews={home.reviews!} />
-        </section>
-      )}
+      <section className={`container ${styles.section}`}>
+        <div className={styles.sectionHead}>
+          <Reveal>
+            <p className={styles.eyebrow}>Voices</p>
+            <h2 className="display h2">Loved by her</h2>
+          </Reveal>
+        </div>
+        <Reveal>
+          <ReviewRail reviews={reviews} />
+        </Reveal>
+      </section>
 
-      {/* 13. Visual collage / social */}
       <section className={styles.collageSection}>
         <div className={`container ${styles.sectionHead}`}>
-          <div>
+          <Reveal>
             <p className={styles.eyebrow}>Atmosphere</p>
             <h2 className="display h2">The MBP world</h2>
-          </div>
+          </Reveal>
           <Link href="/gallery" className={styles.textLink}>
             Open gallery <ArrowRight size={16} />
           </Link>
         </div>
         <div className="container">
-          <AtmosphereCarousel images={ATMOSPHERE} />
+          <Reveal>
+            <AtmosphereCarousel images={world} />
+          </Reveal>
         </div>
       </section>
 
-      {/* 14. Concierge */}
       <section className={styles.concierge}>
         <div className="container">
-          <p className={styles.eyebrow}>Concierge</p>
-          <h2 className="display h2">Private styling on WhatsApp</h2>
-          <p>
-            Tell us the occasion, your usual size, and what you love — we&apos;ll guide you to pieces that fit
-            and feel like you.
-          </p>
-          <a
-            className="btn btn--whatsapp"
-            href="https://wa.me/2348087504905?text=Hello%20MBP%20Lingerie%2C%20I%20want%20a%20personal%20style%20consult."
-            target="_blank"
-            rel="noreferrer"
-          >
-            <MessageCircle size={18} /> Chat with MBP
-          </a>
+          <Reveal>
+            <p className={styles.eyebrow}>Concierge</p>
+            <h2 className="display h2">Private styling on WhatsApp</h2>
+            <p>
+              Tell us the occasion, your usual size, and what you love — we&apos;ll guide you to pieces that fit
+              and feel like you.
+            </p>
+            <a
+              className="btn btn--whatsapp"
+              href="https://wa.me/2348087504905?text=Hello%20MBP%20Lingerie%2C%20I%20want%20a%20personal%20style%20consult."
+              target="_blank"
+              rel="noreferrer"
+            >
+              <MessageCircle size={18} /> Chat with MBP
+            </a>
+          </Reveal>
         </div>
       </section>
 
-      {/* 15. Newsletter + final CTA */}
       <section className={`container ${styles.finalCta}`}>
-        <h2 className="display h2">Stay close to the drop.</h2>
-        <p className="muted">Private launches, restocks, and fit tips — straight to your inbox.</p>
-        <form
-          className={styles.newsForm}
-          onSubmit={(e) => {
-            e.preventDefault();
-            const fd = new FormData(e.currentTarget);
-            const email = String(fd.get('email') || '');
-            if (!email) return;
-            fetch('/api/newsletter', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email }),
-            }).catch(() => null);
-            e.currentTarget.reset();
-            alert('You are on the list.');
-          }}
-        >
-          <label className="sr-only" htmlFor="home-news">
-            Email
-          </label>
-          <input id="home-news" name="email" type="email" required placeholder="Your email" />
-          <button className="btn" type="submit">
-            Join
-          </button>
-        </form>
-        <div className={styles.cta}>
-          <Link href="/shop" className="btn btn--gold">
-            Shop now
-          </Link>
-          <Link href="/contact" className="btn btn--ghost">
-            Contact
-          </Link>
-        </div>
+        <Reveal>
+          <h2 className="display h2">Stay close to the drop.</h2>
+          <p className="muted">Private launches, restocks, and fit tips — straight to your inbox.</p>
+          <form
+            className={styles.newsForm}
+            onSubmit={(e) => {
+              e.preventDefault();
+              const fd = new FormData(e.currentTarget);
+              const email = String(fd.get('email') || '');
+              if (!email) return;
+              fetch('/api/newsletter', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+              }).catch(() => null);
+              e.currentTarget.reset();
+              alert('You are on the list.');
+            }}
+          >
+            <label className="sr-only" htmlFor="home-news">
+              Email
+            </label>
+            <input id="home-news" name="email" type="email" required placeholder="Your email" />
+            <button className="btn" type="submit">
+              Join
+            </button>
+          </form>
+          <div className={styles.cta}>
+            <Link href="/shop" className="btn btn--gold">
+              Shop now
+            </Link>
+            <Link href="/contact" className="btn btn--ghost">
+              Contact
+            </Link>
+          </div>
+        </Reveal>
       </section>
     </div>
   );

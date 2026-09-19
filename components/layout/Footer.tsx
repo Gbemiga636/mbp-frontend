@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Mail, MapPin, MessageCircle } from 'lucide-react';
+import { ArrowUpRight, Mail, MapPin, MessageCircle } from 'lucide-react';
+import { CATEGORIES } from '@/lib/types';
 import styles from './Footer.module.css';
 
 export function Footer() {
@@ -14,17 +15,25 @@ export function Footer() {
     <footer className={styles.footer}>
       <div className={styles.glow} aria-hidden />
       <div className={`container ${styles.top}`}>
-        <Image src="/assets/Logo.PNG" alt="MBP Lingerie" width={78} height={78} />
+        <Image src="/assets/Logo.PNG" alt="MBP Lingerie" width={72} height={72} unoptimized />
         <p className={`display ${styles.wordmark}`}>Luxury. Confidence. You.</p>
         <p className={styles.tag}>Soft luxury for bold women — discreet, fitted, unforgettable.</p>
+        <nav className={styles.cats} aria-label="Shop categories">
+          {CATEGORIES.map((c) => (
+            <Link key={c.slug} href={`/shop/${c.slug}`}>
+              {c.name}
+              <ArrowUpRight size={14} />
+            </Link>
+          ))}
+        </nav>
       </div>
 
       <div className={`container ${styles.grid}`}>
         <div className={styles.brand}>
           <h3>The house</h3>
           <p>
-            MBP Lingerie is intimacywear made to glow on skin and on camera. Fit guidance on WhatsApp,
-            private packaging, and pieces that feel expensive before anyone sees them.
+            Intimacywear made to glow on skin and on camera. Fit guidance on WhatsApp, private packaging,
+            and pieces that feel expensive before anyone sees them.
           </p>
           <div className={styles.social}>
             <a href="mailto:hello@mbplingerie.com.ng" aria-label="Email">
@@ -42,20 +51,17 @@ export function Footer() {
         </div>
 
         <div>
-          <h3>Shop</h3>
-          <Link href="/shop">All products</Link>
-          <Link href="/shop/lingerie">Lingerie</Link>
-          <Link href="/shop/underwear">Underwear</Link>
-          <Link href="/shop/nightwear">Nightwear</Link>
-          <Link href="/shop/pyjamas">Pyjamas</Link>
+          <h3>Visit</h3>
+          <Link href="/shop">The collection</Link>
           <Link href="/gallery">Gallery</Link>
+          <Link href="/about">Our story</Link>
+          <Link href="/size-guide">Size guide</Link>
         </div>
 
         <div>
           <h3>Care</h3>
-          <Link href="/size-guide">Size guide</Link>
-          <Link href="/about">Our story</Link>
           <Link href="/contact">Contact</Link>
+          <Link href="/wishlist">Wishlist</Link>
           <Link href="/terms">Terms</Link>
           <Link href="/privacy">Privacy</Link>
         </div>

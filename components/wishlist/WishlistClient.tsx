@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useStore } from '@/components/providers/StoreProvider';
 import { ProductCard } from '@/components/product/ProductCard';
+import { PageIntro } from '@/components/layout/PageIntro';
 import type { Product } from '@/lib/types';
 
 export function WishlistClient({ products }: { products: Product[] }) {
@@ -17,8 +18,10 @@ export function WishlistClient({ products }: { products: Product[] }) {
   if (!mounted) return <div className="container" style={{ padding: '3rem 0' }}>Loading…</div>;
 
   return (
-    <div className="container" style={{ padding: '2rem 0 4rem' }}>
-      <h1 className="display h2">Wishlist</h1>
+    <div className="container" style={{ padding: '3.2rem 0 6rem' }}>
+      <PageIntro kicker="Saved" title="Wishlist">
+        Pieces you want to return to.
+      </PageIntro>
       {saved.length === 0 ? (
         <div style={{ marginTop: '1.5rem' }}>
           <p className="muted">No saved pieces yet.</p>

@@ -8,7 +8,19 @@ export const metadata = {
   description: 'Browse MBP Lingerie — lingerie, nightwear, pyjamas and more.',
 };
 
-export default async function ShopPage() {
+export default async function ShopPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ sort?: string; badge?: string }>;
+}) {
+  const sp = await searchParams;
   const products = await fetchStore().catch(() => []);
-  return <ShopClient products={products} title="All products" />;
+  return (
+    <ShopClient
+      products={products}
+      title={sp.badge === 'bestseller' ? 'Best sellers' : sp.sort === 'newest' ? 'New arrivals' : 'The edit'}
+      initialSort={sp.sort}
+      initialBadge={sp.badge}
+    />
+  );
 }
