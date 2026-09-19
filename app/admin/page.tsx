@@ -1,9 +1,10 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useAdmin } from '@/components/admin/AdminProvider';
+import { Spinner } from '@/components/ui/Spinner';
 
 function formatNaira(n: number) {
   return `₦${Number(n || 0).toLocaleString('en-NG')}`;
@@ -34,7 +35,6 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="admin-page">
-      <MobileNav />
       <div className="admin-hero">
         <div>
           <p className="admin-kicker">Overview</p>
@@ -42,7 +42,11 @@ export default function AdminDashboardPage() {
         </div>
       </div>
       {error && <p style={{ color: '#9b2c2c' }}>{error}</p>}
-      {!data && !error && <p className="admin-muted">Loading live metrics…</p>}
+      {!data && !error && (
+        <div className="admin-loading">
+          <Spinner label="Loading live metrics" />
+        </div>
+      )}
       {data && (
         <>
           <div className="admin-grid">
@@ -65,6 +69,7 @@ export default function AdminDashboardPage() {
           {(data.livePaths || []).length > 0 && (
             <>
               <h2>Where they are</h2>
+              <div className="admin-table-wrap">
               <table className="admin-table">
                 <thead><tr><th>Page</th><th>Viewers</th></tr></thead>
                 <tbody>
@@ -73,6 +78,7 @@ export default function AdminDashboardPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
             </>
           )}
           {(data.ordersOverTime || []).length > 0 && (
@@ -99,6 +105,7 @@ export default function AdminDashboardPage() {
           {(data.recentEvents || []).length === 0 ? (
             <p className="admin-muted">No tracked events yet. Events appear as shoppers browse.</p>
           ) : (
+            <div className="admin-table-wrap">
             <table className="admin-table">
               <thead>
                 <tr>
@@ -117,6 +124,7 @@ export default function AdminDashboardPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </>
       )}
@@ -133,19 +141,3 @@ function Metric({ label, value }: { label: string; value: string }) {
   );
 }
 
-function MobileNav() {
-  const links = [
-    ['/admin', 'Home'],
-    ['/admin/orders', 'Orders'],
-    ['/admin/products', 'Products'],
-    ['/admin/analytics', 'Analytics'],
-    ['/admin/settings', 'Settings'],
-  ];
-  return (
-    <div className="admin-mobile-nav">
-      {links.map(([href, label]) => (
-        <Link key={href} href={href}>{label}</Link>
-      ))}
-    </div>
-  );
-}

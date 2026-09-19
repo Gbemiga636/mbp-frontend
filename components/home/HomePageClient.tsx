@@ -11,13 +11,12 @@ import { CATEGORIES } from '@/lib/types';
 import { DEFAULT_REVIEWS, catalogImages, imageByCategory } from '@/lib/defaults';
 import { Reveal } from '@/components/home/Reveal';
 import { SilkScene } from '@/components/experience/SilkScene';
+import { Spinner } from '@/components/ui/Spinner';
 import styles from './home.module.css';
 
 const WORDS = ['Luxury.', 'Confidence.', 'You.'];
-const HERO_FALLBACK = '/assets/home-hero-video.mp4';
+const HERO_VIDEO = '/assets/home-hero-video.mp4';
 const BAND_FALLBACK = '/assets/mbpvid1.mp4';
-const MAIN_HERO_VIDEO =
-  'https://xyuqcztzktqladitoell.supabase.co/storage/v1/object/public/mbp/migrated/home-hero-video.mov';
 
 const CATEGORY_VISUALS: Record<string, { image: string; blurb: string }> = {
   lingerie: { image: '/assets/lingerie1.jpeg', blurb: 'Sets that photograph like couture' },
@@ -209,7 +208,7 @@ export function HomePageClient({
   products: Product[];
 }) {
   const reduce = useReducedMotion();
-  const [videoFailed, setVideoFailed] = useState(false);
+  const [heroReady, setHeroReady] = useState(false);
   const heroRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -222,7 +221,6 @@ export function HomePageClient({
   const featured = home.featured?.length ? home.featured : products.slice(0, 10);
   const newest = products.slice(0, 10);
   const reviews = home.reviews?.length ? home.reviews : DEFAULT_REVIEWS;
-  const heroVideo = String(home.heroVideo || '').trim() || MAIN_HERO_VIDEO;
   const bandVideo = String(home.bandVideo || '').trim() || BAND_FALLBACK;
   const wardrobe = CATEGORIES.map((c) => ({
     ...c,
@@ -239,26 +237,26 @@ export function HomePageClient({
 
       <section className={styles.hero} ref={heroRef} aria-label="Hero">
         <motion.div className={styles.heroMedia} style={{ y: heroY, scale: heroScale }}>
-          {!videoFailed ? (
-            <video
-              className={styles.heroVideo}
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
-              poster="/assets/Collage.png"
-              onError={() => setVideoFailed(true)}
-            >
-              <source src={heroVideo} type={heroVideo.includes('.mov') ? 'video/quicktime' : 'video/mp4'} />
-              {heroVideo !== HERO_FALLBACK ? <source src={HERO_FALLBACK} type="video/mp4" /> : null}
-            </video>
-          ) : (
-            <Image src="/assets/Collage.png" alt="" fill priority className={styles.heroImg} sizes="100vw" />
-          )}
+          <video
+            className={styles.heroVideo}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            onPlaying={() => setHeroReady(true)}
+            onCanPlay={() => setHeroReady(true)}
+          >
+            <source src={HERO_VIDEO} type="video/mp4" />
+          </video>
         </motion.div>
         <div className={styles.heroOverlay} />
         <div className={styles.heroDepth} aria-hidden />
+        {!heroReady ? (
+          <div className={styles.heroSpin}>
+            <Spinner label="Opening the film" light />
+          </div>
+        ) : null}
         <motion.div className={`container ${styles.heroContent}`} style={{ y: contentY }}>
           <motion.p
             className={styles.kicker}

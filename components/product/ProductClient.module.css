@@ -17,7 +17,12 @@
   transition: transform 0.5s var(--ease), box-shadow 0.5s var(--ease);
 }
 
-.nav {
+.nav,
+.face {
+  display: none;
+}
+
+.navHidden {
   position: absolute;
   top: 50%;
   z-index: 3;

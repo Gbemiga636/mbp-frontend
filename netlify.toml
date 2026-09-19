@@ -26,18 +26,40 @@
   from = "/admin/login.html"
   to = "/admin/login"
   status = 301
+  force = true
 
 [[redirects]]
   from = "/admin/home.html"
   to = "/admin"
   status = 301
+  force = true
 
 [[redirects]]
   from = "/admin/store.html"
   to = "/admin/products"
   status = 301
+  force = true
 
 [[redirects]]
   from = "/admin/orders.html"
   to = "/admin/orders"
   status = 301
+  force = true
+
+[[redirects]]
+  from = "/admin/gallery.html"
+  to = "/admin/content"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/admin/delivery.html"
+  to = "/admin/settings"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/admin/restore.html"
+  to = "/admin/settings"
+  status = 301
+  force = true

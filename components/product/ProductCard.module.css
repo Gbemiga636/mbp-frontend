@@ -41,7 +41,12 @@
 
 .media:hover .front { transform: scale(1.03); }
 
-.flip {
+.flip,
+.face {
+  display: none;
+}
+
+.flipHidden {
   position: absolute;
   top: 50%;
   z-index: 3;

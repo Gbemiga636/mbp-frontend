@@ -23,6 +23,13 @@ const nextConfig: NextConfig = {
       { source: '/contact.html', destination: '/contact', permanent: true },
       { source: '/index.html', destination: '/', permanent: true },
       { source: '/account', destination: '/', permanent: false },
+      { source: '/admin/login.html', destination: '/admin/login', permanent: true },
+      { source: '/admin/home.html', destination: '/admin', permanent: true },
+      { source: '/admin/store.html', destination: '/admin/products', permanent: true },
+      { source: '/admin/orders.html', destination: '/admin/orders', permanent: true },
+      { source: '/admin/gallery.html', destination: '/admin/content', permanent: true },
+      { source: '/admin/delivery.html', destination: '/admin/settings', permanent: true },
+      { source: '/admin/restore.html', destination: '/admin/settings', permanent: true },
     ];
   },
 };

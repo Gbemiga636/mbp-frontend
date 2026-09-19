@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdmin } from '@/components/admin/AdminProvider';
+import { Spinner } from '@/components/ui/Spinner';
 
 export default function AdminLoginPage() {
   const { login } = useAdmin();
@@ -45,6 +46,7 @@ export default function AdminLoginPage() {
         <button className="admin-btn" type="submit" disabled={busy}>
           {busy ? 'Signing in…' : 'Sign in'}
         </button>
+        {busy ? <Spinner label="Signing in" /> : null}
       </form>
     </div>
   );

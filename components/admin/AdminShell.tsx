@@ -4,10 +4,11 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
-  BarChart3, Boxes, FolderTree, LayoutDashboard, LogOut, MessageCircle,
-  Package, Percent, Settings, ShoppingBag, Users, Image as ImageIcon, Layers, Star,
+  BarChart3, Boxes, FolderTree, LayoutDashboard, LogOut, Menu, MessageCircle,
+  Package, Percent, Settings, ShoppingBag, Users, Image as ImageIcon, Layers, Star, X,
 } from 'lucide-react';
 import { useAdmin } from '@/components/admin/AdminProvider';
+import { Spinner } from '@/components/ui/Spinner';
 import styles from './AdminShell.module.css';
 
 const NAV = [
@@ -31,7 +32,12 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { user, logout, authFetch } = useAdmin();
   const [live, setLive] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
   const isLogin = pathname === '/admin/login';
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     if (isLogin || !user) return;
@@ -56,39 +62,61 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   if (isLogin) return <>{children}</>;
 
   if (!user) {
-    return <div className={styles.loading}>Checking session…</div>;
+    return (
+      <div className={styles.loading}>
+        <Spinner label="Checking session" />
+      </div>
+    );
   }
+
+  const nav = (
+    <>
+      <div className={styles.brand}>
+        <strong>MBP Admin</strong>
+        <span>{user.email}</span>
+      </div>
+      <div className={styles.live} title="People on the site right now">
+        <span className={styles.dot} />
+        <div>
+          <strong>{live}</strong>
+          <div>viewing now</div>
+        </div>
+      </div>
+      <nav>
+        {NAV.map((item) => {
+          const Icon = item.icon;
+          const active = pathname === item.href || (item.href !== '/admin' && pathname?.startsWith(item.href));
+          return (
+            <Link key={item.href} href={item.href} className={active ? styles.active : ''}>
+              <Icon size={16} />
+              {item.label}
+            </Link>
+          );
+        })}
+      </nav>
+      <button type="button" className={styles.logout} onClick={() => { logout(); router.push('/admin/login'); }}>
+        <LogOut size={16} /> Sign out
+      </button>
+    </>
+  );
 
   return (
     <div className={styles.shell}>
-      <aside className={styles.sidebar}>
-        <div className={styles.brand}>
-          <strong>MBP Admin</strong>
-          <span>{user.email}</span>
-        </div>
-        <div className={styles.live} title="People on the site right now">
-          <span className={styles.dot} />
-          <div>
-            <strong>{live}</strong>
-            <div>viewing now</div>
-          </div>
-        </div>
-        <nav>
-          {NAV.map((item) => {
-            const Icon = item.icon;
-            const active = pathname === item.href || (item.href !== '/admin' && pathname?.startsWith(item.href));
-            return (
-              <Link key={item.href} href={item.href} className={active ? styles.active : ''}>
-                <Icon size={16} />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-        <button type="button" className={styles.logout} onClick={() => { logout(); router.push('/admin/login'); }}>
-          <LogOut size={16} /> Sign out
+      <header className={styles.topbar}>
+        <button type="button" className={styles.menuBtn} aria-label={menuOpen ? 'Close menu' : 'Open menu'} onClick={() => setMenuOpen((v) => !v)}>
+          {menuOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
-      </aside>
+        <strong>MBP Admin</strong>
+        <span className={styles.topLive}>
+          <i className={styles.dot} /> {live} live
+        </span>
+      </header>
+
+      <div className={`${styles.drawer} ${menuOpen ? styles.open : ''}`}>
+        <div className={styles.scrim} onClick={() => setMenuOpen(false)} />
+        <aside className={styles.sidebar}>{nav}</aside>
+      </div>
+
       <div className={styles.main}>{children}</div>
     </div>
   );

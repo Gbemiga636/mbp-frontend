@@ -8,7 +8,6 @@ import { Heart, Menu, MessageCircle, Search, ShoppingBag, X } from 'lucide-react
 import { CATEGORIES } from '@/lib/types';
 import type { Product } from '@/lib/types';
 import { useStore } from '@/components/providers/StoreProvider';
-import { imageByCategory } from '@/lib/defaults';
 import styles from './Header.module.css';
 
 const LINKS = [
@@ -20,7 +19,7 @@ const LINKS = [
   { href: '/about', label: 'The House' },
 ];
 
-export function Header({ products = [] }: { products?: Product[] }) {
+export function Header({ products: _products = [] }: { products?: Product[] }) {
   const pathname = usePathname();
   const {
     cartCount,
@@ -34,55 +33,15 @@ export function Header({ products = [] }: { products?: Product[] }) {
 
   if (pathname?.startsWith('/admin')) return null;
 
-  const newest = products.slice(0, 2);
+  const close = () => setMenuOpen(false);
 
   return (
     <>
       <header className={styles.header}>
         <div className={`container ${styles.inner}`}>
-          <div className={styles.left}>
-            <button type="button" className={`icon-btn ${styles.menuBtn}`} aria-label="Open menu" onClick={() => setMenuOpen(true)}>
-              <Menu size={20} />
-            </button>
-            <nav className={styles.desktopNav} aria-label="Primary">
-              {LINKS.map((l) => (
-                <Link key={l.href} href={l.href} className={styles.navLink} data-cursor="Explore">
-                  {l.label}
-                </Link>
-              ))}
-              <div className={styles.megaWrap}>
-                <button type="button" className={styles.navLink}>
-                  Collections
-                </button>
-                <div className={styles.mega}>
-                  <div className={styles.megaCats}>
-                    {CATEGORIES.map((c) => (
-                      <Link key={c.slug} href={`/shop/${c.slug}`} className={styles.megaCat} data-cursor="Explore">
-                        <span className={styles.megaThumb}>
-                          {imageByCategory(products, c.slug, '') ? (
-                            <Image src={imageByCategory(products, c.slug, '')} alt="" width={72} height={90} unoptimized />
-                          ) : null}
-                        </span>
-                        <span>{c.name}</span>
-                      </Link>
-                    ))}
-                    <Link href="/size-guide">Size guide</Link>
-                  </div>
-                  {newest.length > 0 && (
-                    <div className={styles.megaFeat}>
-                      <p>Just in</p>
-                      {newest.map((p) => (
-                        <Link key={p.id} href={`/product/${p.id}`}>
-                          {p.image ? <Image src={p.image} alt="" width={90} height={112} unoptimized /> : null}
-                          <span>{p.name}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </nav>
-          </div>
+          <button type="button" className={`icon-btn ${styles.menuBtn}`} aria-label="Open menu" onClick={() => setMenuOpen(true)}>
+            <Menu size={20} />
+          </button>
 
           <Link href="/" className={styles.logo} aria-label="MBP Lingerie home">
             {logoOk ? (
@@ -109,29 +68,29 @@ export function Header({ products = [] }: { products?: Product[] }) {
       </header>
 
       <div className={`${styles.drawer} ${menuOpen ? styles.open : ''}`} aria-hidden={!menuOpen}>
-        <div className={styles.scrim} onClick={() => setMenuOpen(false)} />
+        <div className={styles.scrim} onClick={close} />
         <aside className={styles.panel} role="dialog" aria-label="Menu">
           <div className={styles.panelTop}>
             <span className="display">Enter</span>
-            <button type="button" className="icon-btn" aria-label="Close menu" onClick={() => setMenuOpen(false)}>
+            <button type="button" className="icon-btn" aria-label="Close menu" onClick={close}>
               <X size={18} />
             </button>
           </div>
           <nav className={styles.mobileLinks}>
             {LINKS.map((l) => (
-              <Link key={l.href} href={l.href} onClick={() => setMenuOpen(false)}>
+              <Link key={l.href} href={l.href} onClick={close}>
                 {l.label}
               </Link>
             ))}
             <p>The wardrobe</p>
             {CATEGORIES.map((c) => (
-              <Link key={c.slug} href={`/shop/${c.slug}`} onClick={() => setMenuOpen(false)}>
+              <Link key={c.slug} href={`/shop/${c.slug}`} onClick={close}>
                 {c.name}
               </Link>
             ))}
-            <Link href="/size-guide" onClick={() => setMenuOpen(false)}>Size guide</Link>
-            <Link href="/contact" onClick={() => setMenuOpen(false)}>Contact</Link>
-            <a href="https://wa.me/2348087504905?text=Hello%20MBP%20Lingerie%2C%20I%20need%20assistance." target="_blank" rel="noreferrer" onClick={() => setMenuOpen(false)}>
+            <Link href="/size-guide" onClick={close}>Size guide</Link>
+            <Link href="/contact" onClick={close}>Contact</Link>
+            <a href="https://wa.me/2348087504905?text=Hello%20MBP%20Lingerie%2C%20I%20need%20assistance." target="_blank" rel="noreferrer" onClick={close}>
               <MessageCircle size={16} /> WhatsApp
             </a>
           </nav>
