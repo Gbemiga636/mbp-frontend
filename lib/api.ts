@@ -12,7 +12,7 @@ export async function apiGet<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, {
     ...init,
     headers: { ...(init?.headers || {}) },
-    next: init?.cache === 'no-store' ? undefined : { revalidate: 30 },
+    next: init?.cache === 'no-store' ? undefined : { revalidate: 300 },
   });
   if (!res.ok) {
     const text = await res.text().catch(() => '');
@@ -22,11 +22,11 @@ export async function apiGet<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export async function fetchHome(): Promise<HomeContent> {
-  return apiGet<HomeContent>('/api/content/home', { cache: 'no-store' });
+  return apiGet<HomeContent>('/api/content/home');
 }
 
 export async function fetchStore(): Promise<Product[]> {
-  const data = await apiGet<{ products: Product[] }>('/api/content/store', { cache: 'no-store' });
+  const data = await apiGet<{ products: Product[] }>('/api/content/store');
   return data.products || [];
 }
 
@@ -36,13 +36,13 @@ export async function fetchProduct(id: string): Promise<Product | null> {
 }
 
 export async function fetchGallery(): Promise<GalleryItem[]> {
-  const data = await apiGet<{ items: GalleryItem[] }>('/api/content/gallery', { cache: 'no-store' });
+  const data = await apiGet<{ items: GalleryItem[] }>('/api/content/gallery');
   return data.items || [];
 }
 
 export async function fetchSettings(): Promise<SiteSettings> {
   try {
-    const data = await apiGet<SiteSettings>('/api/config', { cache: 'no-store' });
+    const data = await apiGet<SiteSettings>('/api/config');
     return {
       ...data,
       deliveryZones: data.deliveryZones?.length ? data.deliveryZones : DEFAULT_ZONES,

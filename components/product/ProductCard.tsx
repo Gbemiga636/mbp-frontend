@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, type MouseEvent } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import type { Product } from '@/lib/types';
 import { displayPrice, formatNaira } from '@/lib/format';
 import { useStore } from '@/components/providers/StoreProvider';
 import { useTilt } from '@/lib/useTilt';
+import { StoreImage } from '@/components/media/StoreImage';
 import styles from './ProductCard.module.css';
 
 const BADGE_LABEL: Record<string, string> = {
@@ -46,13 +46,13 @@ export function ProductCard({ product }: { product: Product }) {
       <div className={styles.media} data-cursor="View">
         <Link href={href}>
           {showing ? (
-            <Image
+            <StoreImage
               className={styles.front}
               src={showing}
               alt={hasBack ? `${product.name}, ${face === 0 ? 'front' : 'back'}` : product.name}
               width={480}
               height={600}
-              unoptimized
+              sizes="(max-width:720px) 55vw, 28vw"
             />
           ) : (
             <div className="skeleton" style={{ aspectRatio: '4/5' }} />

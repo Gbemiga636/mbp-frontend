@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
+import { StoreImage } from '@/components/media/StoreImage';
 import { Search, X } from 'lucide-react';
 import { useStore } from '@/components/providers/StoreProvider';
 import type { Product } from '@/lib/types';
@@ -31,7 +31,7 @@ export function SearchOverlay({ products }: { products: Product[] }) {
           .toLowerCase();
         return hay.includes(query);
       })
-      .slice(0, 12);
+      .slice(0, 6);
   }, [q, products]);
 
   const commitSearch = (term: string) => {
@@ -117,7 +117,7 @@ export function SearchOverlay({ products }: { products: Product[] }) {
                 >
                   <div className={styles.thumb}>
                     {p.image ? (
-                      <Image src={p.image} alt="" width={56} height={70} unoptimized />
+                      <StoreImage src={p.image} alt="" width={56} height={70} sizes="56px" />
                     ) : null}
                   </div>
                   <div>

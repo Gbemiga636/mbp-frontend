@@ -46,7 +46,7 @@ export function SiteChrome({ children, products = [] }: { children: React.ReactN
       }).catch(() => null);
     };
     beat();
-    const t = window.setInterval(beat, 20000);
+    const t = window.setInterval(beat, 90000);
     document.addEventListener('visibilitychange', beat);
     return () => {
       window.clearInterval(t);

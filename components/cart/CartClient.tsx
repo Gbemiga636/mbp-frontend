@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
+import { StoreImage } from '@/components/media/StoreImage';
 import { useSearchParams } from 'next/navigation';
 import { useStore } from '@/components/providers/StoreProvider';
 import { cartWhatsAppMessage, formatNaira, whatsappUrl } from '@/lib/format';
@@ -136,7 +136,7 @@ export function CartClient() {
           {cart.map((item) => (
             <article key={`${item.id}-${item.size}`}>
               <div className={styles.thumb}>
-                {item.image ? <Image src={item.image} alt="" width={80} height={100} unoptimized /> : null}
+                {item.image ? <StoreImage src={item.image} alt="" width={80} height={100} sizes="80px" /> : null}
               </div>
               <div>
                 <strong>{item.name}</strong>

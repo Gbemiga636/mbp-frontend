@@ -1,7 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
+import { StoreImage } from '@/components/media/StoreImage';
 import { Minus, Plus, Trash2, X } from 'lucide-react';
 import { useStore } from '@/components/providers/StoreProvider';
 import { cartWhatsAppMessage, formatNaira, whatsappUrl } from '@/lib/format';
@@ -36,7 +36,7 @@ export function CartDrawer() {
                 <li key={`${item.id}-${item.size}-${item.color || ''}`}>
                   <div className={styles.thumb}>
                     {item.image ? (
-                      <Image src={item.image} alt="" width={72} height={90} unoptimized />
+                      <StoreImage src={item.image} alt="" width={72} height={90} sizes="72px" />
                     ) : (
                       <div className="skeleton" style={{ width: 72, height: 90 }} />
                     )}

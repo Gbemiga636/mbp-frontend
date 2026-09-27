@@ -4,7 +4,7 @@ import { ProductClient } from '@/components/product/ProductClient';
 import { fetchProduct, fetchStore } from '@/lib/api';
 import { displayPrice, formatNaira } from '@/lib/format';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;

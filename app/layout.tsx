@@ -38,6 +38,8 @@ export const metadata: Metadata = {
   },
 };
 
+export const revalidate = 300;
+
 export const viewport = {
   themeColor: '#f7f3ee',
 };

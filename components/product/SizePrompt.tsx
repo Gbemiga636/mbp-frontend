@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import Image from 'next/image';
 import { X } from 'lucide-react';
+import { StoreImage } from '@/components/media/StoreImage';
 import { useStore } from '@/components/providers/StoreProvider';
 import { displayPrice, formatNaira } from '@/lib/format';
 import styles from './SizePrompt.module.css';
@@ -38,7 +38,7 @@ export function SizePrompt() {
         </button>
         <div className={styles.product}>
           {product.image ? (
-            <Image src={product.image} alt="" width={72} height={90} unoptimized />
+            <StoreImage src={product.image} alt="" width={72} height={90} sizes="72px" />
           ) : null}
           <div>
             <strong>{product.name}</strong>

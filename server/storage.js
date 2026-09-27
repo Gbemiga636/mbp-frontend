@@ -46,6 +46,7 @@ async function uploadBuffer(buffer, { key = '', mime = 'application/octet-stream
 
   const { error } = await supabase.storage.from(BUCKET).upload(storagePath, buffer, {
     contentType: mime,
+    cacheControl: '31536000',
     upsert: true,
   });
   if (error) throw error;

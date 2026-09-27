@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
 import { Heart, MessageCircle, Volume2, VolumeX } from 'lucide-react';
 import type { GalleryItem } from '@/lib/types';
-import { resolveMediaUrl } from '@/lib/media';
+import { isSupabaseStorage, resolveMediaUrl } from '@/lib/media';
+import { StoreImage } from '@/components/media/StoreImage';
 import { trackEvent } from '@/lib/api';
 import styles from './GalleryFeed.module.css';
 
@@ -27,10 +27,12 @@ function isVideo(item: GalleryItem, src: string) {
 }
 
 export function GalleryFeed({ items }: { items: GalleryItem[] }) {
-  const feed = (items.length ? items : FALLBACK).map((item) => ({
+  const mapped = (items.length ? items : FALLBACK).map((item) => ({
     ...item,
     src: resolveMediaUrl(item.src),
   }));
+  const safe = mapped.filter((item) => !(isVideo(item, item.src) && isSupabaseStorage(item.src)));
+  const feed = safe.length ? safe : FALLBACK;
   const [muted, setMuted] = useState(true);
   const [active, setActive] = useState(0);
   const [saved, setSaved] = useState<Record<string, boolean>>({});
@@ -95,10 +97,10 @@ export function GalleryFeed({ items }: { items: GalleryItem[] }) {
                   loop
                   playsInline
                   muted={muted}
-                  preload={i < 2 ? 'auto' : 'metadata'}
+                  preload={i === active ? 'metadata' : 'none'}
                 />
               ) : (
-                <Image className={styles.media} src={src} alt={item.caption || 'MBP look'} fill sizes="100vw" unoptimized />
+                <StoreImage className={styles.media} src={src} alt={item.caption || 'MBP look'} fill sizes="100vw" />
               )}
               <div className={styles.shade} />
               <div className={styles.meta}>

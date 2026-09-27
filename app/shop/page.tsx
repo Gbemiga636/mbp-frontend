@@ -1,7 +1,7 @@
 import { ShopClient } from '@/components/shop/ShopClient';
 import { fetchStore } from '@/lib/api';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export const metadata = {
   title: 'Shop',

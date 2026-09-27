@@ -8,7 +8,8 @@ import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion
 import type { HomeContent, Product } from '@/lib/types';
 import { ProductCard } from '@/components/product/ProductCard';
 import { CATEGORIES } from '@/lib/types';
-import { DEFAULT_REVIEWS, catalogImages, imageByCategory } from '@/lib/defaults';
+import { DEFAULT_REVIEWS } from '@/lib/defaults';
+import { isSupabaseStorage } from '@/lib/media';
 import { Reveal } from '@/components/home/Reveal';
 import { SilkScene } from '@/components/experience/SilkScene';
 import { Spinner } from '@/components/ui/Spinner';
@@ -218,18 +219,19 @@ export function HomePageClient({
   const heroScale = useTransform(scrollYProgress, [0, 1], [1, reduce ? 1 : 1.12]);
   const contentY = useTransform(scrollYProgress, [0, 1], ['0%', reduce ? '0%' : '-8%']);
 
-  const featured = home.featured?.length ? home.featured : products.slice(0, 10);
-  const newest = products.slice(0, 10);
+  const featured = (home.featured?.length ? home.featured : products).slice(0, 6);
+  const newest = products.slice(0, 6);
   const reviews = home.reviews?.length ? home.reviews : DEFAULT_REVIEWS;
-  const bandVideo = String(home.bandVideo || '').trim() || BAND_FALLBACK;
+  const cmsBand = String(home.bandVideo || '').trim();
+  const bandVideo = cmsBand && !isSupabaseStorage(cmsBand) ? cmsBand : BAND_FALLBACK;
   const wardrobe = CATEGORIES.map((c) => ({
     ...c,
     ...CATEGORY_VISUALS[c.slug],
-    image: imageByCategory(products, c.slug, CATEGORY_VISUALS[c.slug]?.image || '/assets/lingerie1.jpeg'),
+    image: CATEGORY_VISUALS[c.slug]?.image || '/assets/lingerie1.jpeg',
   }));
-  const world = catalogImages(products, ATMOSPHERE, 8);
-  const editorialImage = imageByCategory(products, 'lingerie', '/assets/lingerie2.jpeg');
-  const fitImage = imageByCategory(products, 'nightwear', '/assets/nightwear1.jpeg');
+  const world = ATMOSPHERE.slice(0, 5);
+  const editorialImage = '/assets/lingerie2.jpeg';
+  const fitImage = '/assets/nightwear1.jpeg';
 
   return (
     <div className={styles.experience}>
@@ -327,7 +329,7 @@ export function HomePageClient({
         </Reveal>
         <Reveal delay={0.08} y={28}>
           <Link href="/shop/lingerie" className={styles.mood} data-cursor="Explore">
-            <Image src={imageByCategory(products, 'lingerie', '/assets/lingerie4.jpeg')} alt="" fill sizes="50vw" unoptimized />
+            <Image src="/assets/lingerie4.jpeg" alt="" fill sizes="50vw" unoptimized />
             <div>
               <p>After dark</p>
               <h3 className="display">Lace, satin, and a little more intention.</h3>

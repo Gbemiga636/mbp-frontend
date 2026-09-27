@@ -1,15 +1,13 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { PageIntro } from '@/components/layout/PageIntro';
-import { fetchStore } from '@/lib/api';
 import styles from './about.module.css';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 export const metadata = { title: 'About' };
 
 export default async function AboutPage() {
-  const products = await fetchStore().catch(() => []);
-  const portrait = products.find((p) => p.image)?.image || '/assets/lingerie2.jpeg';
+  const portrait = '/assets/lingerie2.jpeg';
 
   return (
     <div className={`container ${styles.page}`}>

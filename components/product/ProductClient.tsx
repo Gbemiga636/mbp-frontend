@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Product } from '@/lib/types';
 import { displayPrice, formatNaira, productImages, productWhatsAppMessage, whatsappUrl } from '@/lib/format';
 import { useStore } from '@/components/providers/StoreProvider';
 import { ProductCard } from '@/components/product/ProductCard';
+import { StoreImage } from '@/components/media/StoreImage';
 import { trackEvent } from '@/lib/api';
 import { ProductReviews } from '@/components/product/ProductReviews';
 import styles from './ProductClient.module.css';
@@ -60,12 +60,12 @@ export function ProductClient({
         <div className={styles.gallery}>
           <div className={styles.main} data-cursor="View">
             {images[active] ? (
-              <Image
+              <StoreImage
                 src={images[active]}
                 alt={`${product.name}${images.length > 1 ? `, ${active === 0 ? 'front' : 'back'}` : ''}`}
                 width={900}
                 height={1100}
-                unoptimized
+                sizes="(max-width:900px) 100vw, 50vw"
                 priority
               />
             ) : (
@@ -97,7 +97,7 @@ export function ProductClient({
             <div className={styles.thumbs}>
               {images.map((src, i) => (
                 <button key={src + i} type="button" className={i === active ? styles.activeThumb : ''} onClick={() => setActive(i)}>
-                  <Image src={src} alt="" width={90} height={110} unoptimized />
+                  <StoreImage src={src} alt="" width={90} height={110} sizes="90px" />
                 </button>
               ))}
             </div>

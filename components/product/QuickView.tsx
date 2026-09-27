@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { X } from 'lucide-react';
+import { StoreImage } from '@/components/media/StoreImage';
 import type { Product } from '@/lib/types';
 import { displayPrice, formatNaira, productWhatsAppMessage, whatsappUrl } from '@/lib/format';
 import { useStore } from '@/components/providers/StoreProvider';
@@ -30,7 +30,7 @@ export function QuickView({ product, onClose }: { product: Product; onClose: () 
         <div className={styles.grid}>
           <div className={styles.media}>
             {product.image ? (
-              <Image src={product.image} alt={product.name} width={520} height={650} unoptimized />
+              <StoreImage src={product.image} alt={product.name} width={520} height={650} sizes="(max-width:720px) 90vw, 420px" />
             ) : null}
           </div>
           <div>
