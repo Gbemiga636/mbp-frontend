@@ -31,7 +31,10 @@ export function GalleryFeed({ items }: { items: GalleryItem[] }) {
     ...item,
     src: resolveMediaUrl(item.src),
   }));
-  const safe = mapped.filter((item) => !(isVideo(item, item.src) && isSupabaseStorage(item.src)));
+  const safe = mapped.filter((item) => {
+    if (!isVideo(item, item.src)) return true;
+    return item.src.startsWith('/') && !isSupabaseStorage(item.src);
+  });
   const feed = safe.length ? safe : FALLBACK;
   const [muted, setMuted] = useState(true);
   const [active, setActive] = useState(0);

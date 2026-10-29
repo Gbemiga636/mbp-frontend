@@ -65,7 +65,7 @@ export function ProductCard({ product }: { product: Product }) {
           {badges.slice(0, 2).map((b) => (
             <span key={b}>{BADGE_LABEL[b] || b}</span>
           ))}
-          {pricing.discountPct ? <span>-{pricing.discountPct}%</span> : null}
+          {pricing.discountPct ? <span>{pricing.promoLabel || `-${pricing.discountPct}% promo`}</span> : null}
         </div>
 
         {hasBack ? (

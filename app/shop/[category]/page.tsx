@@ -3,7 +3,7 @@ import { ShopClient } from '@/components/shop/ShopClient';
 import { fetchStore } from '@/lib/api';
 import { CATEGORIES } from '@/lib/types';
 
-export const revalidate = 300;
+export const revalidate = 60;
 
 export default async function CategoryPage({ params }: { params: Promise<{ category: string }> }) {
   const { category } = await params;

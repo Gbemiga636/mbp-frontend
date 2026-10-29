@@ -122,7 +122,10 @@ export function SearchOverlay({ products }: { products: Product[] }) {
                   </div>
                   <div>
                     <strong>{p.name}</strong>
-                    <span className="muted">{formatNaira(pricing.price)}</span>
+                    <span className="muted">
+                      {formatNaira(pricing.price)}
+                      {pricing.original ? <s> {formatNaira(pricing.original)}</s> : null}
+                    </span>
                   </div>
                 </Link>
               </li>

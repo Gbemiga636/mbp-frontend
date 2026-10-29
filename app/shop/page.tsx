@@ -1,7 +1,7 @@
 import { ShopClient } from '@/components/shop/ShopClient';
 import { fetchStore } from '@/lib/api';
 
-export const revalidate = 300;
+export const revalidate = 60;
 
 export const metadata = {
   title: 'Shop',

@@ -4,14 +4,31 @@ export function formatNaira(amount: number): string {
   return `₦${Number(amount || 0).toLocaleString('en-NG')}`;
 }
 
-export function displayPrice(p: Product): { price: number; original?: number; discountPct?: number } {
+export function displayPrice(p: Product): {
+  price: number;
+  original?: number;
+  discountPct?: number;
+  promoLabel?: string;
+} {
   const base = Number(p.price || 0);
   const sale = p.salePrice != null && Number(p.salePrice) > 0 && Number(p.salePrice) < base
     ? Number(p.salePrice)
     : null;
-  if (sale == null) return { price: base };
-  const discountPct = Math.round(((base - sale) / base) * 100);
-  return { price: sale, original: base, discountPct };
+  let current = sale != null ? sale : base;
+  const promo = p.storePromo;
+  if (promo?.type === 'percent' && Number(promo.value) > 0) {
+    current = Math.round(current * (1 - Number(promo.value) / 100));
+  } else if (promo?.type === 'fixed' && Number(promo.value) > 0) {
+    current = Math.max(0, current - Number(promo.value));
+  }
+  if (current >= base) return { price: base };
+  const discountPct = base > 0 ? Math.round(((base - current) / base) * 100) : 0;
+  return {
+    price: current,
+    original: base,
+    discountPct,
+    promoLabel: promo?.label || (discountPct ? `-${discountPct}% promo` : undefined),
+  };
 }
 
 export function productImages(p: Product): string[] {

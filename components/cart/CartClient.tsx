@@ -22,6 +22,8 @@ export function CartClient() {
   const [notes, setNotes] = useState('');
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
+  const [promoCode, setPromoCode] = useState('');
+  const [promoApplied, setPromoApplied] = useState<{ code: string; discount: number; label: string } | null>(null);
 
   useEffect(() => {
     setZoneId(storage.getZone() || 'lekki');
@@ -55,7 +57,27 @@ export function CartClient() {
   }, [params, clearCart, toast]);
 
   const delivery = useMemo(() => zones.find((z) => z.id === zoneId)?.fee || 0, [zones, zoneId]);
-  const total = cartSubtotal + delivery;
+  const discount = promoApplied?.discount || 0;
+  const total = Math.max(0, cartSubtotal - discount) + delivery;
+
+  useEffect(() => {
+    if (!promoApplied) return;
+    fetch('/api/promo/validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: promoApplied.code, subtotal: cartSubtotal }),
+    })
+      .then((r) => r.json().then((j) => ({ ok: r.ok, j })))
+      .then(({ ok, j }) => {
+        if (!ok) {
+          setPromoApplied(null);
+          setNotice(j.error || 'Promo code is no longer valid');
+          return;
+        }
+        setPromoApplied({ code: j.code, discount: j.discount, label: j.label });
+      })
+      .catch(() => null);
+  }, [cartSubtotal, promoApplied?.code]);
 
   const checkout = async () => {
     if (!cart.length) return;
@@ -99,6 +121,7 @@ export function CartClient() {
           items,
           deliveryZone: zoneId,
           deliveryFee: delivery,
+          promoCode: promoApplied?.code || '',
           callback_url:
             typeof window !== 'undefined' ? `${window.location.origin}/cart` : undefined,
         }),
@@ -192,9 +215,44 @@ export function CartClient() {
             Notes
             <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional" />
           </label>
+          <label className="field">
+            Promo code
+            <input
+              value={promoCode}
+              onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+              placeholder="Optional"
+            />
+          </label>
+          <button
+            type="button"
+            className="btn btn--ghost"
+            disabled={busy || !promoCode.trim()}
+            onClick={async () => {
+              setNotice('');
+              try {
+                const res = await fetch('/api/promo/validate', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ code: promoCode, subtotal: cartSubtotal }),
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data?.error || 'Invalid code');
+                setPromoApplied({ code: data.code, discount: data.discount, label: data.label });
+                toast('Promo applied');
+              } catch (e) {
+                setPromoApplied(null);
+                setNotice(e instanceof Error ? e.message : 'Invalid code');
+              }
+            }}
+          >
+            Apply code
+          </button>
 
           <div className={styles.totals}>
             <div><span>Subtotal</span><span>{formatNaira(cartSubtotal)}</span></div>
+            {discount > 0 && promoApplied ? (
+              <div><span>{promoApplied.label || promoApplied.code}</span><span>−{formatNaira(discount)}</span></div>
+            ) : null}
             <div><span>Delivery</span><span>{formatNaira(delivery)}</span></div>
             <div className={styles.total}><span>Total</span><strong>{formatNaira(total)}</strong></div>
           </div>

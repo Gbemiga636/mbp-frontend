@@ -35,7 +35,11 @@ export function QuickView({ product, onClose }: { product: Product; onClose: () 
           </div>
           <div>
             <h2 className="display">{product.name}</h2>
-            <p className={styles.price}>{formatNaira(pricing.price)}</p>
+            <p className={styles.price}>
+              <strong>{formatNaira(pricing.price)}</strong>
+              {pricing.original ? <s className="muted">{formatNaira(pricing.original)}</s> : null}
+              {pricing.promoLabel ? <span className={styles.sale}>{pricing.promoLabel}</span> : null}
+            </p>
             {product.desc && <p className="muted">{product.desc}</p>}
 
             <div className={styles.field}>

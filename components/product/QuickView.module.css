@@ -42,9 +42,25 @@
 .media img { width: 100%; height: auto; object-fit: cover; }
 
 .price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.55rem;
   font-size: 1.05rem;
   font-weight: 400;
   letter-spacing: 0.04em;
+}
+
+.price s { opacity: 0.5; }
+
+.sale {
+  background: var(--accent);
+  color: #fff;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
 }
 
 .field { margin: 1rem 0; display: grid; gap: 0.5rem; }

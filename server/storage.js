@@ -38,6 +38,10 @@ async function ensureBucket() {
 }
 
 async function uploadBuffer(buffer, { key = '', mime = 'application/octet-stream' } = {}) {
+  const kind = `${mime} ${key}`.toLowerCase();
+  if (/video\/|\/(mp4|quicktime|webm)|(\.mp4|\.mov|\.webm|\.m4v)(\?|$)/i.test(kind)) {
+    throw new Error('Video uploads are disabled. Films stay in /public/assets so Storage cached egress does not pile up.');
+  }
   await ensureBucket();
   const supabase = getClient();
   const safeKey = String(key || `upload-${Date.now()}`).replace(/[^a-zA-Z0-9._-]/g, '-');

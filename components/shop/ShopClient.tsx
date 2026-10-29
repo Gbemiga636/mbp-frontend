@@ -5,6 +5,7 @@ import Link from 'next/link';
 import type { Product } from '@/lib/types';
 import { CATEGORIES } from '@/lib/types';
 import { ProductCard } from '@/components/product/ProductCard';
+import { displayPrice } from '@/lib/format';
 import styles from './ShopClient.module.css';
 
 type Sort = 'recommended' | 'newest' | 'price-asc' | 'price-desc';
@@ -30,7 +31,7 @@ export function ShopClient({
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [maxPrice, setMaxPrice] = useState(0);
 
-  const prices = products.map((p) => Number(p.salePrice || p.price || 0));
+  const prices = products.map((p) => displayPrice(p).price);
   const absoluteMax = Math.max(50000, ...prices, 0);
 
   const allSizes = useMemo(() => {
@@ -45,10 +46,10 @@ export function ShopClient({
     if (badge) list = list.filter((p) => (p.badges || []).some((b) => b === badge));
     if (onlyInStock) list = list.filter((p) => !p.soldOut);
     if (size !== 'all') list = list.filter((p) => (p.sizes || []).includes(size));
-    if (maxPrice > 0) list = list.filter((p) => Number(p.salePrice || p.price || 0) <= maxPrice);
+    if (maxPrice > 0) list = list.filter((p) => displayPrice(p).price <= maxPrice);
 
-    if (sort === 'price-asc') list.sort((a, b) => Number(a.salePrice || a.price) - Number(b.salePrice || b.price));
-    if (sort === 'price-desc') list.sort((a, b) => Number(b.salePrice || b.price) - Number(a.salePrice || a.price));
+    if (sort === 'price-asc') list.sort((a, b) => displayPrice(a).price - displayPrice(b).price);
+    if (sort === 'price-desc') list.sort((a, b) => displayPrice(b).price - displayPrice(a).price);
     if (sort === 'newest') list = list.reverse();
     return list;
   }, [products, category, sort, size, onlyInStock, maxPrice, badge]);

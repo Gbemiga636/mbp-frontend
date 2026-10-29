@@ -12,7 +12,7 @@ export async function apiGet<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, {
     ...init,
     headers: { ...(init?.headers || {}) },
-    next: init?.cache === 'no-store' ? undefined : { revalidate: 300 },
+    next: init?.cache === 'no-store' ? undefined : { revalidate: 60 },
   });
   if (!res.ok) {
     const text = await res.text().catch(() => '');

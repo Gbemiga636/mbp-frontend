@@ -110,7 +110,7 @@ export function ProductClient({
           <div className={styles.priceRow}>
             <strong>{formatNaira(pricing.price)}</strong>
             {pricing.original ? <s className="muted">{formatNaira(pricing.original)}</s> : null}
-            {pricing.discountPct ? <span className={styles.sale}>-{pricing.discountPct}%</span> : null}
+            {pricing.discountPct ? <span className={styles.sale}>{pricing.promoLabel || `-${pricing.discountPct}% promo`}</span> : null}
           </div>
           {product.stock != null && !product.soldOut && Number(product.stock) > 0 && Number(product.stock) <= 5 && (
             <p className={styles.error}>Only {product.stock} left</p>

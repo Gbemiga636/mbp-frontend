@@ -1,10 +1,17 @@
 export type ProductBadge = 'new' | 'bestseller' | 'limited' | 'sale' | 'almost-gone' | 'restocked';
 
+export type StorePromo = {
+  type: 'percent' | 'fixed';
+  value: number;
+  label?: string;
+};
+
 export type Product = {
   id: string;
   name: string;
   price: number;
   salePrice?: number | null;
+  storePromo?: StorePromo | null;
   image?: string;
   imageBack?: string;
   images?: string[];
@@ -68,6 +75,7 @@ export type SiteSettings = {
   deliveryZones?: DeliveryZone[];
   storeName?: string;
   currency?: string;
+  promo?: StorePromo | null;
 };
 
 export type OrderStatus =

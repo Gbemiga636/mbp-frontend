@@ -58,6 +58,30 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!hydrated) return;
+    let cancelled = false;
+    fetch('/api/content/store')
+      .then((r) => r.json())
+      .then((j) => {
+        if (cancelled) return;
+        const byId = new Map((j.products || []).map((p: Product) => [p.id, p]));
+        setCart((prev) =>
+          prev.map((item) => {
+            const p = byId.get(item.id) as Product | undefined;
+            if (!p) return item;
+            const nextPrice = displayPrice(p).price;
+            if (nextPrice === item.price && p.name === item.name) return item;
+            return { ...item, price: nextPrice, name: p.name, image: p.image || item.image };
+          })
+        );
+      })
+      .catch(() => null);
+    return () => {
+      cancelled = true;
+    };
+  }, [hydrated]);
+
+  useEffect(() => {
+    if (!hydrated) return;
     storage.setCart(cart);
   }, [cart, hydrated]);
 

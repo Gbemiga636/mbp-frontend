@@ -7,8 +7,9 @@ const auth = require('./auth');
 const storage = require('./storage');
 const paystack = require('./paystack');
 const email = require('./email');
+const promo = require('./promo');
 
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 80 * 1024 * 1024 } });
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 8 * 1024 * 1024 } });
 
 function createApp() {
   const app = express();
@@ -33,9 +34,14 @@ function createApp() {
 
   app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
+  async function currentPromos() {
+    return promo.listPromos(await db.dbGet('promotions'));
+  }
+
   app.get('/api/config', async (_req, res, next) => {
     try {
       const settings = await db.getSettings();
+      const storePromo = promo.publicPromo(promo.activeStorePromo(await currentPromos()));
       const defaultZones = [
         { id: 'lekki', label: 'Lekki', fee: 2000 },
         { id: 'vi-ikoyi', label: 'VI / Ikoyi', fee: 3000 },
@@ -50,6 +56,7 @@ function createApp() {
           : defaultZones,
         storeName: settings?.storeName || 'MBP Lingerie',
         currency: settings?.currency || 'NGN',
+        promo: storePromo && storePromo.applyTo === 'store' ? storePromo : null,
       });
     } catch (e) { next(e); }
   });
@@ -223,18 +230,26 @@ function createApp() {
   app.get('/api/content/home', async (_req, res, next) => {
     try {
       const home = await db.getHome();
-      res.json(home);
+      const storePromo = promo.activeStorePromo(await currentPromos());
+      res.json({
+        ...home,
+        featured: promo.attachStorePromo(home.featured || [], storePromo),
+      });
     } catch (e) { next(e); }
   });
 
   app.get('/api/content/store', async (_req, res, next) => {
     try {
       const store = await db.getStore();
-      const products = (store.products || []).map((p) => ({
-        ...p,
-        sizes: db.normalizeSizes(p.sizes),
-      }));
-      res.json({ products });
+      const storePromo = promo.activeStorePromo(await currentPromos());
+      const products = promo.attachStorePromo(
+        (store.products || []).map((p) => ({
+          ...p,
+          sizes: db.normalizeSizes(p.sizes),
+        })),
+        storePromo
+      );
+      res.json({ products, promo: promo.publicPromo(storePromo) });
     } catch (e) { next(e); }
   });
 
@@ -738,30 +753,82 @@ function createApp() {
 
   app.post('/api/admin/promotions', auth.requireAdmin, async (req, res, next) => {
     try {
-      const list = (await db.dbGet('promotions')) || [];
-      const promo = {
+      const list = await currentPromos();
+      const applyTo = String(req.body?.applyTo || '').trim() === 'code' ? 'code' : 'store';
+      const code = String(req.body?.code || '').trim().toUpperCase();
+      if (applyTo === 'code' && !code) return res.status(400).json({ error: 'Coupon code is required' });
+      const value = Number(req.body?.value || 0);
+      if (!value || value < 0) return res.status(400).json({ error: 'Discount value is required' });
+      const type = String(req.body?.type || 'percent') === 'fixed' ? 'fixed' : 'percent';
+      if (type === 'percent' && value > 90) return res.status(400).json({ error: 'Percent discount max is 90' });
+      const row = {
         id: randomUUID(),
-        code: String(req.body?.code || '').trim().toUpperCase(),
-        type: String(req.body?.type || 'percent'),
-        value: Number(req.body?.value || 0),
+        code: applyTo === 'code' ? code : '',
+        type,
+        value,
+        applyTo,
+        label: String(req.body?.label || '').trim()
+          || (type === 'percent' ? `-${value}% promo` : 'Promo'),
         active: req.body?.active !== false,
         startsAt: req.body?.startsAt || null,
         endsAt: req.body?.endsAt || null,
         usageLimit: req.body?.usageLimit != null ? Number(req.body.usageLimit) : null,
+        usedCount: 0,
         minOrder: Number(req.body?.minOrder || 0),
         createdAt: new Date().toISOString(),
       };
-      list.unshift(promo);
-      await db.dbSet('promotions', list);
-      res.json(promo);
+      const nextList = applyTo === 'store'
+        ? list.map((p) => (promo.applyToOf(p) === 'store' ? { ...p, active: false } : p))
+        : list;
+      nextList.unshift(row);
+      await db.dbSet('promotions', nextList);
+      res.json(row);
+    } catch (e) { next(e); }
+  });
+
+  app.put('/api/admin/promotions/:id', auth.requireAdmin, async (req, res, next) => {
+    try {
+      const list = await currentPromos();
+      const idx = list.findIndex((p) => p.id === req.params.id);
+      if (idx < 0) return res.status(404).json({ error: 'Not found' });
+      const current = list[idx];
+      const active = req.body?.active === undefined ? current.active : Boolean(req.body.active);
+      const nextList = list.map((p, i) => {
+        if (i === idx) return { ...p, active };
+        if (active && promo.applyToOf(current) === 'store' && promo.applyToOf(p) === 'store') {
+          return { ...p, active: false };
+        }
+        return p;
+      });
+      await db.dbSet('promotions', nextList);
+      res.json(nextList[idx]);
     } catch (e) { next(e); }
   });
 
   app.delete('/api/admin/promotions/:id', auth.requireAdmin, async (req, res, next) => {
     try {
-      const list = ((await db.dbGet('promotions')) || []).filter((p) => p.id !== req.params.id);
+      const list = (await currentPromos()).filter((p) => p.id !== req.params.id);
       await db.dbSet('promotions', list);
       res.json({ ok: true });
+    } catch (e) { next(e); }
+  });
+
+  app.post('/api/promo/validate', async (req, res, next) => {
+    try {
+      const coupon = promo.findCoupon(await currentPromos(), req.body?.code);
+      if (!coupon) return res.status(404).json({ error: 'Invalid or expired code' });
+      const subtotal = Number(req.body?.subtotal || 0);
+      const out = promo.couponDiscount(subtotal, coupon);
+      if (out.error) return res.status(400).json({ error: out.error });
+      res.json({
+        ok: true,
+        code: coupon.code,
+        type: coupon.type,
+        value: coupon.value,
+        discount: out.discount,
+        total: out.total,
+        label: promo.promoLabel(coupon),
+      });
     } catch (e) { next(e); }
   });
 
@@ -873,7 +940,54 @@ function createApp() {
 
   app.post('/api/paystack/initialize', async (req, res, next) => {
     try {
-      const out = await paystack.initializePayment(req.body || {});
+      const body = req.body || {};
+      const store = await db.getStore();
+      const promotions = await currentPromos();
+      const storePromo = promo.activeStorePromo(promotions);
+      const coupon = promo.findCoupon(promotions, body.promoCode);
+      const byId = new Map((store.products || []).map((p) => [p.id, p]));
+      const incoming = Array.isArray(body.items) ? body.items : [];
+      const lines = [];
+      for (const it of incoming) {
+        const id = String(it.id || '');
+        if (id.startsWith('__delivery__') || id.startsWith('__discount__')) continue;
+        const product = byId.get(id);
+        const qty = Math.max(1, Number(it.qty || it.quantity || 1));
+        const price = product ? promo.unitPrice(product, storePromo) : Number(it.price || 0);
+        lines.push({
+          ...it,
+          id,
+          name: product?.name || it.name,
+          price,
+          qty,
+          quantity: qty,
+          image: product?.image || it.image,
+        });
+      }
+      const subtotal = lines.reduce((s, i) => s + Number(i.price || 0) * Number(i.qty || 1), 0);
+      const couponed = promo.couponDiscount(subtotal, coupon);
+      if (couponed.error) return res.status(400).json({ error: couponed.error });
+      if (couponed.discount > 0 && coupon) {
+        lines.push({
+          id: `__discount__${coupon.code}`,
+          name: `Promo ${coupon.code}`,
+          price: -couponed.discount,
+          qty: 1,
+          quantity: 1,
+        });
+      }
+      const deliveryFee = Number(body.deliveryFee || 0);
+      const deliveryItem = incoming.find((x) => String(x.id || '').startsWith('__delivery__'));
+      if (deliveryFee > 0 || deliveryItem) {
+        lines.push({
+          id: deliveryItem?.id || `__delivery__${body.deliveryZone || 'zone'}`,
+          name: deliveryItem?.name || 'Delivery',
+          price: deliveryFee || Number(deliveryItem?.price || 0),
+          qty: 1,
+          quantity: 1,
+        });
+      }
+      const out = await paystack.initializePayment({ ...body, items: lines });
       res.json(out);
     } catch (e) { next(e); }
   });

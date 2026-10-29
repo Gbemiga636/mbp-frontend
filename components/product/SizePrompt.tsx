@@ -42,7 +42,10 @@ export function SizePrompt() {
           ) : null}
           <div>
             <strong>{product.name}</strong>
-            <p>{formatNaira(pricing.price)}</p>
+            <p>
+              {formatNaira(pricing.price)}
+              {pricing.original ? <s className="muted"> {formatNaira(pricing.original)}</s> : null}
+            </p>
           </div>
         </div>
         <p className={styles.ask}>Which size would you like?</p>
