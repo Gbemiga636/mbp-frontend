@@ -1,24 +1,46 @@
-const { createClient } = require('@supabase/supabase-js');
+const dns = require('dns');
+try {
+  dns.setDefaultResultOrder('ipv4first');
+} catch {
+  // older Node
+}
 
-const SUPABASE_URL = process.env.SUPABASE_URL || '';
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const fs = require('fs');
+const path = require('path');
+const { createClient } = require('@supabase/supabase-js');
+const { supabaseUrl, supabaseServiceKey } = require('./supabase-env');
+
 const TABLE = 'mbp_kv';
 
 let client = null;
+let seed = null;
+
+function getSeed() {
+  if (!seed) {
+    try {
+      seed = JSON.parse(fs.readFileSync(path.join(__dirname, 'seed-kv.json'), 'utf8'));
+    } catch {
+      seed = {};
+    }
+  }
+  return seed;
+}
 
 function getClient() {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error('SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required');
+  const url = supabaseUrl();
+  const key = supabaseServiceKey();
+  if (!url || !key) {
+    throw new Error('MBP_SUPABASE_URL and MBP_SUPABASE_SERVICE_ROLE_KEY are required');
   }
   if (!client) {
-    client = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    client = createClient(url, key, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
   }
   return client;
 }
 
-async function dbGet(key) {
+async function fromTable(key) {
   const { data, error } = await getClient()
     .from(TABLE)
     .select('v')
@@ -28,18 +50,41 @@ async function dbGet(key) {
   return data?.v ?? null;
 }
 
+async function dbGet(key) {
+  const k = String(key);
+  try {
+    const value = await fromTable(k);
+    if (value != null) return value;
+  } catch {
+    // table missing or host down — use bundled seed, never Storage (free-plan egress)
+  }
+  const fallback = getSeed()[k];
+  return fallback !== undefined ? fallback : null;
+}
+
 async function dbSet(key, value) {
   const { error } = await getClient()
     .from(TABLE)
-    .upsert({ k: String(key), v: value ?? null, updated_at: new Date().toISOString() }, { onConflict: 'k' });
+    .upsert(
+      { k: String(key), v: value ?? null, updated_at: new Date().toISOString() },
+      { onConflict: 'k' }
+    );
   if (error) throw error;
 }
 
 async function dbGetAll() {
-  const { data, error } = await getClient().from(TABLE).select('k, v');
-  if (error) throw error;
+  try {
+    const { data, error } = await getClient().from(TABLE).select('k, v');
+    if (!error && data?.length) {
+      const map = new Map();
+      for (const row of data) map.set(row.k, row.v);
+      return map;
+    }
+  } catch {
+    // seed fallback
+  }
   const map = new Map();
-  for (const row of data || []) map.set(row.k, row.v);
+  for (const [k, v] of Object.entries(getSeed())) map.set(k, v);
   return map;
 }
 

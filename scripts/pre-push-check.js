@@ -8,8 +8,8 @@ function pass(msg) { checks.push({ ok: true, msg }); }
 function fail(msg) { checks.push({ ok: false, msg }); }
 
 async function checkSupabase() {
-  const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url = process.env.MBP_SUPABASE_URL || process.env.SUPABASE_URL;
+  const key = process.env.MBP_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) return fail('Supabase env vars missing');
 
   const sb = createClient(url, key, { auth: { persistSession: false } });

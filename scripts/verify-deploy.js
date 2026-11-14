@@ -7,8 +7,8 @@ require('dotenv').config();
 const base = (process.argv[2] || process.env.PUBLIC_SITE_URL || 'http://localhost:4000').replace(/\/$/, '');
 
 const requiredEnv = [
-  'SUPABASE_URL',
-  'SUPABASE_SERVICE_ROLE_KEY',
+  'MBP_SUPABASE_URL',
+  'MBP_SUPABASE_SERVICE_ROLE_KEY',
   'ADMIN_EMAIL',
   'ADMIN_PASSWORD',
   'JWT_SECRET',
