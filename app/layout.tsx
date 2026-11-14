@@ -7,14 +7,13 @@ import './globals.css';
 
 const display = Bodoni_Moda({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  style: ['normal', 'italic'],
+  display: 'swap',
   variable: '--font-display-loaded',
 });
 
 const body = Outfit({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
+  display: 'swap',
   variable: '--font-body-loaded',
 });
 
