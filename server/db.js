@@ -9,6 +9,7 @@ const fs = require('fs');
 const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 const { supabaseUrl, supabaseServiceKey } = require('./supabase-env');
+const { reviveHome, reviveStore, reviveGallery } = require('./revive-media');
 
 const TABLE = 'mbp_kv';
 
@@ -101,15 +102,18 @@ function normalizeSizes(value) {
 }
 
 async function getHome() {
-  return (await dbGet('home')) || { heroVideo: '', bandVideo: '', preloadVideo: '', featured: [], reviews: [] };
+  const home = (await dbGet('home')) || { heroVideo: '', bandVideo: '', preloadVideo: '', featured: [], reviews: [] };
+  return reviveHome(home);
 }
 
 async function getStore() {
-  return (await dbGet('store')) || { products: [] };
+  const store = (await dbGet('store')) || { products: [] };
+  return reviveStore(store);
 }
 
 async function getGallery() {
-  return (await dbGet('gallery')) || { items: [] };
+  const gallery = (await dbGet('gallery')) || { items: [] };
+  return reviveGallery(gallery);
 }
 
 async function getSettings() {

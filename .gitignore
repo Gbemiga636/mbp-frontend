@@ -29,6 +29,7 @@ out/
 mbp-backup-*.json
 mbp-backup-media-*/
 public/mbp-backup-*.json
+public/product-media/
 scripts/.url-map-cache.json
 
 *.swp

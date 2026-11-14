@@ -9,7 +9,7 @@ import type { HomeContent, Product } from '@/lib/types';
 import { ProductCard } from '@/components/product/ProductCard';
 import { CATEGORIES } from '@/lib/types';
 import { DEFAULT_REVIEWS } from '@/lib/defaults';
-import { isSupabaseStorage } from '@/lib/media';
+import { isSupabaseStorage, resolveMediaUrl } from '@/lib/media';
 import { Reveal } from '@/components/home/Reveal';
 import { SilkScene } from '@/components/experience/SilkScene';
 import { Spinner } from '@/components/ui/Spinner';
@@ -220,7 +220,7 @@ export function HomePageClient({
   const contentY = useTransform(scrollYProgress, [0, 1], ['0%', reduce ? '0%' : '-8%']);
 
   const featured = (home.featured?.length ? home.featured : products).slice(0, 6);
-  const newest = products.slice(0, 6);
+  const newest = products.filter((p) => resolveMediaUrl(p.image)).slice(0, 6);
   const reviews = home.reviews?.length ? home.reviews : DEFAULT_REVIEWS;
   const cmsBand = String(home.bandVideo || '').trim();
   const bandVideo = cmsBand && !isSupabaseStorage(cmsBand) ? cmsBand : BAND_FALLBACK;
