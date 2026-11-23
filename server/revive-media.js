@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const DEAD_STORAGE = /xyuqcztzktqladitoell\.supabase\.co\/storage/i;
+const LIVE_STORAGE = /xfyvvbtrxykpywpgicdi\.supabase\.co\/storage/i;
 const CLOUDINARY = 'https://res.cloudinary.com/dw4fuxc5l';
 
 let archive = null;
@@ -21,6 +22,12 @@ function isDeadStorage(src) {
   return DEAD_STORAGE.test(String(src || ''));
 }
 
+function isLiveStorage(src) {
+  const value = String(src || '');
+  if (LIVE_STORAGE.test(value)) return true;
+  return /supabase\.co\/storage/i.test(value) && !isDeadStorage(value);
+}
+
 function fileNameOf(src) {
   try {
     return decodeURIComponent(new URL(src).pathname.split('/').pop() || '');
@@ -33,6 +40,7 @@ function fileNameOf(src) {
 function rewriteDeadStorage(src) {
   const value = String(src || '').trim();
   if (!value) return '';
+  if (isLiveStorage(value)) return value;
   if (!isDeadStorage(value)) return value;
   const file = fileNameOf(value);
   if (!file) return '';
@@ -44,11 +52,17 @@ function rewriteDeadStorage(src) {
 }
 
 function reviveSrc(current, archived) {
+  if (archived && isLiveStorage(archived)) return archived;
+  if (current && isLiveStorage(current)) return current;
   const fromCurrent = rewriteDeadStorage(current);
+  if (fromCurrent && isLiveStorage(fromCurrent)) return fromCurrent;
+  if (archived) {
+    const fromArchive = rewriteDeadStorage(archived);
+    if (fromArchive && isLiveStorage(fromArchive)) return fromArchive;
+    if (fromArchive && !isDeadStorage(fromArchive)) return fromArchive;
+  }
   if (fromCurrent && !isDeadStorage(fromCurrent)) return fromCurrent;
-  const fromArchive = rewriteDeadStorage(archived || '');
-  if (fromArchive && !isDeadStorage(fromArchive)) return fromArchive;
-  return fromCurrent || '';
+  return '';
 }
 
 function reviveProduct(product) {
@@ -96,5 +110,6 @@ module.exports = {
   reviveGallery,
   reviveSrc,
   isDeadStorage,
+  isLiveStorage,
   rewriteDeadStorage,
 };

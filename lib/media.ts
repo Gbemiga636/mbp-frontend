@@ -1,8 +1,15 @@
 const DEAD_STORAGE = /xyuqcztzktqladitoell\.supabase\.co\/storage/i;
+const LIVE_STORAGE = /xfyvvbtrxykpywpgicdi\.supabase\.co\/storage/i;
 const CLOUDINARY = 'https://res.cloudinary.com/dw4fuxc5l';
 
 export function isDeadStorage(src?: string | null) {
   return DEAD_STORAGE.test(String(src || ''));
+}
+
+export function isLiveStorage(src?: string | null) {
+  const value = String(src || '');
+  if (LIVE_STORAGE.test(value)) return true;
+  return /supabase\.co\/storage/i.test(value) && !isDeadStorage(value);
 }
 
 export function isSupabaseStorage(src?: string | null) {
@@ -18,10 +25,10 @@ function fileNameOf(src: string) {
   }
 }
 
-/** Locked old-project Storage files were copied from Cloudinary with the same public id. */
 export function rewriteDeadStorage(src?: string | null) {
   const value = String(src || '').trim();
   if (!value) return '';
+  if (isLiveStorage(value)) return value;
   if (!isDeadStorage(value)) return value;
   const file = fileNameOf(value);
   if (!file) return '';
@@ -39,10 +46,10 @@ export function resolveMediaUrl(src?: string | null) {
   return `/${revived.replace(/^\/+/, '')}`;
 }
 
-/** Local and Netlify assets stay static. Only live Supabase files go through Next image cache. */
+/** Browser hits Next/Netlify cache. Only the optimizer talks to live Storage, once. */
 export function shouldProxyImage(src?: string | null) {
   const url = resolveMediaUrl(src);
-  return isSupabaseStorage(url) && !isDeadStorage(url);
+  return isLiveStorage(url);
 }
 
 export function localOrFallback(src: string, fallback: string) {

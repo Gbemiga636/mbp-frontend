@@ -12,6 +12,7 @@
 [functions]
   node_bundler = "esbuild"
   included_files = ["server/**"]
+  external_node_modules = ["sharp"]
   directory = "netlify/functions"
 
 [functions.api]

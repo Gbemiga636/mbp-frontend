@@ -5,7 +5,7 @@ import { resolveMediaUrl, shouldProxyImage } from '@/lib/media';
 
 type Props = Omit<ImageProps, 'src'> & { src: string };
 
-export function StoreImage({ src, alt, quality = 70, ...props }: Props) {
+export function StoreImage({ src, alt, quality = 60, ...props }: Props) {
   const url = resolveMediaUrl(src);
   if (!url) return null;
   return (

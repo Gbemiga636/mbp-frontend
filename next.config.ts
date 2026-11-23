@@ -8,10 +8,10 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'xyuqcztzktqladitoell.supabase.co' },
       { protocol: 'https', hostname: 'xfyvvbtrxykpywpgicdi.supabase.co' },
     ],
-    formats: ['image/avif', 'image/webp'],
+    formats: ['image/webp'],
     minimumCacheTTL: 60 * 60 * 24 * 30,
-    deviceSizes: [640, 750, 828, 1080, 1200],
-    imageSizes: [64, 96, 128, 256, 384],
+    deviceSizes: [640, 828],
+    imageSizes: [64, 128, 256],
   },
   async rewrites() {
     const api = process.env.API_PROXY_URL || 'http://127.0.0.1:4000';
